@@ -1,0 +1,61 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Label configuration for actions/labeler.
+# Applied automatically by .github/workflows/label.yml on every PR.
+# ─────────────────────────────────────────────────────────────────────────────
+
+core:
+  - changed-files:
+      - any-glob-to-any-file: 'packages/core/**'
+
+cli:
+  - changed-files:
+      - any-glob-to-any-file: 'packages/cli/**'
+
+ci-action:
+  - changed-files:
+      - any-glob-to-any-file: 'packages/ci/**'
+
+mcp:
+  - changed-files:
+      - any-glob-to-any-file: 'packages/mcp/**'
+
+invoke:
+  - changed-files:
+      - any-glob-to-any-file: 'packages/invoke/**'
+
+roadmap-packages:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'packages/gql/**'
+          - 'packages/dev/**'
+          - 'packages/testing/**'
+          - 'packages/inspect/**'
+          - 'packages/differential/**'
+          - 'packages/vscode/**'
+
+tests:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'packages/*/tests/**'
+          - 'packages/test-utils/**'
+
+documentation:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'docs/**'
+          - '*.md'
+          - 'packages/*/README.md'
+
+ci:
+  - changed-files:
+      - any-glob-to-any-file: '.github/**'
+
+dependencies:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '**/package.json'
+          - 'pnpm-lock.yaml'
+
+demo:
+  - changed-files:
+      - any-glob-to-any-file: 'packages/demo/**'
