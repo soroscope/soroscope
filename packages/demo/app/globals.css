@@ -1,0 +1,266 @@
+@import 'tailwindcss';
+@config '../tailwind.config.ts';
+
+:root {
+  --bg: #000000;
+  --surface: #111111;
+  --surface2: #1a1a1a;
+  --border: rgba(255, 255, 255, 0.06);
+  --border-hover: rgba(255, 255, 255, 0.12);
+  --text: #ffffff;
+  --muted: #555555;
+  --muted2: #888888;
+  --accent: #e8ff47;
+  --font-heading: var(--font-instrument-serif), 'Georgia', serif;
+  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --max-width: 1080px;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+}
+
+/* Syntax highlight classes */
+.k  { color: #c792ea; } /* keywords */
+.s  { color: #c3e88d; } /* strings */
+.fn { color: #82aaff; } /* function names */
+.p  { color: #f78c6c; } /* properties */
+.c  { color: #546e7a; } /* comments */
+
+/* ── Doc content typography ── */
+.doc-content {
+  color: #b0b0b0;
+  line-height: 1.75;
+  font-size: 0.9375rem;
+}
+.doc-content h2 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  scroll-margin-top: 84px;
+}
+.doc-content h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #f2f2f2;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  scroll-margin-top: 84px;
+}
+.doc-content h4 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #e0e0e0;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  scroll-margin-top: 84px;
+}
+.doc-content p {
+  margin-bottom: 1rem;
+}
+.doc-content a {
+  color: #e8ff47;
+  text-decoration: none;
+}
+.doc-content a:hover {
+  text-decoration: underline;
+}
+.doc-content code {
+  background: rgba(255, 255, 255, 0.06);
+  color: #e8ff47;
+  padding: 0.15em 0.45em;
+  border-radius: 4px;
+  font-size: 0.85em;
+  font-family: var(--font-mono);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.doc-content pre {
+  background: #0d0d0d;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 1.1rem 1.25rem;
+  margin: 1.25rem 0;
+  overflow-x: auto;
+  font-size: 0.84rem;
+  line-height: 1.7;
+}
+.doc-content pre code {
+  background: transparent;
+  color: #d4d4d4;
+  padding: 0;
+  border: none;
+  font-size: inherit;
+}
+.doc-content ul,
+.doc-content ol {
+  margin-bottom: 1rem;
+  padding-left: 1.5rem;
+}
+.doc-content ul {
+  list-style-type: disc;
+}
+.doc-content ol {
+  list-style-type: decimal;
+}
+.doc-content li {
+  margin-bottom: 0.35rem;
+  line-height: 1.7;
+}
+.doc-content blockquote {
+  border-left: 3px solid rgba(232, 255, 71, 0.4);
+  padding: 0.5rem 1rem;
+  margin: 1.25rem 0;
+  color: #888;
+  font-style: italic;
+  background: rgba(232, 255, 71, 0.03);
+  border-radius: 0 6px 6px 0;
+}
+.doc-content blockquote > p {
+  margin-bottom: 0;
+}
+.doc-content hr {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin: 2rem 0;
+}
+.doc-content table {
+  width: 100%;
+  margin-bottom: 1.25rem;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+.doc-content th {
+  text-align: left;
+  font-weight: 600;
+  color: #f2f2f2;
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+.doc-content td {
+  padding: 0.55rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  color: #a0a0a0;
+}
+.doc-content tr:last-child td {
+  border-bottom: none;
+}
+.doc-content strong {
+  color: #f2f2f2;
+  font-weight: 600;
+}
+
+/* ── Code-block copy button ── */
+.doc-content pre {
+  position: relative;
+}
+.doc-content .copy-btn {
+  position: absolute;
+  top: 0.55rem;
+  right: 0.55rem;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.7rem;
+  font-family: var(--font-sans);
+  color: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  cursor: pointer;
+  opacity: 0;
+  transition:
+    opacity 0.12s ease,
+    color 0.12s ease,
+    border-color 0.12s ease;
+}
+.doc-content pre:hover .copy-btn,
+.doc-content .copy-btn:focus-visible {
+  opacity: 1;
+}
+.doc-content .copy-btn:hover {
+  color: #e8ff47;
+  border-color: rgba(232, 255, 71, 0.4);
+}
+
+/* ── Heading anchor links ── */
+.doc-content h2,
+.doc-content h3,
+.doc-content h4 {
+  position: relative;
+}
+.doc-content .heading-anchor {
+  position: absolute;
+  left: -1.1rem;
+  color: rgba(232, 255, 71, 0.5);
+  text-decoration: none;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+.doc-content h2:hover .heading-anchor,
+.doc-content h3:hover .heading-anchor,
+.doc-content h4:hover .heading-anchor {
+  opacity: 1;
+}
+
+/* ── Callouts (GitHub-style alerts) ── */
+.doc-content .callout {
+  margin: 1.25rem 0;
+  padding: 0.85rem 1.1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-left-width: 3px;
+  border-radius: 0 8px 8px 0;
+  background: rgba(255, 255, 255, 0.02);
+}
+.doc-content .callout .callout-title {
+  margin: 0 0 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.doc-content .callout > p:last-child {
+  margin-bottom: 0;
+  color: #c4c4c4;
+  font-style: normal;
+}
+.doc-content .callout-note {
+  border-left-color: #4aa3ff;
+}
+.doc-content .callout-note .callout-title {
+  color: #4aa3ff;
+}
+.doc-content .callout-tip {
+  border-left-color: #3fd07f;
+}
+.doc-content .callout-tip .callout-title {
+  color: #3fd07f;
+}
+.doc-content .callout-important {
+  border-left-color: #c792ea;
+}
+.doc-content .callout-important .callout-title {
+  color: #c792ea;
+}
+.doc-content .callout-warning {
+  border-left-color: #e8c547;
+}
+.doc-content .callout-warning .callout-title {
+  color: #e8c547;
+}
+.doc-content .callout-caution {
+  border-left-color: #ff6b6b;
+}
+.doc-content .callout-caution .callout-title {
+  color: #ff6b6b;
+}
