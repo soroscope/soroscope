@@ -1,0 +1,56 @@
+{
+  "name": "@soroscope/cli",
+  "version": "0.1.0",
+  "description": "Soroscope command line: probe Stellar RPC providers, decode XDR, simulate Soroban calls and check resource budgets.",
+  "type": "module",
+  "bin": {
+    "soroscope": "./dist/bin.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "test:integration": "pnpm build && vitest run --config vitest.integration.config.ts"
+  },
+  "keywords": [
+    "stellar",
+    "soroban",
+    "cli",
+    "rpc",
+    "devtools"
+  ],
+  "author": "Ezedike-Evan <egwomevan323@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ezedike-evan/soroscope.git",
+    "directory": "packages/cli"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@soroscope/core": "workspace:*",
+    "commander": "^14.0.0",
+    "@soroscope/ci": "workspace:*",
+    "@soroscope/invoke": "workspace:*",
+    "@stellar/stellar-sdk": "^17.2.1"
+  },
+  "devDependencies": {
+    "tsup": "^8.5.1",
+    "@types/node": "^25.9.0"
+  }
+}
