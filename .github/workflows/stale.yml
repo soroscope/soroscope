@@ -23,7 +23,7 @@ jobs:
       - name: Mark and close stale issues and PRs
         uses: actions/stale@v9.0.0
         with:
-          repo-token: ${{ secrets.LEN_PAT }}
+          repo-token: ${{ secrets.RELEASE_PAT || github.token }}
 
           # Issues
           days-before-issue-stale: 30
