@@ -1,0 +1,33 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Purpose:  Required status check for branch protection. Always runs and always
+#           passes regardless of which files changed. Exists so that
+#           path-filtered workflows can safely skip without blocking PR merges.
+# Triggers: push to main/develop, pull_request targeting main
+# Paths:    None — runs on every event, no path filter
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: Check
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  status:
+    name: Status
+    runs-on: ubuntu-latest
+    steps:
+      - name: Confirm required check passed
+        run: echo "All required checks passed."

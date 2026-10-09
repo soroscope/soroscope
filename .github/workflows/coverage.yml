@@ -1,0 +1,96 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Purpose:  Runs Vitest with coverage enabled and posts a sticky summary
+#           comment on the PR. Fails if coverage drops below threshold.
+# Triggers: pull_request targeting main only
+# Paths:    SDK source files, test files, this workflow file
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: Coverage
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'packages/*/src/**/*.ts'
+      - 'packages/*/tests/**/*.ts'
+      - '.github/workflows/coverage.yml'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  coverage:
+    name: Coverage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7.0.0
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6.0.9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6.4.0
+        with:
+          node-version: 22
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        run: echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Cache pnpm store
+        uses: actions/cache@v6
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: ${{ runner.os }}-pnpm-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run tests with coverage
+        id: coverage
+        run: |
+          set -o pipefail
+          mkdir -p coverage
+          pnpm exec vitest run --coverage 2>&1 \
+            | tee coverage/coverage-raw.txt
+        env:
+          VITEST_COVERAGE_LINES: 80
+          VITEST_COVERAGE_FUNCTIONS: 80
+          VITEST_COVERAGE_BRANCHES: 80
+
+      - name: Build coverage summary comment
+        if: always()
+        run: |
+          mkdir -p coverage
+          {
+            echo '## Coverage Report'
+            echo ''
+            echo '```'
+            sed -n '/% Coverage report/,/^=\+$/p' \
+              coverage/coverage-raw.txt \
+              || echo 'No coverage output captured.'
+            echo '```'
+          } > coverage/coverage-summary.txt
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v7.0.1
+        if: always()
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 7
+
+      - name: Post coverage comment
+        uses: marocchino/sticky-pull-request-comment@v3.0.5
+        if: always()
+        with:
+          header: coverage
+          path: coverage/coverage-summary.txt
