@@ -1,0 +1,145 @@
+{
+  "provenance": {
+    "tool": "packages/test-utils/scripts/record-rpc.mjs",
+    "node": "v24.18.0",
+    "recordedAt": "2026-10-09T10:53:44.145Z"
+  },
+  "samples": [
+    {
+      "label": "out-of-retention getLedgers",
+      "url": "https://soroban-testnet.stellar.org",
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "getLedgers",
+        "params": {
+          "startLedger": 4882968,
+          "pagination": {
+            "limit": 1
+          }
+        }
+      },
+      "httpStatus": 200,
+      "headers": {
+        "content-type": "application/json",
+        "server": "cloudflare"
+      },
+      "bodyText": "{\"jsonrpc\":\"2.0\",\"id\":1,\"error\":{\"code\":-32600,\"message\":\"start ledger (4882968) must be between the oldest ledger: 4982970 and the latest ledger: 5103929 for this rpc instance\"}}",
+      "capturedAtMs": 1791543232173
+    },
+    {
+      "label": "out-of-retention getTransactions",
+      "url": "https://soroban-testnet.stellar.org",
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "getTransactions",
+        "params": {
+          "startLedger": 4882968,
+          "pagination": {
+            "limit": 1
+          }
+        }
+      },
+      "httpStatus": 200,
+      "headers": {
+        "content-type": "application/json",
+        "server": "cloudflare"
+      },
+      "bodyText": "{\"jsonrpc\":\"2.0\",\"id\":1,\"error\":{\"code\":-32600,\"message\":\"start ledger (4882968) must be between the oldest ledger: 4982970 and the latest ledger: 5103929 for this rpc instance\"}}",
+      "capturedAtMs": 1791543232881
+    },
+    {
+      "label": "out-of-retention getEvents",
+      "url": "https://soroban-testnet.stellar.org",
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "getEvents",
+        "params": {
+          "startLedger": 4882968,
+          "filters": [],
+          "pagination": {
+            "limit": 1
+          }
+        }
+      },
+      "httpStatus": 200,
+      "headers": {
+        "content-type": "application/json",
+        "server": "cloudflare"
+      },
+      "bodyText": "{\"jsonrpc\":\"2.0\",\"id\":1,\"error\":{\"code\":-32600,\"message\":\"startLedger must be within the ledger range: 4982970 - 5103929\"}}",
+      "capturedAtMs": 1791543233221
+    },
+    {
+      "label": "unknown method",
+      "url": "https://soroban-testnet.stellar.org",
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "nope"
+      },
+      "httpStatus": 200,
+      "headers": {
+        "content-type": "application/json",
+        "server": "cloudflare"
+      },
+      "bodyText": "{\"jsonrpc\":\"2.0\",\"id\":1,\"error\":{\"code\":-32601,\"message\":\"method not found\",\"data\":\"nope\"}}",
+      "capturedAtMs": 1791543233697
+    },
+    {
+      "label": "bad path (HTTP 404)",
+      "url": "https://soroban-testnet.stellar.org/nope",
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "getHealth"
+      },
+      "httpStatus": 404,
+      "headers": {
+        "content-type": "text/plain; charset=utf-8",
+        "server": "cloudflare"
+      },
+      "bodyText": "404 page not found\n",
+      "capturedAtMs": 1791543234108
+    },
+    {
+      "label": "provider requiring an API key (HTTP 403)",
+      "url": "https://rpc.ankr.com/stellar_testnet",
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "getHealth"
+      },
+      "httpStatus": 403,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "bodyText": "{\"error\":\"message: API key is not allowed to access blockchain, json-rpc code: -32052, rest code: 403\"}",
+      "capturedAtMs": 1791543234391
+    },
+    {
+      "label": "mainnet out-of-retention getLedgers (creit.tech)",
+      "url": "https://soroban-rpc.creit.tech",
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "getLedgers",
+        "params": {
+          "startLedger": 64333089,
+          "pagination": {
+            "limit": 1
+          }
+        }
+      },
+      "httpStatus": 200,
+      "headers": {
+        "content-type": "application/json",
+        "server": "nginx/1.24.0 (Ubuntu)"
+      },
+      "bodyText": "{\"jsonrpc\":\"2.0\",\"id\":1,\"error\":{\"code\":-32600,\"message\":\"start ledger (64333089) must be between the oldest ledger: 64834211 and the latest ledger: 64851490 for this rpc instance\"}}",
+      "capturedAtMs": 1791543235176
+    }
+  ]
+}

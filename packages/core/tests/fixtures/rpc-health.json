@@ -1,0 +1,123 @@
+{
+  "provenance": {
+    "tool": "packages/test-utils/scripts/record-rpc.mjs",
+    "node": "v24.18.0",
+    "recordedAt": "2026-10-09T10:53:44.145Z"
+  },
+  "samples": [
+    {
+      "network": "testnet",
+      "url": "https://soroban-testnet.stellar.org",
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "getHealth"
+      },
+      "httpStatus": 200,
+      "headers": {
+        "content-type": "application/json",
+        "server": "cloudflare"
+      },
+      "bodyText": "{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":{\"status\":\"healthy\",\"latestLedger\":5103927,\"latestLedgerCloseTime\":\"1791543222\",\"oldestLedger\":4982968,\"oldestLedgerCloseTime\":\"1790938427\",\"ledgerRetentionWindow\":120960}}",
+      "capturedAtMs": 1791543224147
+    },
+    {
+      "network": "testnet",
+      "url": "https://soroban-rpc.testnet.stellar.gateway.fm",
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "getHealth"
+      },
+      "httpStatus": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-ratelimit-remaining-global": "997",
+        "x-ratelimit-remaining-ip": "29"
+      },
+      "bodyText": "{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":{\"status\":\"healthy\",\"latestLedger\":5103927,\"latestLedgerCloseTime\":\"1791543222\",\"oldestLedger\":4982968,\"oldestLedgerCloseTime\":\"1790938427\",\"ledgerRetentionWindow\":120960}}",
+      "capturedAtMs": 1791543226035
+    },
+    {
+      "network": "mainnet",
+      "url": "https://mainnet.sorobanrpc.com",
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "getHealth"
+      },
+      "httpStatus": 200,
+      "headers": {
+        "content-type": "application/json",
+        "server": "cloudflare"
+      },
+      "bodyText": "{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":{\"status\":\"healthy\",\"latestLedger\":64851488,\"latestLedgerCloseTime\":\"1791543222\",\"oldestLedger\":64730529,\"oldestLedgerCloseTime\":\"1790938427\",\"ledgerRetentionWindow\":120960}}",
+      "capturedAtMs": 1791543226632
+    },
+    {
+      "network": "mainnet",
+      "url": "https://soroban-rpc.mainnet.stellar.gateway.fm",
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "getHealth"
+      },
+      "httpStatus": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-ratelimit-remaining-global": "920",
+        "x-ratelimit-remaining-ip": "29"
+      },
+      "bodyText": "{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":{\"status\":\"healthy\",\"latestLedger\":64851488,\"latestLedgerCloseTime\":\"1791543222\",\"oldestLedger\":64730529,\"oldestLedgerCloseTime\":\"1790938427\",\"ledgerRetentionWindow\":120960}}",
+      "capturedAtMs": 1791543227321
+    },
+    {
+      "network": "mainnet",
+      "url": "https://rpc.lightsail.network",
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "getHealth"
+      },
+      "httpStatus": 200,
+      "headers": {
+        "content-type": "application/json",
+        "server": "cloudflare"
+      },
+      "bodyText": "{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":{\"status\":\"healthy\",\"latestLedger\":64851489,\"latestLedgerCloseTime\":\"1791543227\",\"oldestLedger\":64730530,\"oldestLedgerCloseTime\":\"1790938432\",\"ledgerRetentionWindow\":120960}}",
+      "capturedAtMs": 1791543227971
+    },
+    {
+      "network": "mainnet",
+      "url": "https://soroban-rpc.creit.tech",
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "getHealth"
+      },
+      "httpStatus": 200,
+      "headers": {
+        "content-type": "application/json",
+        "server": "nginx/1.24.0 (Ubuntu)"
+      },
+      "bodyText": "{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":{\"status\":\"healthy\",\"latestLedger\":64851489,\"latestLedgerCloseTime\":\"1791543227\",\"oldestLedger\":64834210,\"oldestLedgerCloseTime\":\"1791456832\",\"ledgerRetentionWindow\":17280}}",
+      "capturedAtMs": 1791543228662
+    },
+    {
+      "network": "mainnet",
+      "url": "https://archive-rpc.lightsail.network",
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "getHealth"
+      },
+      "httpStatus": 200,
+      "headers": {
+        "content-type": "application/json",
+        "server": "cloudflare"
+      },
+      "bodyText": "{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":{\"status\":\"healthy\",\"latestLedger\":64851489,\"latestLedgerCloseTime\":\"1791543227\",\"oldestLedger\":64851426,\"oldestLedgerCloseTime\":\"1791542912\",\"ledgerRetentionWindow\":64}}",
+      "capturedAtMs": 1791543229711
+    }
+  ]
+}
