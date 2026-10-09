@@ -1,0 +1,53 @@
+{
+  "name": "soroscope-monorepo",
+  "version": "0.0.0",
+  "description": "Soroscope: developer tooling for Stellar and Soroban. Retention-aware RPC routing and health monitoring, XDR decoding, simulation, fee/resource regression checks in CI, and an MCP server.",
+  "private": true,
+  "type": "module",
+  "main": "index.js",
+  "repository": "https://github.com/ezedike-evan/soroscope",
+  "scripts": {
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint 'packages/*/{src,tests}/**/*.ts'",
+    "format": "prettier --write 'packages/*/{src,tests}/**/*.ts'",
+    "docs:sync": "node scripts/sync-docs.mjs",
+    "docs:check": "node scripts/sync-docs.mjs --check",
+    "docs:errors": "tsx scripts/gen-error-reference.ts",
+    "docs:api": "node scripts/gen-api-reference.mjs",
+    "docs:test": "node scripts/check-doc-examples.mjs",
+    "docs:gen": "pnpm docs:errors && pnpm docs:api && pnpm docs:sync",
+    "changeset": "changeset",
+    "version": "changeset version && pnpm install",
+    "release": "turbo run build && changeset publish",
+    "test:integration": "turbo run test:integration",
+    "check:fixtures": "node packages/test-utils/scripts/check-fixtures.mjs"
+  },
+  "keywords": [],
+  "author": "Ezedike-Evan <egwomevan323@gmail.com>",
+  "license": "MIT",
+  "packageManager": "pnpm@10.22.0",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.30.0",
+    "@typescript-eslint/eslint-plugin": "^8.58.1",
+    "@typescript-eslint/parser": "^8.58.1",
+    "@vitest/coverage-v8": "^4.1.4",
+    "eslint": "^10.2.0",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.8.2",
+    "tsx": "^4.22.4",
+    "turbo": "^2.9.6",
+    "typedoc": "^0.28.19",
+    "typedoc-plugin-markdown": "^4.12.0",
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.4"
+  }
+}
