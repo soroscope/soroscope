@@ -1,0 +1,56 @@
+{
+  "name": "@soroscope/mcp",
+  "version": "0.1.0",
+  "description": "MCP server that gives AI agents Stellar RPC health, XDR decoding and Soroban simulation as read-only tools.",
+  "private": false,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "test:integration": "vitest run --config vitest.integration.config.ts --passWithNoTests"
+  },
+  "keywords": [
+    "stellar",
+    "soroban",
+    "devtools"
+  ],
+  "author": "Ezedike-Evan <egwomevan323@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ezedike-evan/soroscope.git",
+    "directory": "packages/mcp"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@soroscope/core": "workspace:*",
+    "@soroscope/invoke": "workspace:*",
+    "@soroscope/ci": "workspace:*",
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.0",
+    "tsup": "^8.5.1",
+    "@stellar/stellar-sdk": "^17.2.1"
+  },
+  "bin": {
+    "soroscope-mcp": "./dist/bin.js"
+  }
+}
