@@ -1,0 +1,48 @@
+{
+  "name": "@soroscope/inspect",
+  "version": "0.1.0",
+  "description": "Inspectors and linters for Stellar assets and stellar.toml files.",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "test:integration": "vitest run --config vitest.integration.config.ts --passWithNoTests"
+  },
+  "keywords": [
+    "stellar",
+    "soroban",
+    "devtools"
+  ],
+  "author": "Ezedike-Evan <egwomevan323@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ezedike-evan/soroscope.git",
+    "directory": "packages/inspect"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@soroscope/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.0",
+    "tsup": "^8.5.1"
+  }
+}
