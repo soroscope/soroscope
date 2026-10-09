@@ -48,6 +48,13 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Build the fixture contract
+        # Mode B tests deploy this wasm to testnet. It is not committed.
+        run: |
+          rustup update stable
+          rustup target add wasm32v1-none
+          cargo build --release --target wasm32v1-none --manifest-path packages/test-utils/fixture-contract/Cargo.toml
+
       - name: Build
         run: pnpm exec turbo run build --filter='!@soroscope/demo'
 
