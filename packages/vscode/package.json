@@ -1,0 +1,7 @@
+{
+  "name": "soroscope-vscode",
+  "version": "0.0.0",
+  "private": true,
+  "description": "A VS Code extension for decoded Soroban diagnostic events, authorization trees and footprints. Scaffold: no implementation yet.",
+  "license": "MIT"
+}
