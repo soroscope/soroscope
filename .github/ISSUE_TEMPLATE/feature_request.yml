@@ -1,0 +1,55 @@
+name: Feature Request
+description: Suggest a new feature for Soroscope
+title: "[Feature]: "
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting an improvement. Clear, specific proposals
+        with a concrete use case are easiest to evaluate and most likely
+        to land. Please fill out the sections below.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem statement
+      description: What use case is not currently served by Soroscope? Describe the problem you are trying to solve, not the solution.
+      placeholder: When I try to do X, the SDK forces me to Y because Z is missing.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: How should the SDK address this? Sketch the API or behaviour you would like to see.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Other approaches you considered and why you discarded them. Workarounds you currently use are also useful here.
+    validations:
+      required: false
+  - type: dropdown
+    id: impact-area
+    attributes:
+      label: Impact area
+      description: Which part of the SDK would this most affect?
+      options:
+        - RPC routing
+        - Transaction simulation
+        - Error decoding
+        - Address validation
+        - Documentation
+        - Tooling
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: Anything else that would help — links, prior art in other SDKs, related issues or discussions.
+    validations:
+      required: false
