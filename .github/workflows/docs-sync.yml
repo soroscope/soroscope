@@ -1,0 +1,42 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Purpose:  Enforces that the generated repo-root docs/*.md stay in sync with
+#           their canonical source under packages/demo/content/api/*.md.
+#           Fails if someone edits one without regenerating the other.
+# Triggers: pull_request targeting main
+# Paths:    docs source + generator script
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: Docs Sync
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'docs/**/*.md'
+      - 'packages/demo/content/api/**/*.md'
+      - 'scripts/sync-docs.mjs'
+      - '.github/workflows/docs-sync.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Docs in sync
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7.0.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6.4.0
+        with:
+          node-version: 22
+
+      - name: Verify docs/ matches content/
+        run: node scripts/sync-docs.mjs --check
