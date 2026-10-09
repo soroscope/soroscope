@@ -1,6 +1,6 @@
 # Migrating from `stellar-lens`
 
-`stellar-lens` is replaced by the `@soroscope/*` packages. This was a rewrite, not a rename, so the API differs.
+`stellar-lens` is replaced by the `@soroscope/*` packages. This was a rewrite, so the API differs. Soroscope lives in a new repository, [soroscope/soroscope](https://github.com/soroscope/soroscope); the `stellar-lens` history stays in the old repository, `ezedike-evan/stellar-lens`.
 
 ## Package names
 
@@ -42,5 +42,5 @@ Node 20 or newer is required; `@soroscope/invoke`, `ci` and `mcp` need 22 or new
 If you published `stellar-lens` to npm, point it at its replacement:
 
 ```sh
-npm deprecate stellar-lens "Renamed and rewritten as @soroscope/core. See https://github.com/ezedike-evan/soroscope/blob/main/MIGRATION.md"
+npm deprecate stellar-lens "Replaced by @soroscope/core. See https://github.com/soroscope/soroscope/blob/main/MIGRATION.md"
 ```
