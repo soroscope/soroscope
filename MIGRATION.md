@@ -1,6 +1,6 @@
 # Migrating from `stellar-lens`
 
-`stellar-lens` is replaced by the `@soroscope/*` packages. This was a rewrite, so the API differs. Soroscope lives in a new repository, [soroscope/soroscope](https://github.com/soroscope/soroscope); the `stellar-lens` history stays in the old repository, `ezedike-evan/stellar-lens`.
+`stellar-lens` is replaced by the `@soroscope/*` packages. This was a rewrite, so the API differs. Soroscope lives in a new repository, [soroscope/soroscope](https://github.com/soroscope/soroscope).
 
 ## Package names
 
