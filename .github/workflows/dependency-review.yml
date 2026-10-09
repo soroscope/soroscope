@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@v7.0.1
 
       # The action requires GitHub's Dependency Graph (and Advanced Security on
       # private repos). When it isn't available the action errors out — keep
