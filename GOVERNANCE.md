@@ -4,7 +4,7 @@ This document describes how Soroscope is governed and how decisions are made. It
 
 ## Project Leadership
 
-Soroscope is currently maintained by [@ezedike-evan](https://github.com/ezedike-evan) as the sole maintainer. The maintainer is responsible for the overall direction of the project, the release cadence, and the health of the contributor community.
+Soroscope is currently maintained by [@blockchain-maxis](https://github.com/blockchain-maxis) as the sole maintainer. The maintainer is responsible for the overall direction of the project, the release cadence, and the health of the contributor community.
 
 ## Decision Making
 

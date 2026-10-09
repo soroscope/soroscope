@@ -9,7 +9,7 @@ updates:
     target-branch: "main"
     open-pull-requests-limit: 10
     assignees:
-      - "ezedike-evan"
+      - "blockchain-maxis"
     labels:
       - "dependencies"
     commit-message:
@@ -23,7 +23,7 @@ updates:
     target-branch: "main"
     open-pull-requests-limit: 5
     assignees:
-      - "ezedike-evan"
+      - "blockchain-maxis"
     labels:
       - "ci"
     commit-message:
