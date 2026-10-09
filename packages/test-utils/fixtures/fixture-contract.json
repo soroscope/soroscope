@@ -1,0 +1,12 @@
+{
+  "provenance": {
+    "tool": "packages/test-utils/scripts/deploy-fixture-contract.mjs",
+    "recordedAt": "2026-10-09T11:41:13.511Z",
+    "stellarCli": "stellar 25.2.0 (28484880988199233a7e8e87c97cb12dac323cb3)"
+  },
+  "network": "testnet",
+  "contractId": "CCKC6K5BONT23RHCCUZK2YX4Q5ONB6E3KCT6S7A6DAVHZXXM2TRYDMAN",
+  "deployer": "GB6JMU4OTWN43KSWNJIC7IWFYDK3A3DCFJAWRRZWDWQEJNH52CXPWRT4",
+  "wasmSha256": "d7ac8d547ba00b13dcfeb59482ff4363fd81e53adb98c2bfc397bf44ab08384e",
+  "wasmBytes": 6207
+}
