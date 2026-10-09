@@ -1,0 +1,60 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Purpose:  Automatically labels issues and PRs as stale after inactivity and
+#           closes them after further inactivity. Keeps the issue tracker clean.
+# Triggers: Schedule only — daily at 01:00 UTC
+# Paths:    None — scheduled, no path filter
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: Stale
+
+on:
+  schedule:
+    - cron: '0 1 * * *'
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  stale:
+    name: Mark and Close Stale Items
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mark and close stale issues and PRs
+        uses: actions/stale@v9.0.0
+        with:
+          repo-token: ${{ secrets.LEN_PAT }}
+
+          # Issues
+          days-before-issue-stale: 30
+          days-before-issue-close: 14
+          stale-issue-label: stale
+          stale-issue-message: |
+            👋 This issue has been automatically marked as stale due to 30 days of inactivity.
+
+            If this issue is still relevant, please leave a comment or update the description — it will be automatically removed from the stale queue.
+
+            If no action is taken within 14 days, this issue will be closed. You can always reopen it if needed.
+
+            Thank you for contributing to Soroscope. 🌟
+          close-issue-message: |
+            This issue has been closed due to inactivity. If you believe it is still relevant, please open a new issue and link to this one for context.
+
+          # PRs
+          days-before-pr-stale: 21
+          days-before-pr-close: 7
+          stale-pr-label: stale
+          stale-pr-message: |
+            👋 This pull request has been automatically marked as stale due to 21 days of inactivity.
+
+            If you're still working on this, please rebase on the latest `main`, resolve any conflicts, and leave a comment. It will be automatically removed from the stale queue.
+
+            If no action is taken within 7 days, this PR will be closed. You can always reopen it when you're ready.
+          close-pr-message: |
+            This pull request has been closed due to inactivity. Feel free to reopen it when you're ready to continue — please rebase on the latest `main` before doing so.
+
+          # Exemptions
+          exempt-issue-labels: 'pinned,security,in-progress,blocked'
+          exempt-pr-labels: 'pinned,security,in-progress,blocked'
+          exempt-all-issues-with-labels: 'bug'
+          close-issue-reason: not_planned

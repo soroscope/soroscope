@@ -1,0 +1,38 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Purpose:  Locks closed issues and pull requests after inactivity to prevent
+#           necro-commenting and keep closed threads clean.
+# Triggers: Schedule only — daily at 02:00 UTC
+# Paths:    None — scheduled, no path filter
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: Lock
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  lock:
+    name: Lock Closed Threads
+    runs-on: ubuntu-latest
+    steps:
+      - name: Lock closed issues and PRs
+        uses: dessant/lock-threads@v6.0.2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          issue-inactive-days: 60
+          pr-inactive-days: 30
+          issue-lock-reason: resolved
+          pr-lock-reason: resolved
+          issue-comment: |
+            This issue has been automatically locked after 60 days of inactivity following its closure.
+
+            If you have a related question or would like to continue the discussion, please open a new issue.
+          pr-comment: |
+            This pull request has been automatically locked after 30 days of inactivity following its closure.
+
+            If you'd like to continue this work, please open a new pull request based on the latest `main`.

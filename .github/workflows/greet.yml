@@ -1,0 +1,59 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Purpose:  Welcomes first-time contributors when they open their first issue
+#           or pull request. Builds community and sets expectations.
+# Triggers: issues opened, pull_request_target opened
+# Paths:    None — community workflow, no path filter
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: Greet
+
+on:
+  issues:
+    types:
+      - opened
+  pull_request_target:
+    types:
+      - opened
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  greet:
+    name: Greet New Contributor
+    runs-on: ubuntu-latest
+    steps:
+      - name: Greet first-time contributor
+        uses: actions/first-interaction@v3.1.0
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          issue_message: |
+            👋 Welcome to Soroscope, and thank you for opening your first issue!
+
+            We appreciate you taking the time to report this. Here's what happens next:
+
+            - A maintainer will review your issue and respond as soon as possible.
+            - If you're reporting a bug, please make sure you've included steps to reproduce it.
+            - If you're requesting a feature, please explain the use case clearly.
+
+            In the meantime, you might find these resources helpful:
+            - 📖 [Documentation](https://github.com/ezedike-evan/soroscope#readme)
+            - 🤝 [Contributing Guide](https://github.com/ezedike-evan/soroscope/blob/main/CONTRIBUTING.md) *(coming soon)*
+
+            Don't hesitate to ask if you need anything. We're glad you're here!
+          pr_message: |
+            👋 Welcome to Soroscope, and thank you for your first pull request!
+
+            We're excited to review your contribution. Here's what to expect:
+
+            - CI checks will run automatically — please ensure they all pass before requesting review.
+            - Your PR title must follow the [Conventional Commits](https://www.conventionalcommits.org/) specification (e.g. `feat(sdk): add RpcRouter`).
+            - A maintainer will review your changes and provide feedback.
+
+            While you wait:
+            - 🤝 Check the [Contributing Guide](https://github.com/ezedike-evan/soroscope/blob/main/CONTRIBUTING.md) *(coming soon)*
+            - ✅ Ensure all CI checks are green
+            - 📝 Make sure your PR description clearly explains what changed and why
+
+            Thank you for helping make Soroscope better!

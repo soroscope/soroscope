@@ -1,0 +1,52 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Purpose:  Automatically deletes the head branch of a pull request once it
+#           has been merged. Keeps the repository branch list clean.
+# Triggers: pull_request — closed event
+# Paths:    None — event-driven, no path filter
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: Delete Merged Branch
+
+on:
+  pull_request:
+    types:
+      - closed
+
+
+jobs:
+  delete-branch:
+    name: Delete Merged Branch
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true
+    permissions:
+      contents: write
+    steps:
+      - name: Delete head branch
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const branch = context.payload.pull_request.head.ref;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            const protectedBranches = ['main', 'develop'];
+            if (protectedBranches.includes(branch)) {
+              console.log(`Skipping protected branch: ${branch}`);
+              return;
+            }
+
+            try {
+              await github.rest.git.deleteRef({
+                owner,
+                repo,
+                ref: `heads/${branch}`,
+              });
+              console.log(`Deleted branch: ${branch}`);
+            } catch (err) {
+              if (err.status === 422) {
+                console.log(`Branch already deleted: ${branch}`);
+              } else {
+                throw err;
+              }
+            }
