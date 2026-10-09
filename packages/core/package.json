@@ -1,0 +1,62 @@
+{
+  "name": "@soroscope/core",
+  "version": "0.1.0",
+  "description": "Soroban transaction pre-flight simulation, smart RPC routing with latency-ranked automatic fallback, and human-readable XDR error decoding for the Stellar network.",
+  "private": false,
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "prepublishOnly": "pnpm build && pnpm test"
+  },
+  "keywords": [
+    "stellar",
+    "soroban",
+    "stellar-sdk",
+    "blockchain",
+    "rpc",
+    "json-rpc",
+    "xdr",
+    "smart-contracts",
+    "transaction-simulation",
+    "fee-estimation",
+    "error-decoding",
+    "typescript"
+  ],
+  "author": "Ezedike-Evan <egwomevan323@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ezedike-evan/soroscope.git",
+    "directory": "packages/core"
+  },
+  "homepage": "https://github.com/ezedike-evan/soroscope#readme",
+  "bugs": {
+    "url": "https://github.com/ezedike-evan/soroscope/issues"
+  },
+  "packageManager": "pnpm@10.22.0",
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "tsup": "^8.5.1",
+    "@types/node": "^25.9.0"
+  }
+}
