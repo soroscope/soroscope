@@ -1,0 +1,89 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Purpose:  Validates that every PR title follows the Conventional Commits
+#           specification. Required because Changesets and CHANGELOG generation
+#           depend on consistent commit message format.
+# Triggers: pull_request_target — opened, reopened, edited, synchronize
+# Paths:    None — must run on all PRs regardless of files changed
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: Commit Lint
+
+on:
+  pull_request_target:
+    types:
+      - opened
+      - reopened
+      - edited
+      - synchronize
+
+permissions:
+  pull-requests: write
+  statuses: write
+
+jobs:
+  lint-pr-title:
+    name: Lint PR Title
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate PR title follows Conventional Commits
+        uses: amannn/action-semantic-pull-request@v6.1.1
+        id: lint
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            feat
+            fix
+            docs
+            test
+            ci
+            refactor
+            perf
+            chore
+            revert
+            build
+          scopes: |
+            sdk
+            demo
+            vscode
+            rpc
+            simulation
+            errors
+            address
+            types
+            deps
+            release
+          requireScope: false
+          subjectPattern: ^(?![A-Z]).+$
+          subjectPatternError: >
+            The subject "{subject}" must not start with an uppercase letter.
+
+      - name: Post failure comment
+        uses: marocchino/sticky-pull-request-comment@v3.0.5
+        if: always() && (steps.lint.outputs.error_message != null)
+        with:
+          header: commitlint
+          message: |
+            ### PR Title Validation Failed
+
+            ${{ steps.lint.outputs.error_message }}
+
+            **Your PR title must follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specification.**
+
+            **Format:** `type(scope): subject`
+
+            **Allowed types:** `feat`, `fix`, `docs`, `test`, `ci`, `refactor`, `perf`, `chore`, `revert`, `build`
+
+            **Allowed scopes:** `sdk`, `demo`, `vscode`, `rpc`, `simulation`, `errors`, `address`, `types`, `deps`, `release`
+
+            **Examples:**
+            - `feat(sdk): add RpcRouter latency tracking`
+            - `fix(rpc): handle timeout on endpoint health check`
+            - `docs(sdk): add FeeEstimator usage example`
+
+      - name: Delete failure comment on resolution
+        uses: marocchino/sticky-pull-request-comment@v3.0.5
+        if: ${{ steps.lint.outputs.error_message == null }}
+        with:
+          header: commitlint
+          delete: true
