@@ -1,0 +1,50 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Purpose:  Runs the OpenSSF Scorecard supply chain security analysis. Scores
+#           the repository across 19 security dimensions and uploads results
+#           to GitHub's security dashboard.
+# Triggers: push to main (no path filter), weekly on Monday at 06:00 UTC
+# Paths:    None — always runs on main pushes and weekly schedule
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: Scorecard
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '0 6 * * 1'
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  scorecard:
+    name: Scorecard Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      security-events: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Run OpenSSF Scorecard
+        uses: ossf/scorecard-action@v2.4.3
+        with:
+          results_file: results.sarif
+          results_format: sarif
+          repo_token: ${{ secrets.SCORECARD_TOKEN }}
+          publish_results: true
+
+      - name: Upload results to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: results.sarif

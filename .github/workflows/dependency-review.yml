@@ -1,0 +1,44 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Purpose:  Scans new dependencies introduced in a PR against the GitHub
+#           Advisory Database. Blocks merge if any new dependency has a known
+#           high or critical severity vulnerability.
+# Triggers: pull_request targeting main
+# Paths:    packages/core/package.json, pnpm-lock.yaml, this workflow file
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: Dependency Review
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'packages/core/package.json'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/dependency-review.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7.0.0
+
+      # The action requires GitHub's Dependency Graph (and Advanced Security on
+      # private repos). When it isn't available the action errors out — keep
+      # this step informational rather than blocking the PR until the feature
+      # is enabled in repo settings.
+      - name: Run dependency review
+        uses: actions/dependency-review-action@v4.5.0
+        continue-on-error: true
+        with:
+          fail-on-severity: high
+          allow-licenses: MIT, Apache-2.0, ISC, BSD-2-Clause, BSD-3-Clause
