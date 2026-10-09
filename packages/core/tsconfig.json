@@ -1,0 +1,22 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "lib": [
+      "ES2022",
+      "DOM",
+      "esnext"
+    ],
+    "types": [
+      "node"
+    ]
+  },
+  "include": [
+    "src",
+    "tests"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}
