@@ -26,6 +26,8 @@ concurrency:
 jobs:
   scorecard:
     name: Scorecard Analysis
+    # Scorecard publishes results and can only read public repositories.
+    if: ${{ !github.event.repository.private }}
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -41,7 +43,7 @@ jobs:
         with:
           results_file: results.sarif
           results_format: sarif
-          repo_token: ${{ secrets.SCORECARD_TOKEN }}
+          repo_token: ${{ secrets.SCORECARD_TOKEN || github.token }}
           publish_results: true
 
       - name: Upload results to GitHub Code Scanning
