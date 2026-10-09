@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Mark and close stale issues and PRs
-        uses: actions/stale@v9.0.0
+        uses: actions/stale@v11.0.0
         with:
           repo-token: ${{ secrets.RELEASE_PAT || github.token }}
 
