@@ -6,7 +6,7 @@ generated: true
 
 > **decodeScError**(`input`): [`DecodedScError`](/docs/reference/decodedscerror)
 
-Defined in: [packages/core/src/decode/scError.ts:58](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/decode/scError.ts#L58)
+Defined in: [packages/core/src/decode/scError.ts:58](https://github.com/soroscope/soroscope/blob/main/packages/core/src/decode/scError.ts#L58)
 
 Decodes a base64 (or raw byte) Soroban `ScVal` of type `SCV_ERROR` into a
 human-readable [DecodedScError](/docs/reference/decodedscerror).

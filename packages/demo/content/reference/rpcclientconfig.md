@@ -4,7 +4,7 @@ description: Interface RpcClientConfig — @soroscope/core API reference.
 generated: true
 ---
 
-Defined in: [packages/core/src/rpc/types.ts:1](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/types.ts#L1)
+Defined in: [packages/core/src/rpc/types.ts:1](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/types.ts#L1)
 
 ## Properties
 
@@ -12,7 +12,7 @@ Defined in: [packages/core/src/rpc/types.ts:1](https://github.com/ezedike-evan/s
 
 > `optional` **fetch?**: \{(`input`, `init?`): `Promise`\<`Response`\>; (`input`, `init?`): `Promise`\<`Response`\>; \}
 
-Defined in: [packages/core/src/rpc/types.ts:7](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/types.ts#L7)
+Defined in: [packages/core/src/rpc/types.ts:7](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/types.ts#L7)
 
 Override the fetch implementation (custom runtimes, proxies). Defaults to global fetch.
 
@@ -62,7 +62,7 @@ Override the fetch implementation (custom runtimes, proxies). Defaults to global
 
 > `optional` **headers?**: `Record`\<`string`, `string`\>
 
-Defined in: [packages/core/src/rpc/types.ts:5](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/types.ts#L5)
+Defined in: [packages/core/src/rpc/types.ts:5](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/types.ts#L5)
 
 ***
 
@@ -70,7 +70,7 @@ Defined in: [packages/core/src/rpc/types.ts:5](https://github.com/ezedike-evan/s
 
 > `optional` **timeoutMs?**: `number`
 
-Defined in: [packages/core/src/rpc/types.ts:4](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/types.ts#L4)
+Defined in: [packages/core/src/rpc/types.ts:4](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/types.ts#L4)
 
 Per-request time budget in milliseconds. Default 30000.
 
@@ -80,4 +80,4 @@ Per-request time budget in milliseconds. Default 30000.
 
 > **url**: `string`
 
-Defined in: [packages/core/src/rpc/types.ts:2](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/types.ts#L2)
+Defined in: [packages/core/src/rpc/types.ts:2](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/types.ts#L2)

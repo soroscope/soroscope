@@ -4,7 +4,7 @@ description: Interface RpcCallOptions — @soroscope/core API reference.
 generated: true
 ---
 
-Defined in: [packages/core/src/rpc/types.ts:10](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/types.ts#L10)
+Defined in: [packages/core/src/rpc/types.ts:10](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/types.ts#L10)
 
 ## Extended by
 
@@ -16,7 +16,7 @@ Defined in: [packages/core/src/rpc/types.ts:10](https://github.com/ezedike-evan/
 
 > `optional` **signal?**: `AbortSignal`
 
-Defined in: [packages/core/src/rpc/types.ts:13](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/types.ts#L13)
+Defined in: [packages/core/src/rpc/types.ts:13](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/types.ts#L13)
 
 ***
 
@@ -24,6 +24,6 @@ Defined in: [packages/core/src/rpc/types.ts:13](https://github.com/ezedike-evan/
 
 > `optional` **timeoutMs?**: `number`
 
-Defined in: [packages/core/src/rpc/types.ts:12](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/types.ts#L12)
+Defined in: [packages/core/src/rpc/types.ts:12](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/types.ts#L12)
 
 Overrides the client's default time budget for this call.

@@ -6,7 +6,7 @@ generated: true
 
 > **explainTransactionError**(`input`): `string`
 
-Defined in: [packages/core/src/decode/explain.ts:25](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/decode/explain.ts#L25)
+Defined in: [packages/core/src/decode/explain.ts:25](https://github.com/soroscope/soroscope/blob/main/packages/core/src/decode/explain.ts#L25)
 
 Renders a one-line, human-readable explanation of a failed Soroban
 transaction from whatever the RPC handed back.

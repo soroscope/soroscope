@@ -5,7 +5,7 @@
   "private": true,
   "type": "module",
   "main": "index.js",
-  "repository": "https://github.com/ezedike-evan/soroscope",
+  "repository": "https://github.com/soroscope/soroscope",
   "scripts": {
     "build": "turbo run build",
     "typecheck": "turbo run typecheck",

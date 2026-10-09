@@ -6,7 +6,7 @@ generated: true
 
 > **readScError**(`reader`): [`DecodedScError`](/docs/reference/decodedscerror)
 
-Defined in: [packages/core/src/decode/scError.ts:19](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/decode/scError.ts#L19)
+Defined in: [packages/core/src/decode/scError.ts:19](https://github.com/soroscope/soroscope/blob/main/packages/core/src/decode/scError.ts#L19)
 
 Reads an `ScError` union body at the reader's current position.
 

@@ -44,12 +44,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ezedike-evan/soroscope.git",
+    "url": "git+https://github.com/soroscope/soroscope.git",
     "directory": "packages/core"
   },
-  "homepage": "https://github.com/ezedike-evan/soroscope#readme",
+  "homepage": "https://github.com/soroscope/soroscope#readme",
   "bugs": {
-    "url": "https://github.com/ezedike-evan/soroscope/issues"
+    "url": "https://github.com/soroscope/soroscope/issues"
   },
   "packageManager": "pnpm@10.22.0",
   "engines": {

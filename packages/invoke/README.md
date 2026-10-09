@@ -16,7 +16,7 @@ const xdr = buildInvocationXdr({
 
 For test networks only: `fundWithFriendbot`, `deployWasm`, `sendInvocation`, `signAndSend`. These sign with a key you give them; use a throwaway.
 
-Built on `@stellar/stellar-sdk`. Requires Node.js 22 or newer. See the [reference](https://github.com/ezedike-evan/soroscope/blob/main/packages/demo/content/api/invoke.md).
+Built on `@stellar/stellar-sdk`. Requires Node.js 22 or newer. See the [reference](https://github.com/soroscope/soroscope/blob/main/packages/demo/content/api/invoke.md).
 
 ## License
 

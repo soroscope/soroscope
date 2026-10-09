@@ -19,7 +19,7 @@ soroscope probe --network mainnet
 
 Exit codes: `0` ok, `1` the verdict is a failure, `2` usage, `3` network, `4` internal.
 
-It never accepts a secret key. See the [command line guide](https://github.com/ezedike-evan/soroscope/blob/main/packages/demo/content/guides/cli.md).
+It never accepts a secret key. See the [command line guide](https://github.com/soroscope/soroscope/blob/main/packages/demo/content/guides/cli.md).
 
 Requires Node.js 22 or newer.
 

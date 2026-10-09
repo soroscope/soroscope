@@ -10,7 +10,7 @@ Soroscope is currently maintained by [@ezedike-evan](https://github.com/ezedike-
 
 The maintainer makes the final call on technical direction and on individual pull requests. For day-to-day decisions — bug fixes, small features, documentation, internal refactors — the maintainer may decide unilaterally and merge.
 
-Significant changes are discussed in [GitHub Discussions](https://github.com/ezedike-evan/soroscope/discussions) before implementation begins. "Significant" includes:
+Significant changes are discussed in [GitHub Discussions](https://github.com/soroscope/soroscope/discussions) before implementation begins. "Significant" includes:
 
 - Major version bumps
 - Breaking changes to the public API of `@soroscope/core`
@@ -36,4 +36,4 @@ Invitations are extended by the existing maintainer team. There is no formal app
 
 ## Changes to Governance
 
-This document may be updated by the current maintainer. Significant changes — for example, moving to a multi-maintainer model, adopting a steering committee, or changing the decision-making process — will be announced in [GitHub Discussions](https://github.com/ezedike-evan/soroscope/discussions) and a pull request will be opened so that the change is visible and can be reviewed.
+This document may be updated by the current maintainer. Significant changes — for example, moving to a multi-maintainer model, adopting a steering committee, or changing the decision-making process — will be announced in [GitHub Discussions](https://github.com/soroscope/soroscope/discussions) and a pull request will be opened so that the change is visible and can be reviewed.

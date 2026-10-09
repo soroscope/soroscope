@@ -5,7 +5,7 @@ Fail a pull request when a Soroban contract call gets more expensive.
 It simulates the calls listed in `soroscope.config.json`, compares instructions, disk reads, writes, resource fee and the **ledger footprint** with a baseline you commit, and comments on the pull request.
 
 ```yaml
-- uses: ezedike-evan/soroscope/packages/ci@v1
+- uses: soroscope/soroscope/packages/ci@v1
   with:
     github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
@@ -15,7 +15,7 @@ It simulates the calls listed in `soroscope.config.json`, compares instructions,
 
 The Action ships as one committed bundle (`action/index.cjs`) so it runs without an install; a workflow fails if the bundle drifts from source.
 
-Full guide: [CI resource checks](https://github.com/ezedike-evan/soroscope/blob/main/packages/demo/content/guides/ci-resource-checks.md). Config reference: [CI config](https://github.com/ezedike-evan/soroscope/blob/main/packages/demo/content/api/ci-config.md).
+Full guide: [CI resource checks](https://github.com/soroscope/soroscope/blob/main/packages/demo/content/guides/ci-resource-checks.md). Config reference: [CI config](https://github.com/soroscope/soroscope/blob/main/packages/demo/content/api/ci-config.md).
 
 ## Library use
 

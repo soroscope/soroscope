@@ -4,7 +4,7 @@ description: Class RpcProtocolError — @soroscope/core API reference.
 generated: true
 ---
 
-Defined in: [packages/core/src/rpc/errors.ts:55](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/errors.ts#L55)
+Defined in: [packages/core/src/rpc/errors.ts:55](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/errors.ts#L55)
 
 The endpoint answered 2xx but the body was not a valid JSON-RPC 2.0 envelope.
 
@@ -18,7 +18,7 @@ The endpoint answered 2xx but the body was not a valid JSON-RPC 2.0 envelope.
 
 > **new RpcProtocolError**(`message`, `url`, `bodySnippet`): `RpcProtocolError`
 
-Defined in: [packages/core/src/rpc/errors.ts:58](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/errors.ts#L58)
+Defined in: [packages/core/src/rpc/errors.ts:58](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/errors.ts#L58)
 
 #### Parameters
 
@@ -48,7 +48,7 @@ Defined in: [packages/core/src/rpc/errors.ts:58](https://github.com/ezedike-evan
 
 > `readonly` **bodySnippet**: `string`
 
-Defined in: [packages/core/src/rpc/errors.ts:56](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/errors.ts#L56)
+Defined in: [packages/core/src/rpc/errors.ts:56](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/errors.ts#L56)
 
 ***
 
@@ -104,7 +104,7 @@ Defined in: node\_modules/.pnpm/typescript@6.0.2/node\_modules/typescript/lib/li
 
 > `readonly` **url**: `string` \| `undefined`
 
-Defined in: [packages/core/src/rpc/errors.ts:10](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/errors.ts#L10)
+Defined in: [packages/core/src/rpc/errors.ts:10](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/errors.ts#L10)
 
 URL of the endpoint that produced the error, when known.
 

@@ -88,7 +88,7 @@ Defined in: node\_modules/.pnpm/typescript@6.0.2/node\_modules/typescript/lib/li
 
 > `readonly` **offset**: `number` \| `null`
 
-Defined in: [packages/core/src/decode/types.ts:76](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/decode/types.ts#L76)
+Defined in: [packages/core/src/decode/types.ts:76](https://github.com/soroscope/soroscope/blob/main/packages/core/src/decode/types.ts#L76)
 
 The byte offset at which decoding failed, when known.
 

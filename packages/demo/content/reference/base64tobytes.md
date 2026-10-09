@@ -6,7 +6,7 @@ generated: true
 
 > **base64ToBytes**(`input`): `Uint8Array`
 
-Defined in: [packages/core/src/xdr/base64.ts:32](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/xdr/base64.ts#L32)
+Defined in: [packages/core/src/xdr/base64.ts:32](https://github.com/soroscope/soroscope/blob/main/packages/core/src/xdr/base64.ts#L32)
 
 Decodes a standard base64 string into raw bytes.
 

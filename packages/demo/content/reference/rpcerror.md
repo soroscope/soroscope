@@ -4,7 +4,7 @@ description: Class RpcError — @soroscope/core API reference.
 generated: true
 ---
 
-Defined in: [packages/core/src/rpc/errors.ts:8](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/errors.ts#L8)
+Defined in: [packages/core/src/rpc/errors.ts:8](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/errors.ts#L8)
 
 Base class so callers can `instanceof RpcError` for any transport failure.
 
@@ -26,7 +26,7 @@ Base class so callers can `instanceof RpcError` for any transport failure.
 
 > **new RpcError**(`message`, `url?`, `options?`): `RpcError`
 
-Defined in: [packages/core/src/rpc/errors.ts:12](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/errors.ts#L12)
+Defined in: [packages/core/src/rpc/errors.ts:12](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/errors.ts#L12)
 
 #### Parameters
 
@@ -106,7 +106,7 @@ Defined in: node\_modules/.pnpm/typescript@6.0.2/node\_modules/typescript/lib/li
 
 > `readonly` **url**: `string` \| `undefined`
 
-Defined in: [packages/core/src/rpc/errors.ts:10](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/errors.ts#L10)
+Defined in: [packages/core/src/rpc/errors.ts:10](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/errors.ts#L10)
 
 URL of the endpoint that produced the error, when known.
 

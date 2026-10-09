@@ -1,6 +1,6 @@
 # Soroscope
 
-[![CI](https://github.com/ezedike-evan/soroscope/actions/workflows/ci.yml/badge.svg)](https://github.com/ezedike-evan/soroscope/actions/workflows/ci.yml)
+[![CI](https://github.com/soroscope/soroscope/actions/workflows/ci.yml/badge.svg)](https://github.com/soroscope/soroscope/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 
 Developer tooling for Stellar and Soroban, built on one idea: **know what each RPC provider can really do before you rely on it.**
@@ -74,7 +74,7 @@ The error gets the name the contract's own spec gives it.
 **Stop expensive regressions before they ship.**
 
 ```yaml
-- uses: ezedike-evan/soroscope/packages/ci@v1
+- uses: soroscope/soroscope/packages/ci@v1
   with:
     github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
@@ -168,7 +168,7 @@ Deliberately avoided: general indexers and explorers, static analysis and fuzzin
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md). In short: no mocks, record fixtures instead of writing them, and say what you could not verify.
 
-Bug reports and feature requests are welcome via [GitHub Issues](https://github.com/ezedike-evan/soroscope/issues).
+Bug reports and feature requests are welcome via [GitHub Issues](https://github.com/soroscope/soroscope/issues).
 
 ## Migrating from `stellar-lens`
 

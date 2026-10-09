@@ -4,7 +4,7 @@ description: Interface RpcRawResult — @soroscope/core API reference.
 generated: true
 ---
 
-Defined in: [packages/core/src/rpc/types.ts:17](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/types.ts#L17)
+Defined in: [packages/core/src/rpc/types.ts:17](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/types.ts#L17)
 
 A successful call together with what the transport observed.
 
@@ -20,7 +20,7 @@ A successful call together with what the transport observed.
 
 > **headers**: `Headers`
 
-Defined in: [packages/core/src/rpc/types.ts:20](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/types.ts#L20)
+Defined in: [packages/core/src/rpc/types.ts:20](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/types.ts#L20)
 
 ***
 
@@ -28,7 +28,7 @@ Defined in: [packages/core/src/rpc/types.ts:20](https://github.com/ezedike-evan/
 
 > **httpStatus**: `number`
 
-Defined in: [packages/core/src/rpc/types.ts:19](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/types.ts#L19)
+Defined in: [packages/core/src/rpc/types.ts:19](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/types.ts#L19)
 
 ***
 
@@ -36,7 +36,7 @@ Defined in: [packages/core/src/rpc/types.ts:19](https://github.com/ezedike-evan/
 
 > **latencyMs**: `number`
 
-Defined in: [packages/core/src/rpc/types.ts:21](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/types.ts#L21)
+Defined in: [packages/core/src/rpc/types.ts:21](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/types.ts#L21)
 
 ***
 
@@ -44,4 +44,4 @@ Defined in: [packages/core/src/rpc/types.ts:21](https://github.com/ezedike-evan/
 
 > **result**: `T`
 
-Defined in: [packages/core/src/rpc/types.ts:18](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/types.ts#L18)
+Defined in: [packages/core/src/rpc/types.ts:18](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/types.ts#L18)

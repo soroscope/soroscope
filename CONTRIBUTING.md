@@ -17,7 +17,7 @@ This project and everyone participating in it is governed by the [Code of Conduc
 ## Local Setup
 
 ```bash
-git clone https://github.com/ezedike-evan/soroscope.git
+git clone https://github.com/soroscope/soroscope.git
 cd soroscope
 pnpm install
 pnpm build
@@ -102,6 +102,6 @@ The Action runs from a committed bundle, `packages/ci/action/index.cjs`. After c
 
 ## Where to Ask Questions
 
-- For general questions and design discussion, use [GitHub Discussions](https://github.com/ezedike-evan/soroscope/discussions).
+- For general questions and design discussion, use [GitHub Discussions](https://github.com/soroscope/soroscope/discussions).
 - For everything else, see [SUPPORT.md](./SUPPORT.md), which lists the right channel for each kind of request.
 - Do not file security vulnerabilities as public issues. Follow [SECURITY.md](./SECURITY.md) instead.

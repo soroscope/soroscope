@@ -3,7 +3,7 @@ import { getDocPage } from '@/lib/docs'
 import { allDocPages } from '@/lib/docroutes'
 import DocEnhancements from '@/components/docs/DocEnhancements'
 
-const EDIT_BASE = 'https://github.com/ezedike-evan/soroscope/edit/main/packages/demo/content'
+const EDIT_BASE = 'https://github.com/soroscope/soroscope/edit/main/packages/demo/content'
 
 type Props = {
   params: Promise<{ slug?: string[] }>

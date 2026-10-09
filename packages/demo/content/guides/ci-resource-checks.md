@@ -79,7 +79,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       # build your contract's WASM here
-      - uses: ezedike-evan/soroscope/packages/ci@v1
+      - uses: soroscope/soroscope/packages/ci@v1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 ```

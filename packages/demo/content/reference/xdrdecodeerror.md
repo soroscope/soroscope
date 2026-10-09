@@ -4,7 +4,7 @@ description: Class XdrDecodeError — @soroscope/core API reference.
 generated: true
 ---
 
-Defined in: [packages/core/src/decode/types.ts:74](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/decode/types.ts#L74)
+Defined in: [packages/core/src/decode/types.ts:74](https://github.com/soroscope/soroscope/blob/main/packages/core/src/decode/types.ts#L74)
 
 Thrown when an XDR blob cannot be decoded — malformed base64, truncated
 bytes, or an unexpected/unknown discriminant where a known one is required.
@@ -23,7 +23,7 @@ bytes, or an unexpected/unknown discriminant where a known one is required.
 
 > **new XdrDecodeError**(`message`, `offset?`): `XdrDecodeError`
 
-Defined in: [packages/core/src/decode/types.ts:78](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/decode/types.ts#L78)
+Defined in: [packages/core/src/decode/types.ts:78](https://github.com/soroscope/soroscope/blob/main/packages/core/src/decode/types.ts#L78)
 
 #### Parameters
 
@@ -85,7 +85,7 @@ Defined in: node\_modules/.pnpm/typescript@6.0.2/node\_modules/typescript/lib/li
 
 > `readonly` **offset**: `number` \| `null`
 
-Defined in: [packages/core/src/decode/types.ts:76](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/decode/types.ts#L76)
+Defined in: [packages/core/src/decode/types.ts:76](https://github.com/soroscope/soroscope/blob/main/packages/core/src/decode/types.ts#L76)
 
 The byte offset at which decoding failed, when known.
 

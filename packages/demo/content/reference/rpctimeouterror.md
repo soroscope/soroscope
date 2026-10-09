@@ -4,7 +4,7 @@ description: Class RpcTimeoutError — @soroscope/core API reference.
 generated: true
 ---
 
-Defined in: [packages/core/src/rpc/errors.ts:23](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/errors.ts#L23)
+Defined in: [packages/core/src/rpc/errors.ts:23](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/errors.ts#L23)
 
 The request was aborted because it exceeded its time budget.
 
@@ -18,7 +18,7 @@ The request was aborted because it exceeded its time budget.
 
 > **new RpcTimeoutError**(`message`, `url`, `timeoutMs`, `options?`): `RpcTimeoutError`
 
-Defined in: [packages/core/src/rpc/errors.ts:26](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/errors.ts#L26)
+Defined in: [packages/core/src/rpc/errors.ts:26](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/errors.ts#L26)
 
 #### Parameters
 
@@ -102,7 +102,7 @@ Defined in: node\_modules/.pnpm/typescript@6.0.2/node\_modules/typescript/lib/li
 
 > `readonly` **timeoutMs**: `number`
 
-Defined in: [packages/core/src/rpc/errors.ts:24](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/errors.ts#L24)
+Defined in: [packages/core/src/rpc/errors.ts:24](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/errors.ts#L24)
 
 ***
 
@@ -110,7 +110,7 @@ Defined in: [packages/core/src/rpc/errors.ts:24](https://github.com/ezedike-evan
 
 > `readonly` **url**: `string` \| `undefined`
 
-Defined in: [packages/core/src/rpc/errors.ts:10](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/errors.ts#L10)
+Defined in: [packages/core/src/rpc/errors.ts:10](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/errors.ts#L10)
 
 URL of the endpoint that produced the error, when known.
 

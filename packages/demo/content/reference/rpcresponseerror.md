@@ -4,7 +4,7 @@ description: Class RpcResponseError — @soroscope/core API reference.
 generated: true
 ---
 
-Defined in: [packages/core/src/rpc/errors.ts:65](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/errors.ts#L65)
+Defined in: [packages/core/src/rpc/errors.ts:65](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/errors.ts#L65)
 
 The endpoint answered with a JSON-RPC `error` object.
 
@@ -18,7 +18,7 @@ The endpoint answered with a JSON-RPC `error` object.
 
 > **new RpcResponseError**(`message`, `code`, `data?`, `url?`): `RpcResponseError`
 
-Defined in: [packages/core/src/rpc/errors.ts:69](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/errors.ts#L69)
+Defined in: [packages/core/src/rpc/errors.ts:69](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/errors.ts#L69)
 
 #### Parameters
 
@@ -64,7 +64,7 @@ Defined in: node\_modules/.pnpm/typescript@6.0.2/node\_modules/typescript/lib/li
 
 > `readonly` **code**: `number`
 
-Defined in: [packages/core/src/rpc/errors.ts:66](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/errors.ts#L66)
+Defined in: [packages/core/src/rpc/errors.ts:66](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/errors.ts#L66)
 
 ***
 
@@ -72,7 +72,7 @@ Defined in: [packages/core/src/rpc/errors.ts:66](https://github.com/ezedike-evan
 
 > `readonly` **data**: `unknown`
 
-Defined in: [packages/core/src/rpc/errors.ts:67](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/errors.ts#L67)
+Defined in: [packages/core/src/rpc/errors.ts:67](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/errors.ts#L67)
 
 ***
 
@@ -116,7 +116,7 @@ Defined in: node\_modules/.pnpm/typescript@6.0.2/node\_modules/typescript/lib/li
 
 > `readonly` **url**: `string` \| `undefined`
 
-Defined in: [packages/core/src/rpc/errors.ts:10](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/errors.ts#L10)
+Defined in: [packages/core/src/rpc/errors.ts:10](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/errors.ts#L10)
 
 URL of the endpoint that produced the error, when known.
 

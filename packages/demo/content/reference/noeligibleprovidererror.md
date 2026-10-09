@@ -4,7 +4,7 @@ description: Class NoEligibleProviderError — @soroscope/core API reference.
 generated: true
 ---
 
-Defined in: [packages/core/src/rpc/errors.ts:91](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/errors.ts#L91)
+Defined in: [packages/core/src/rpc/errors.ts:91](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/errors.ts#L91)
 
 No provider can serve the request. Carries the reason each provider was
 excluded so the caller can see, for example, that every provider's retention
@@ -20,7 +20,7 @@ window starts after the requested ledger.
 
 > **new NoEligibleProviderError**(`method`, `excluded`): `NoEligibleProviderError`
 
-Defined in: [packages/core/src/rpc/errors.ts:95](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/errors.ts#L95)
+Defined in: [packages/core/src/rpc/errors.ts:95](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/errors.ts#L95)
 
 #### Parameters
 
@@ -58,7 +58,7 @@ Defined in: node\_modules/.pnpm/typescript@6.0.2/node\_modules/typescript/lib/li
 
 > `readonly` **excluded**: readonly `object`[]
 
-Defined in: [packages/core/src/rpc/errors.ts:93](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/errors.ts#L93)
+Defined in: [packages/core/src/rpc/errors.ts:93](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/errors.ts#L93)
 
 ***
 
@@ -78,7 +78,7 @@ Defined in: node\_modules/.pnpm/typescript@6.0.2/node\_modules/typescript/lib/li
 
 > `readonly` **method**: `string`
 
-Defined in: [packages/core/src/rpc/errors.ts:92](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/errors.ts#L92)
+Defined in: [packages/core/src/rpc/errors.ts:92](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/errors.ts#L92)
 
 ***
 

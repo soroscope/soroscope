@@ -4,7 +4,7 @@ description: Interface Attempt — @soroscope/core API reference.
 generated: true
 ---
 
-Defined in: [packages/core/src/rpc/errors.ts:77](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/errors.ts#L77)
+Defined in: [packages/core/src/rpc/errors.ts:77](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/errors.ts#L77)
 
 One try against one provider, as recorded by the router.
 
@@ -14,7 +14,7 @@ One try against one provider, as recorded by the router.
 
 > `optional` **failure?**: `string`
 
-Defined in: [packages/core/src/rpc/errors.ts:82](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/errors.ts#L82)
+Defined in: [packages/core/src/rpc/errors.ts:82](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/errors.ts#L82)
 
 Failure class, present when `ok` is false.
 
@@ -24,7 +24,7 @@ Failure class, present when `ok` is false.
 
 > **latencyMs**: `number`
 
-Defined in: [packages/core/src/rpc/errors.ts:80](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/errors.ts#L80)
+Defined in: [packages/core/src/rpc/errors.ts:80](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/errors.ts#L80)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [packages/core/src/rpc/errors.ts:80](https://github.com/ezedike-evan
 
 > `optional` **message?**: `string`
 
-Defined in: [packages/core/src/rpc/errors.ts:83](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/errors.ts#L83)
+Defined in: [packages/core/src/rpc/errors.ts:83](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/errors.ts#L83)
 
 ***
 
@@ -40,7 +40,7 @@ Defined in: [packages/core/src/rpc/errors.ts:83](https://github.com/ezedike-evan
 
 > **ok**: `boolean`
 
-Defined in: [packages/core/src/rpc/errors.ts:79](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/errors.ts#L79)
+Defined in: [packages/core/src/rpc/errors.ts:79](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/errors.ts#L79)
 
 ***
 
@@ -48,4 +48,4 @@ Defined in: [packages/core/src/rpc/errors.ts:79](https://github.com/ezedike-evan
 
 > **provider**: `string`
 
-Defined in: [packages/core/src/rpc/errors.ts:78](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/errors.ts#L78)
+Defined in: [packages/core/src/rpc/errors.ts:78](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/errors.ts#L78)

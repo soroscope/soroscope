@@ -37,7 +37,7 @@ See [MCP server](/docs/guides/mcp-server) for how to register it with an agent.
 ## From source
 
 ```sh
-git clone https://github.com/ezedike-evan/soroscope
+git clone https://github.com/soroscope/soroscope
 cd soroscope
 pnpm install
 pnpm build

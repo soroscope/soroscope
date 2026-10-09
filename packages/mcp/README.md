@@ -18,7 +18,7 @@ Tools: `rpc_status`, `rpc_route_explain`, `decode_xdr`, `explain_error`, `get_co
 
 stdout carries the protocol; diagnostics go to stderr. Requires Node.js 22 or newer.
 
-Full guide: [MCP server](https://github.com/ezedike-evan/soroscope/blob/main/packages/demo/content/guides/mcp-server.md).
+Full guide: [MCP server](https://github.com/soroscope/soroscope/blob/main/packages/demo/content/guides/mcp-server.md).
 
 ## License
 

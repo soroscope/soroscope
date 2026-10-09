@@ -6,7 +6,7 @@ generated: true
 
 > **parseRetryAfter**(`value`, `now?`): `number` \| `undefined`
 
-Defined in: [packages/core/src/rpc/errors.ts:124](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/errors.ts#L124)
+Defined in: [packages/core/src/rpc/errors.ts:124](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/errors.ts#L124)
 
 Parse an HTTP `Retry-After` header (delta-seconds or HTTP-date) into
 milliseconds. Returns undefined for absent or unparseable values and clamps

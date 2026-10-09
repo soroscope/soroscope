@@ -38,8 +38,8 @@ jobs:
             - If you're requesting a feature, please explain the use case clearly.
 
             In the meantime, you might find these resources helpful:
-            - 📖 [Documentation](https://github.com/ezedike-evan/soroscope#readme)
-            - 🤝 [Contributing Guide](https://github.com/ezedike-evan/soroscope/blob/main/CONTRIBUTING.md) *(coming soon)*
+            - 📖 [Documentation](https://github.com/soroscope/soroscope#readme)
+            - 🤝 [Contributing Guide](https://github.com/soroscope/soroscope/blob/main/CONTRIBUTING.md) *(coming soon)*
 
             Don't hesitate to ask if you need anything. We're glad you're here!
           pr_message: |
@@ -52,7 +52,7 @@ jobs:
             - A maintainer will review your changes and provide feedback.
 
             While you wait:
-            - 🤝 Check the [Contributing Guide](https://github.com/ezedike-evan/soroscope/blob/main/CONTRIBUTING.md) *(coming soon)*
+            - 🤝 Check the [Contributing Guide](https://github.com/soroscope/soroscope/blob/main/CONTRIBUTING.md) *(coming soon)*
             - ✅ Ensure all CI checks are green
             - 📝 Make sure your PR description clearly explains what changed and why
 

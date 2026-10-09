@@ -21,7 +21,7 @@ const latest = await router.call<{ sequence: number }>('getLatestLedger')
 
 | | |
 |---|---|
-| `SoroscopeRouter`, `ProviderRegistry` | Excludes providers that lag, lack the history, are rate limited or misconfigured; ranks the rest. [Guide](https://github.com/ezedike-evan/soroscope/blob/main/packages/demo/content/guides/rpc-routing.md) |
+| `SoroscopeRouter`, `ProviderRegistry` | Excludes providers that lag, lack the history, are rate limited or misconfigured; ranks the rest. [Guide](https://github.com/soroscope/soroscope/blob/main/packages/demo/content/guides/rpc-routing.md) |
 | `probeProviders` | Latency, lag, retention and how far back `getLedgers` really answers. Table, JSON and Prometheus output. |
 | `decodeScVal`, `decodeDiagnosticEvent`, `decodeAuthEntry`, `decodeSorobanTransactionData`, `decodeLedgerKey`, `decodeLedgerEntryData`, `decodeTransactionResult` | XDR decoders, checked against the official `stellar xdr decode` on real network data. |
 | `parseWasm`, `fetchContractSpec`, `ContractSpec` | A contract's functions, types, events and named error codes. |
@@ -36,7 +36,7 @@ Node.js 18 or newer (global `fetch`). Decoded 64-bit and larger integers are `bi
 
 ## Documentation
 
-Full documentation is in [`packages/demo/content`](https://github.com/ezedike-evan/soroscope/tree/main/packages/demo/content) and on the docs site.
+Full documentation is in [`packages/demo/content`](https://github.com/soroscope/soroscope/tree/main/packages/demo/content) and on the docs site.
 
 ## License
 

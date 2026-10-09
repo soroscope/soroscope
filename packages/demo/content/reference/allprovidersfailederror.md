@@ -4,7 +4,7 @@ description: Class AllProvidersFailedError — @soroscope/core API reference.
 generated: true
 ---
 
-Defined in: [packages/core/src/rpc/errors.ts:105](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/errors.ts#L105)
+Defined in: [packages/core/src/rpc/errors.ts:105](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/errors.ts#L105)
 
 Every eligible provider was tried and failed.
 
@@ -18,7 +18,7 @@ Every eligible provider was tried and failed.
 
 > **new AllProvidersFailedError**(`method`, `attempts`): `AllProvidersFailedError`
 
-Defined in: [packages/core/src/rpc/errors.ts:109](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/errors.ts#L109)
+Defined in: [packages/core/src/rpc/errors.ts:109](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/errors.ts#L109)
 
 #### Parameters
 
@@ -44,7 +44,7 @@ readonly [`Attempt`](/docs/reference/attempt)[]
 
 > `readonly` **attempts**: readonly [`Attempt`](/docs/reference/attempt)[]
 
-Defined in: [packages/core/src/rpc/errors.ts:107](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/errors.ts#L107)
+Defined in: [packages/core/src/rpc/errors.ts:107](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/errors.ts#L107)
 
 ***
 
@@ -76,7 +76,7 @@ Defined in: node\_modules/.pnpm/typescript@6.0.2/node\_modules/typescript/lib/li
 
 > `readonly` **method**: `string`
 
-Defined in: [packages/core/src/rpc/errors.ts:106](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/errors.ts#L106)
+Defined in: [packages/core/src/rpc/errors.ts:106](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/errors.ts#L106)
 
 ***
 

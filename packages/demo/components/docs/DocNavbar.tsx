@@ -88,7 +88,7 @@ export default function DocNavbar() {
             </button>
 
             <a
-              href="https://github.com/ezedike-evan/soroscope"
+              href="https://github.com/soroscope/soroscope"
               target="_blank"
               rel="noopener noreferrer"
               title="GitHub"

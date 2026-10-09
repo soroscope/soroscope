@@ -6,7 +6,7 @@ generated: true
 
 > **decodeTransactionResult**(`xdrBase64`): [`DecodedTransactionResult`](/docs/reference/decodedtransactionresult)
 
-Defined in: [packages/core/src/decode/transactionResult.ts:43](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/decode/transactionResult.ts#L43)
+Defined in: [packages/core/src/decode/transactionResult.ts:43](https://github.com/soroscope/soroscope/blob/main/packages/core/src/decode/transactionResult.ts#L43)
 
 Decodes a base64 `TransactionResult` XDR blob — the value Soroban RPC returns
 as `errorResultXdr` (from `sendTransaction`) or `resultXdr` (from

@@ -4,7 +4,7 @@ description: Class RpcHttpError — @soroscope/core API reference.
 generated: true
 ---
 
-Defined in: [packages/core/src/rpc/errors.ts:33](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/errors.ts#L33)
+Defined in: [packages/core/src/rpc/errors.ts:33](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/errors.ts#L33)
 
 The endpoint answered with a non-2xx HTTP status.
 
@@ -18,7 +18,7 @@ The endpoint answered with a non-2xx HTTP status.
 
 > **new RpcHttpError**(`message`, `url`, `status`, `bodySnippet`, `retryAfterMs?`): `RpcHttpError`
 
-Defined in: [packages/core/src/rpc/errors.ts:40](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/errors.ts#L40)
+Defined in: [packages/core/src/rpc/errors.ts:40](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/errors.ts#L40)
 
 #### Parameters
 
@@ -56,7 +56,7 @@ Defined in: [packages/core/src/rpc/errors.ts:40](https://github.com/ezedike-evan
 
 > `readonly` **bodySnippet**: `string`
 
-Defined in: [packages/core/src/rpc/errors.ts:38](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/errors.ts#L38)
+Defined in: [packages/core/src/rpc/errors.ts:38](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/errors.ts#L38)
 
 First characters of the response body, for diagnostics.
 
@@ -102,7 +102,7 @@ Defined in: node\_modules/.pnpm/typescript@6.0.2/node\_modules/typescript/lib/li
 
 > `readonly` **retryAfterMs**: `number` \| `undefined`
 
-Defined in: [packages/core/src/rpc/errors.ts:36](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/errors.ts#L36)
+Defined in: [packages/core/src/rpc/errors.ts:36](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/errors.ts#L36)
 
 Parsed `Retry-After`, in milliseconds, when the endpoint sent one.
 
@@ -124,7 +124,7 @@ Defined in: node\_modules/.pnpm/typescript@6.0.2/node\_modules/typescript/lib/li
 
 > `readonly` **status**: `number`
 
-Defined in: [packages/core/src/rpc/errors.ts:34](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/errors.ts#L34)
+Defined in: [packages/core/src/rpc/errors.ts:34](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/errors.ts#L34)
 
 ***
 
@@ -132,7 +132,7 @@ Defined in: [packages/core/src/rpc/errors.ts:34](https://github.com/ezedike-evan
 
 > `readonly` **url**: `string` \| `undefined`
 
-Defined in: [packages/core/src/rpc/errors.ts:10](https://github.com/ezedike-evan/stellar-lens/blob/main/packages/core/src/rpc/errors.ts#L10)
+Defined in: [packages/core/src/rpc/errors.ts:10](https://github.com/soroscope/soroscope/blob/main/packages/core/src/rpc/errors.ts#L10)
 
 URL of the endpoint that produced the error, when known.
 
