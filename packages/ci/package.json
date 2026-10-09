@@ -1,0 +1,56 @@
+{
+  "name": "@soroscope/ci",
+  "version": "0.1.0",
+  "description": "Fee and resource regression checks for Soroban contracts: soroscope.config.json, baselines, PR comments and a GitHub Action.",
+  "private": false,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "schema",
+    "action",
+    "action.yml",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup && node scripts/bundle-action.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "test:integration": "vitest run --config vitest.integration.config.ts --passWithNoTests",
+    "bundle:action": "node scripts/bundle-action.mjs"
+  },
+  "keywords": [
+    "stellar",
+    "soroban",
+    "devtools"
+  ],
+  "author": "Ezedike-Evan <egwomevan323@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ezedike-evan/soroscope.git",
+    "directory": "packages/ci"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@soroscope/core": "workspace:*",
+    "@soroscope/invoke": "workspace:*",
+    "zod": "^4.6.5",
+    "@stellar/stellar-sdk": "^17.2.1"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.0",
+    "tsup": "^8.5.1",
+    "esbuild": "^0.28.1"
+  }
+}
