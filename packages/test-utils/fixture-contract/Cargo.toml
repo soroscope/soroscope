@@ -1,0 +1,30 @@
+[workspace]
+resolver = "2"
+members = ["."]
+
+[package]
+name = "soroscope-fixture-contract"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "A purpose-built Soroban contract used to record real fixtures for Soroscope tests: error codes, auth, events, storage durabilities and tunable cost."
+
+[lib]
+crate-type = ["lib", "cdylib"]
+doctest = false
+
+[dependencies]
+soroban-sdk = "25"
+
+[dev-dependencies]
+soroban-sdk = { version = "25", features = ["testutils"] }
+
+[profile.release]
+opt-level = "z"
+overflow-checks = true
+debug = 0
+strip = "symbols"
+debug-assertions = false
+panic = "abort"
+codegen-units = 1
+lto = true
