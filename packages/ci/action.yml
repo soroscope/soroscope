@@ -1,0 +1,40 @@
+name: Soroscope resource check
+description: >
+  Measure Soroban contract calls with simulateTransaction and fail the build when instructions,
+  disk reads, writes, fees or the ledger footprint regress against a committed baseline.
+author: Soroscope
+branding:
+  icon: activity
+  color: blue
+inputs:
+  config:
+    description: Path to soroscope.config.json, relative to working-directory.
+    default: soroscope.config.json
+  working-directory:
+    description: Directory the config path and the contract WASM paths are relative to.
+    default: '.'
+  update-baseline:
+    description: Record the current numbers as the new baseline instead of comparing. Commit the resulting file.
+    default: 'false'
+  github-token:
+    description: Token used to post or update the PR comment. Needs pull-requests write. Leave empty to skip the comment.
+    default: ''
+  comment:
+    description: Post the report as a pull request comment (updated in place on every run).
+    default: 'true'
+  fail-on:
+    description: When to fail the job. regression (default), warning, or never.
+    default: regression
+  deployer-secret:
+    description: Optional funded testnet secret key to deploy contracts with. By default a throwaway key is funded by friendbot.
+    default: ''
+outputs:
+  result:
+    description: pass, warn or fail.
+  regressions:
+    description: Number of invocations that regressed.
+  report-path:
+    description: Path to the markdown report.
+runs:
+  using: node24
+  main: action/index.cjs
