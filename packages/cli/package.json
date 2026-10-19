@@ -44,7 +44,7 @@
   },
   "dependencies": {
     "@soroscope/core": "workspace:*",
-    "commander": "^14.0.0",
+    "commander": "^15.0.0",
     "@soroscope/ci": "workspace:*",
     "@soroscope/invoke": "workspace:*",
     "@stellar/stellar-sdk": "^17.2.1"
