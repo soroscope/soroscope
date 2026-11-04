@@ -3,3 +3,4 @@ packages/ci/action/index.cjs linguist-generated=true
 pnpm-lock.yaml linguist-generated=true
 packages/test-utils/fixtures/*.json linguist-generated=true
 packages/core/tests/fixtures/*.json linguist-generated=true
+packages/test-utils/fixture-contract/Cargo.lock linguist-generated=true

@@ -1,2 +1,5 @@
 target/
-Cargo.lock
+# Cargo.lock is committed on purpose: this crate builds the WASM that is
+# deployed to testnet and copied by the engine's watch-loop test, and
+# `cargo audit` reads it. An ignored lockfile builds a different contract
+# on every machine and is missing in CI.
