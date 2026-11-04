@@ -16,13 +16,19 @@
 
 <!-- Describe the testing you performed locally. Mention which suites were run, any manual verification, and any environments touched. -->
 
+## What I could not verify
+
+<!-- Anything the live network would not produce on demand, providers that misbehaved, XDR arms without a real example, tests you could not run. Write "nothing" if that is true. -->
+
 ## Checklist
 
-- [ ] Tests pass locally with `pnpm --filter @soroscope/core test`
-- [ ] Lint passes locally with `pnpm lint`
-- [ ] Typecheck passes locally with `pnpm --filter @soroscope/core typecheck`
-- [ ] Documentation has been updated if the public API changed
-- [ ] A changeset has been added if this is a user-facing change (`pnpm changeset`)
+- [ ] `pnpm build` and `pnpm test` pass locally
+- [ ] `pnpm lint` passes (it includes the ban on mocks in tests)
+- [ ] `pnpm typecheck` passes
+- [ ] `pnpm check:fixtures` passes, and any new fixture was recorded by a script, not written by hand
+- [ ] If I changed `packages/ci`, `core` or `invoke`: I ran `pnpm --filter @soroscope/ci bundle:action` and committed `packages/ci/action/index.cjs`
+- [ ] If I edited docs: I changed `packages/demo/content` and ran `pnpm docs:gen` and `pnpm docs:test`, and did not hand-edit `docs/`
+- [ ] A changeset has been added if this is a user-facing change to `core`, `invoke`, `cli`, `ci` or `mcp` (`pnpm changeset`)
 - [ ] PR title follows Conventional Commits format
 - [ ] Self-review of the changes has been performed
 

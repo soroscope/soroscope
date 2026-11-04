@@ -30,6 +30,8 @@ Soroscope is a pnpm workspace under `packages/`. `core` is the foundation (zero 
 
 Keep `core` free of runtime dependencies. If it needs something the platform lacks, that is a design question to raise first.
 
+New to the code? Read [ARCHITECTURE.md](./ARCHITECTURE.md) for how a call flows through the router, what each package does and where to start for common changes.
+
 ## The testing rule: nothing is mocked
 
 This is the project's central convention, and a lint rule enforces part of it.
@@ -42,6 +44,10 @@ This is the project's central convention, and a lint rule enforces part of it.
 - If the network will not produce a case on demand, **record it when it does** or write the gap into `packages/core/tests/fixtures/COVERAGE.md`. Do not invent it.
 - When a test can only vary one input, use a real contract with a real difference (the fixture contract's `work(n)` and `touch(n)`), not an edited number.
 - Say plainly in the pull request what you could not verify.
+
+For a worked example of recording a fixture and checking a decoder against the official tool, see [Adding a fixture-backed test](./packages/test-utils/ADDING-A-FIXTURE.md).
+
+Contributing without the `stellar` CLI or Rust: documentation, the CLI, the CI check's comparison logic and routing logic can all be worked on with `pnpm install && pnpm test` alone, because the unit suite reads committed fixtures. You only need the `stellar` CLI to record new fixtures or rebuild the fixture contract.
 
 Pure logic with a deliberately controlled input (for example the comparison thresholds) is fine to test with values derived from a real measurement. Say so in the test.
 
@@ -102,6 +108,6 @@ The Action runs from a committed bundle, `packages/ci/action/index.cjs`. After c
 
 ## Where to Ask Questions
 
-- For general questions and design discussion, use [GitHub Discussions](https://github.com/soroscope/soroscope/discussions).
+- For questions and design discussion, open an [issue](https://github.com/soroscope/soroscope/issues) using the feature request template, and say it is a question.
 - For everything else, see [SUPPORT.md](./SUPPORT.md), which lists the right channel for each kind of request.
 - Do not file security vulnerabilities as public issues. Follow [SECURITY.md](./SECURITY.md) instead.

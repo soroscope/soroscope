@@ -32,14 +32,14 @@ Everything below is built on that knowledge.
 | [`@soroscope/ci`](./packages/ci) | GitHub Action: fail a pull request when a Soroban call gets more expensive. | implemented, tested live |
 | [`@soroscope/mcp`](./packages/mcp) | Read-only MCP server so AI agents can check RPC health, decode XDR and simulate calls. | implemented, tested live |
 | [`@soroscope/invoke`](./packages/invoke) | Build contract calls from a contract's spec; deploy and call a WASM build on testnet. | implemented, tested live |
-| `@soroscope/gql` | GraphQL gateway generated from a contract spec. | scaffold |
-| `@soroscope/dev` | Hot reload for contracts on a local network. | scaffold |
+| `@soroscope/gql` | GraphQL gateway generated from a contract spec. | frozen |
+| [`@soroscope/dev`](./packages/dev) | `soroscope dev`: run a contract in-process inside `soroban-env-host`, rebuild and hot-swap it on save with storage kept, call it by name. Costs match live testnet exactly. `soroscope gen` for TypeScript types (Orbital codegen). | preview, tested |
 | `@soroscope/testing` | Fork-testing harness for contracts. | scaffold |
-| `@soroscope/inspect` | SAC / SEP-41 token inspector and `stellar.toml` linter. | scaffold |
+| `@soroscope/inspect` | SAC / SEP-41 token inspector and `stellar.toml` linter. | frozen |
 | `@soroscope/differential` | Simulate on several providers and report where they disagree. | scaffold |
-| [`soroscope-vscode`](./packages/vscode) | Decoded events, auth trees and footprints in the editor. | scaffold |
+| [`soroscope-vscode`](./packages/vscode) | Decoded events, auth trees and footprints in the editor. | frozen |
 
-A **scaffold** builds and exports its types and says so in its README. It has no implementation. See the [roadmap](#roadmap).
+A **scaffold** builds and exports its types and says so in its README. It has no implementation. A **frozen** package is a scaffold that is not planned. See the [roadmap](#roadmap).
 
 ## What you can do with it
 
@@ -139,7 +139,9 @@ soroscope/
 │   ├── mcp/           @soroscope/mcp
 │   ├── invoke/        @soroscope/invoke
 │   ├── test-utils/    fixture recorders and the fixture contract (private)
-│   ├── gql dev testing inspect differential vscode   scaffolds
+│   ├── dev/           @soroscope/dev       (in-process engine: dev/engine is a Rust crate)
+│   ├── testing differential   scaffolds
+│   ├── gql inspect vscode     frozen
 │   └── demo/          documentation site (Next.js)
 ├── docs/              generated from packages/demo/content
 └── .github/workflows/ CI, live integration, Action bundle check, release
@@ -153,14 +155,16 @@ Built, in order of what was judged most valuable (see the research behind it in 
 2. CI fee and resource regression checks
 3. MCP and agent interface for decode and simulate
 
-Next, none started:
+In progress:
 
-- **Hot reload** for contracts on a local network (`@soroscope/dev`), for testing the way `localhost` serves web development.
-- **GraphQL gateway** generated from a contract's spec (`@soroscope/gql`).
-- **Fork-testing harness** in TypeScript (`@soroscope/testing`).
+- **`soroscope dev`** (`@soroscope/dev`, preview): save a contract and call it a moment later, without a network. Contracts run in-process inside `soroban-env-host`; each save rebuilds and hot-swaps the code with storage kept; functions are called by name with arguments typed from the spec, and every call shows its events and cost, which equal live testnet `simulateTransaction`. `soroscope gen` writes TypeScript types from the spec using Orbital's codegen. Next: prebuilt engine binaries so it installs without Rust.
+
+Next, not started:
+
+- **Fork-testing** (`@soroscope/testing`): load live mainnet or testnet entries into the in-process engine and test against real state.
 - **Differential simulation** across providers (`@soroscope/differential`).
-- **SAC / SEP-41 token inspector** and **`stellar.toml` linter** (`@soroscope/inspect`).
-- **VS Code extension** for decoded events, auth trees and footprints.
+
+Frozen, not planned: the GraphQL gateway (`@soroscope/gql`), the token and `stellar.toml` inspector (`@soroscope/inspect`) and the VS Code extension. Their READMEs say why.
 
 Deliberately avoided: general indexers and explorers, static analysis and fuzzing, WASM step-through debuggers, and source verification while its standards are unsettled. Other projects already serve those.
 

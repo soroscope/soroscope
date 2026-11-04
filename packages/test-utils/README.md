@@ -14,4 +14,4 @@ Fixture recorders and the fixture contract behind Soroscope's tests. **Nothing h
 
 Needs the `stellar` CLI and, to rebuild the contract, Rust with the `wasm32v1-none` target.
 
-If a test needs a case the network will not produce on demand, record one. Do not write one by hand.
+If a test needs a case the network will not produce on demand, record one. Do not write one by hand. A step-by-step example is in [ADDING-A-FIXTURE.md](./ADDING-A-FIXTURE.md).

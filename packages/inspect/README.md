@@ -4,11 +4,11 @@ Inspectors and linters for Stellar assets and stellar.toml files.
 
 | Status | |
 |---|---|
-| Maturity | **scaffold**: the package builds and exports its types, but has no implementation yet |
-| Published | no (private until implemented) |
+| Maturity | **frozen**: not planned. The package builds and exports its types; no implementation will be added for now |
+| Published | no |
 
-## Plan
+## Why frozen
 
-A SAC / SEP-41 token inspector and a stellar.toml (SEP-1) linter that cross-checks the file against the chain.
+Token inspection and `stellar.toml` linting are outside Soroscope's focus: RPC routing, simulation, cost checks and the in-process dev loop.
 
-See the [roadmap](../../README.md#roadmap).
+The code stays so nothing that imports the types breaks. Ask in an issue before working on it.

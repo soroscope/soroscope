@@ -4,11 +4,11 @@ A VS Code extension that shows decoded diagnostic events, authorization trees an
 
 | Status | |
 |---|---|
-| Maturity | **scaffold**: no extension code yet, only this package manifest |
-| Published | no (private until implemented) |
+| Maturity | **frozen**: not planned. There is only this package manifest; no extension code will be added for now |
+| Published | no |
 
-## Plan
+## Why frozen
 
-Reuse `@soroscope/core` decoders to render a failed transaction's event tree, who must authorize it, and which ledger entries it touches, without leaving the editor.
+An editor extension is a separate product to maintain. Decoded events, auth trees and footprints are available from the CLI and MCP server, which editors and agents can already call.
 
-See the [roadmap](../../README.md#roadmap).
+Ask in an issue before working on it.

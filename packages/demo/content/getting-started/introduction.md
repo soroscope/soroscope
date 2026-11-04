@@ -28,4 +28,4 @@ Soroscope does not manage wallets, keys or accounts, and nothing in the router, 
 
 ## Status
 
-Soroscope is pre-1.0. The packages above are implemented and tested against the live Stellar network. Several more are scaffolded (a GraphQL gateway, hot reload for contracts, a fork-testing harness, a token and `stellar.toml` inspector, a VS Code extension). The [roadmap](https://github.com/soroscope/soroscope#roadmap) says which are which.
+Soroscope is pre-1.0. The packages above are implemented and tested against the live Stellar network. `@soroscope/dev`, an in-process engine for running contracts without a network, is in progress. A fork-testing harness and differential simulation are scaffolded; a GraphQL gateway, a token and `stellar.toml` inspector and a VS Code extension are frozen. The [roadmap](https://github.com/soroscope/soroscope#roadmap) says which are which.

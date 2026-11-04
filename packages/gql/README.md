@@ -4,11 +4,11 @@ GraphQL gateway generated from a Soroban contract's spec.
 
 | Status | |
 |---|---|
-| Maturity | **scaffold**: the package builds and exports its types, but has no implementation yet |
-| Published | no (private until implemented) |
+| Maturity | **frozen**: not planned. The package builds and exports its types; no implementation will be added for now |
+| Published | no |
 
-## Plan
+## Why frozen
 
-Generate a GraphQL schema from a contract's `ScSpecEntry` list. Read-only functions become queries resolved by simulation; events become paginated queries.
+GraphQL and indexer layers over Soroban are already well served (wallet-backend, SubQuery, Goldsky, Mercury and others). Soroscope would be one more.
 
-See the [roadmap](../../README.md#roadmap).
+The code stays so nothing that imports the types breaks. Ask in an issue before working on it.
