@@ -27,7 +27,7 @@
     "check:fixtures": "node packages/test-utils/scripts/check-fixtures.mjs"
   },
   "keywords": [],
-  "author": "Ezedike-Evan <egwomevan323@gmail.com>",
+  "author": "blockchain-maxis (https://github.com/blockchain-maxis)",
   "license": "MIT",
   "packageManager": "pnpm@10.22.0",
   "pnpm": {
