@@ -28,3 +28,48 @@ updates:
       - "ci"
     commit-message:
       prefix: "chore"
+
+  # The engine is the part of this repository that must track the network.
+  # soroban-env-host / soroban-simulation / soroban-sdk majors are protocol
+  # bumps: they are deliberate (bump, rebuild, re-record the parity fixture),
+  # and .github/workflows/protocol-drift.yml tells us when one is due, so
+  # Dependabot is told not to open those. Everything else is grouped.
+  - package-ecosystem: "cargo"
+    directory: "/packages/dev/engine"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    target-branch: "main"
+    open-pull-requests-limit: 5
+    assignees:
+      - "blockchain-maxis"
+    labels:
+      - "dependencies"
+      - "engine"
+    commit-message:
+      prefix: "chore"
+    groups:
+      engine-minor-and-patch:
+        update-types: ["minor", "patch"]
+    ignore:
+      - dependency-name: "soroban-env-host"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "soroban-simulation"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: "cargo"
+    directory: "/packages/test-utils/fixture-contract"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    target-branch: "main"
+    open-pull-requests-limit: 3
+    assignees:
+      - "blockchain-maxis"
+    labels:
+      - "dependencies"
+    commit-message:
+      prefix: "chore"
+    ignore:
+      - dependency-name: "soroban-sdk"
+        update-types: ["version-update:semver-major"]

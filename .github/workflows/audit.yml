@@ -1,7 +1,9 @@
 # ─────────────────────────────────────────────────────────────────────────────
-# Purpose:  Weekly scheduled security audit of all installed npm dependencies.
-#           Fails if any dependency has a high or critical severity
-#           vulnerability. Does not auto-fix — alerts the maintainer to act.
+# Purpose:  Weekly scheduled security audit of all installed npm dependencies
+#           and of the Rust crates the engine and the fixture contract build
+#           from (RustSec advisories). Fails if any npm dependency has a high
+#           or critical severity vulnerability or any crate has an advisory.
+#           Does not auto-fix — alerts the maintainer to act.
 # Triggers: Schedule only — weekly on Wednesday at 03:00 UTC
 # Paths:    None — scheduled, no path filter
 # ─────────────────────────────────────────────────────────────────────────────
@@ -11,6 +13,7 @@ name: Audit
 on:
   schedule:
     - cron: '0 3 * * 3'
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -47,3 +50,28 @@ jobs:
 
       - name: Run security audit
         run: pnpm audit --audit-level high
+
+  cargo-audit:
+    name: Rust advisories (engine, fixture contract)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7.0.0
+
+      - name: Cache cargo-audit
+        id: cache
+        uses: actions/cache@v6
+        with:
+          path: ~/.cargo/bin/cargo-audit
+          key: cargo-audit-${{ runner.os }}-0.22
+
+      - name: Install cargo-audit
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: cargo install cargo-audit --version '^0.22' --locked
+
+      - name: Audit the engine's dependency tree
+        # Exceptions, with reasons, are in .cargo/audit.toml (read from the working directory).
+        run: cargo audit --file packages/dev/engine/Cargo.lock --deny warnings
+
+      - name: Audit the fixture contract's dependency tree
+        run: cargo audit --file packages/test-utils/fixture-contract/Cargo.lock --deny warnings

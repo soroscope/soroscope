@@ -1,0 +1,26 @@
+# Exceptions for `cargo audit` (run from the repository root by
+# .github/workflows/audit.yml). Each one names who pulls the crate in and why it
+# is not reachable here. Anything not listed fails the job, so a new advisory is
+# still an alert. Review these whenever soroban-env-host or soroban-sdk moves.
+
+[advisories]
+ignore = [
+  # crypto-bigint 0.5.5: timing variability in operations meant to be
+  # constant-time. Pulled in by k256/p256/ecdsa inside soroban-env-host (the
+  # secp256k1 and secp256r1 host functions) and, for the fixture contract, by
+  # soroban-sdk. Those functions verify signatures over public data. The engine
+  # never holds or processes a secret key (its local account is derived from a
+  # fixed string and never signs), and the fixture contract is a test artifact.
+  # Fixed upstream in crypto-bigint >=0.7.6; needs soroban-env-host to move its
+  # elliptic-curve stack. Not ours to bump.
+  "RUSTSEC-2026-0387",
+
+  # paste: no longer maintained. A proc-macro used at build time by ark-ff
+  # (BLS12-381 host functions) in soroban-env-host. Compile-time only; nothing
+  # of it ships in the engine's runtime logic.
+  "RUSTSEC-2024-0436",
+
+  # derivative: unmaintained. A proc-macro used at build time by ark-ec 0.4 in
+  # the fixture contract's soroban-sdk. Compile-time only.
+  "RUSTSEC-2024-0388",
+]

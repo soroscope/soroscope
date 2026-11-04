@@ -1,0 +1,35 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Purpose:  Fail when testnet or mainnet runs a newer protocol than the
+#           soroban-env-host embedded in @soroscope/dev. A host only runs
+#           contracts built for its own protocol or older, so past that point
+#           `soroscope dev` refuses the network until the host is bumped and the
+#           parity fixture re-recorded. A failed run is the alert.
+# Triggers: Schedule (twice a week) and manual
+# Paths:    None — scheduled, no path filter
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: Protocol drift
+
+on:
+  schedule:
+    - cron: '0 6 * * 2,5'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  drift:
+    name: Embedded host vs live networks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7.0.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6.4.0
+        with:
+          node-version: 22
+
+      - name: Compare protocols
+        run: node packages/dev/scripts/check-protocol-drift.mjs
