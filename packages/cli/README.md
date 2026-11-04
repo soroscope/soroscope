@@ -16,6 +16,8 @@ soroscope probe --network mainnet
 | `spec <contractId\|file.wasm>` | Functions, errors, events and types. |
 | `simulate` | Simulate a call (nothing signed or sent); named contract errors. |
 | `check` | The CI resource check, locally. |
+| `dev [dir]` | Run a contract crate in-process: rebuild and hot-swap on every save (storage kept), call functions by name from a prompt, see events and cost per call. Needs Rust; nothing is signed or sent. See [`@soroscope/dev`](../dev). |
+| `gen <file.wasm\|dir>` | TypeScript types, Zod schemas and event guards from a contract's spec (Orbital codegen). `-o <file>`, `--hooks` for React hooks. |
 
 Exit codes: `0` ok, `1` the verdict is a failure, `2` usage, `3` network, `4` internal.
 

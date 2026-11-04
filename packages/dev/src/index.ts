@@ -1,9 +1,21 @@
-/** Maturity of this package. Nothing here is implemented yet. */
-export const status = 'scaffold' as const;
+/**
+ * Maturity of this package. `preview`: the in-process engine, the watch loop
+ * (rebuild and hot swap) and spec-typed calls work and are tested; the
+ * `soroscope dev` REPL is new.
+ */
+export const status = 'preview' as const;
 
-export interface DevLoopOptions {
-  /** Directory containing the contract's Cargo project. */
-  projectDir: string;
-  /** Local network RPC URL. Signing is only ever done with a throwaway key on this network. */
-  rpcUrl: string;
-}
+export { LocalNetwork, EngineNotBuiltError, fetchNetworkConfig, loadNativeEngine } from './engine';
+export type { NetworkConfigSnapshot, LocalCallResult, DeployedLocalContract, SwapResult } from './engine';
+
+export { DevSession } from './session';
+export type { ReloadResult, CallOutcome } from './session';
+
+export { ContractInterface, NoEmbeddedSpecError, diffInterfaces, signature, typeName } from './spec';
+export type { NamedEvent, InterfaceDiff } from './spec';
+
+export { DevLoop } from './loop';
+export type { DevLoopEvent, DevLoopOptions } from './loop';
+
+export { BuildError, buildContract, hasStellarCli, resolveProject } from './build';
+export type { Builder, BuildResult, ContractProject } from './build';

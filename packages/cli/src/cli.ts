@@ -1,6 +1,7 @@
 import { Command, CommanderError, InvalidArgumentError } from 'commander';
 import { runCheck } from './commands/check';
 import { runDecode, runExplain } from './commands/decode';
+import { runDev, runGen } from './commands/dev';
 import { runProbe } from './commands/probe';
 import { runRouteExplain } from './commands/routeExplain';
 import { runSimulate } from './commands/simulate';
@@ -128,6 +129,29 @@ export function buildProgram(io: Io, onResult: (code: ExitCodeValue) => void): C
     .option('--markdown-out <path>', 'also write the markdown report to this file')
     .action(async (opts: Parameters<typeof runCheck>[0]) => {
       onResult(await runCheck(opts, io));
+    });
+
+  network(
+    program
+      .command('dev')
+      .description('Run a contract in-process: rebuild and hot-swap it on every save (storage kept), and call it from a prompt')
+      .argument('[dir]', 'the contract crate (where its Cargo.toml is)', '.'),
+  )
+    .option('--builder <tool>', 'stellar (default when installed) or cargo', oneOf('stellar', 'cargo'))
+    .option('--init <json>', 'named constructor arguments for the first deploy, as JSON')
+    .action(async (dir: string, opts: Parameters<typeof runDev>[1]) => {
+      onResult(await runDev(dir, opts, io));
+    });
+
+  program
+    .command('gen')
+    .description("Generate TypeScript types, Zod schemas and event guards from a contract's spec (Orbital codegen)")
+    .argument('<target>', 'a .wasm file, or a contract crate directory to build first')
+    .option('-o, --out <file>', 'write to this file instead of standard output')
+    .option('--hooks', 'also generate React hooks for the contract\'s events')
+    .option('--builder <tool>', 'stellar or cargo, when building a crate', oneOf('stellar', 'cargo'))
+    .action(async (target: string, opts: Parameters<typeof runGen>[1]) => {
+      onResult(await runGen(target, opts, io));
     });
 
   return program;

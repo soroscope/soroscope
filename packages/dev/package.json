@@ -1,7 +1,7 @@
 {
   "name": "@soroscope/dev",
   "version": "0.1.0",
-  "description": "Hot reload for Soroban contracts on a local network.",
+  "description": "Run Soroban contracts in-process inside soroban-env-host: rebuild and hot-swap on save, call by name from a prompt. No network, no Docker.",
   "private": true,
   "type": "module",
   "main": "./dist/index.js",
@@ -19,8 +19,9 @@
   ],
   "scripts": {
     "build": "tsup",
+    "build:engine": "cargo build --release --manifest-path engine/Cargo.toml",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run --passWithNoTests",
+    "test:engine": "vitest run --config vitest.engine.config.ts",
     "test:integration": "vitest run --config vitest.integration.config.ts --passWithNoTests"
   },
   "keywords": [
@@ -28,7 +29,7 @@
     "soroban",
     "devtools"
   ],
-  "author": "Ezedike-Evan <egwomevan323@gmail.com>",
+  "author": "blockchain-maxis (https://github.com/blockchain-maxis)",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -39,7 +40,9 @@
     "node": ">=20"
   },
   "dependencies": {
-    "@soroscope/core": "workspace:*"
+    "@orbital-stellar/abi-registry": "0.2.0",
+    "@soroscope/core": "workspace:*",
+    "@stellar/stellar-sdk": "^17.2.1"
   },
   "devDependencies": {
     "@types/node": "^25.9.0",

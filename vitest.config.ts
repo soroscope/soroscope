@@ -6,7 +6,8 @@ export default defineConfig({
     environment: 'node',
     include: ['packages/*/tests/**/*.test.ts'],
     // Integration tests talk to live Stellar networks; they run in their own job.
-    exclude: ['packages/*/tests/integration/**', '**/node_modules/**'],
+    // Engine tests need the native engine built with Rust; they also run in their own job.
+    exclude: ['packages/*/tests/integration/**', 'packages/*/tests/engine/**', '**/node_modules/**'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html', 'lcov'],

@@ -32,7 +32,7 @@
     "rpc",
     "devtools"
   ],
-  "author": "Ezedike-Evan <egwomevan323@gmail.com>",
+  "author": "blockchain-maxis (https://github.com/blockchain-maxis)",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -47,7 +47,8 @@
     "commander": "^14.0.0",
     "@soroscope/ci": "workspace:*",
     "@soroscope/invoke": "workspace:*",
-    "@stellar/stellar-sdk": "^17.2.1"
+    "@stellar/stellar-sdk": "^17.2.1",
+    "@soroscope/dev": "workspace:*"
   },
   "devDependencies": {
     "tsup": "^8.5.1",

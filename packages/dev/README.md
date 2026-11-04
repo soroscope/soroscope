@@ -1,14 +1,96 @@
 # @soroscope/dev
 
-Hot reload for Soroban contracts on a local network.
+Run Soroban contracts inside your own process, the way `localhost` serves a web app and `nodemon` restarts a server: save the contract, call it a moment later. No network, no Docker, no faucet, no signing.
 
 | Status | |
 |---|---|
-| Maturity | **scaffold**: the package builds and exports its types, but has no implementation yet |
-| Published | no (private until implemented) |
+| Maturity | **preview**: the engine, the watch loop and spec-typed calls work and are tested; the `soroscope dev` prompt is new |
+| Published | no (the native engine needs prebuilt binaries per platform first) |
 
-## Plan
+## `soroscope dev`
 
-Watch Rust sources, rebuild the WASM, upgrade the contract on a local quickstart network, regenerate bindings and rerun checks. Local network and throwaway key only.
+```sh
+cd my-contract            # the crate with the contract's Cargo.toml
+soroscope dev             # or: soroscope dev path/to/crate --network mainnet
+```
 
-See the [roadmap](../../README.md#roadmap).
+```
+reading testnet fee and cost settings…
+● building (start)…
+✓ deployed CDUFFSMD7XTNVR3VT3JBUYAWJLBI75BQO3TG75J7B4RIDUGVBHWSFKLZ (build 2.3s)
+soroscope> mint to=me amount=1000
+← ()
+  cost    488,796 instructions · 1,221,790 bytes memory · 3 entries (1 written) · fee 26,299 stroops · 1 auth
+soroscope> move_funds from=me to=GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN7 amount=300
+← ()
+  event   Moved { from: GAXK…3ZAJ, to: GAAZ…CWN7, amount: "300" }
+  cost    602,368 instructions · 1,226,119 bytes memory · 4 entries (2 written) · fee 28,699 stroops · 1 auth
+soroscope> move_funds from=me to=GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN7 amount=999999
+✗ Error #2 InsufficientFunds: The sender does not hold enough funds.
+  cost    416,156 instructions · 1,221,792 bytes memory
+● building (src/lib.rs changed)…
+✓ swapped in place · CDUF…FKLZ · storage kept (build 2.8s)
+  +version
+soroscope> balance who=me
+← "700"
+```
+
+- **Save to rebuild.** Changes to `.rs` files, `Cargo.toml` or `Cargo.lock` rebuild the contract (`stellar contract build`, or `cargo` with `--builder cargo`) and **swap the new code into the same contract**. Its ID and all its storage survive, so you never re-seed state. A compile error is shown and the last good build keeps running.
+- **Call by name.** `fn name=value ...` with arguments typed from the contract's own spec (`amount=1000` becomes an `i128` where the spec says `i128`). `me` is the local account. `?fn ...` simulates without applying writes.
+- **See what a call costs.** Every call prints its return value, its events named from the spec (`Moved { from, to, amount }`), CPU, memory, ledger entries, the resource fee and the authorizations it needs.
+- **Commands:** `.fns` lists functions with their signatures, `.events` the declared events, `.advance <n>` closes ledgers (TTLs and timestamps move), `.gen [file]` writes TypeScript types, `.exit` quits.
+- `--init '{"admin":"me"}'` passes constructor arguments to the first deploy.
+
+The fee and cost settings of `--network` are read once at start; after that nothing touches the network.
+
+## `soroscope gen`
+
+```sh
+soroscope gen target/wasm32v1-none/release/my_contract.wasm -o src/contract.ts
+soroscope gen ./contracts/token --hooks          # build the crate first; add React hooks for its events
+```
+
+TypeScript parameter and return types, Zod schemas and event type guards for every function, event and user-defined type in the contract's spec. Generation is done by **Orbital's codegen** ([`@orbital-stellar/abi-registry`](https://www.npmjs.com/package/@orbital-stellar/abi-registry)), which Soroscope also uses to read the spec. The output imports `zod` and `@orbital-stellar/pulse-core`.
+
+## As a library
+
+```ts
+import { DevSession, DevLoop, fetchNetworkConfig } from '@soroscope/dev';
+
+const session = DevSession.create(await fetchNetworkConfig(rpc, 'Test SDF Network ; September 2015'));
+const loop = new DevLoop({ projectDir: './contracts/counter', session, onEvent: console.log });
+await loop.start();
+
+const r = session.call('increment', { by: 5 });   // r.value, r.events, r.cpuInstructions, r.report
+```
+
+`LocalNetwork` is the layer underneath: deploy, invoke with base64 `ScVal`s, `swapWasm`, `advance`. Its `invoke` returns the same `SimulationReport` `@soroscope/core` decodes from RPC.
+
+## How it works, and how it is checked
+
+Contracts run inside `soroban-env-host`, the host stellar-core runs, through `soroban-simulation`, the code path Stellar RPC's `simulateTransaction` uses, against a ledger held in memory. The engine is a Rust crate in [`engine/`](./engine) loaded through N-API. A call takes about 3 ms.
+
+- **The numbers are the network's.** Instructions, read and write bytes, footprint size and resource fee equal live testnet `simulateTransaction`, call for call. [`parity.test.ts`](./tests/engine/parity.test.ts) checks this against [recorded live responses](./tests/fixtures/engine-parity.json) for the exact WASM the network ran.
+- **The loop is tested with a real compiler.** [`loop.test.ts`](./tests/engine/loop.test.ts) builds a copy of the fixture contract, edits it on disk, and checks the rebuild, the swap, the storage that survived, and recovery from a compile error.
+
+## Limits
+
+- Auth is **recorded, not enforced**, as in RPC simulation: every `require_auth` passes and is reported.
+- New entries get the network's minimum TTL. A contract's own `extend_ttl` calls are not yet applied to the local ledger.
+- The ledger starts empty except for one funded local account: no native asset contract, no other contracts unless you deploy them. Fork-testing will load real ones.
+- One contract per session. Built for protocol 29 (`soroban-env-host` 29.0.2).
+
+## Building
+
+```sh
+pnpm --filter @soroscope/dev build:engine   # cargo build --release (needs Rust)
+pnpm --filter @soroscope/dev test:engine    # engine, session, parity and watch-loop tests
+```
+
+`SOROSCOPE_ENGINE_PATH` points at a binary built elsewhere. To re-record the parity fixture (needs the `stellar` CLI, Rust and network access; deploys to testnet with a throwaway friendbot key): `node packages/test-utils/scripts/record-engine-parity.mjs`.
+
+## Next
+
+1. Prebuilt engine binaries per platform, so `npx @soroscope/cli dev` works without Rust.
+2. Fork: load live mainnet or testnet entries into the local ledger on demand.
+3. Several contracts in one session (a contract that calls another).
