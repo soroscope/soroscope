@@ -5,7 +5,14 @@
  */
 export const status = 'preview' as const;
 
-export { LocalNetwork, EngineNotBuiltError, fetchNetworkConfig, loadNativeEngine } from './engine';
+export {
+  LocalNetwork,
+  EngineNotBuiltError,
+  UnsupportedProtocolError,
+  fetchNetworkConfig,
+  hostProtocolVersion,
+  loadNativeEngine,
+} from './engine';
 export type { NetworkConfigSnapshot, LocalCallResult, DeployedLocalContract, SwapResult } from './engine';
 
 export { DevSession } from './session';

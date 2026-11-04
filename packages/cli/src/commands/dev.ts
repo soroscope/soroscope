@@ -190,7 +190,16 @@ export async function runDev(
     router.stop();
   }
 
-  const session = dev.DevSession.create(config);
+  let session: Dev.DevSession;
+  try {
+    session = dev.DevSession.create(config);
+  } catch (err) {
+    // Both are about this machine or this network, not a bug: say so and exit as usage.
+    if (err instanceof dev.EngineNotBuiltError || err instanceof dev.UnsupportedProtocolError) {
+      throw new CliError(err.message, ExitCode.Usage);
+    }
+    throw err;
+  }
   const loop = new dev.DevLoop({
     projectDir: dir,
     session,

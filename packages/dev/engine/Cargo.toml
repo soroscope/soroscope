@@ -12,8 +12,8 @@ description = "In-process Soroban execution for @soroscope/dev: runs a contract 
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-soroban-env-host = { version = "=29.0.2", features = ["recording_mode"] }
-soroban-simulation = "29"
+soroban-env-host = { version = "=30.0.0", features = ["recording_mode"] }
+soroban-simulation = "30"
 napi = { version = "3", default-features = false, features = ["napi6"] }
 napi-derive = "3"
 base64 = "0.22"

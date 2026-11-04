@@ -1,0 +1,133 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Purpose:  Build the in-process Soroban engine natively on every supported
+#           platform, run the engine tests on each, and (only when asked)
+#           publish one npm package per platform so `@soroscope/dev` installs
+#           without a Rust toolchain.
+# Triggers: manual only. Publishing needs the `publish` input and NPM_TOKEN.
+# Platforms: packages/dev/engine/platforms.json (the single list)
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: Engine binaries
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Publish the platform packages to npm (needs NPM_TOKEN)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  plan:
+    name: Read the platform list
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7.0.0
+      - name: Matrix from engine/platforms.json
+        id: matrix
+        run: echo "matrix=$(node packages/dev/scripts/package-engine.mjs matrix)" >> "$GITHUB_OUTPUT"
+
+  build:
+    name: ${{ matrix.package }}
+    needs: plan
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.plan.outputs.matrix) }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7.0.0
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6.0.9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6.4.0
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Cache cargo registry and engine build
+        uses: actions/cache@v6
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            packages/dev/engine/target
+          key: ${{ matrix.package }}-${{ hashFiles('packages/dev/engine/Cargo.lock') }}
+          restore-keys: ${{ matrix.package }}-
+
+      - name: Build the engine natively
+        # Each runner is the target's own architecture, so no cross-compilation:
+        # the tests below run the binary that gets published.
+        run: |
+          rustup update stable
+          rustup target add wasm32v1-none
+          pnpm --filter @soroscope/dev build:engine
+        shell: bash
+
+      - name: Build packages the engine tests import
+        run: pnpm exec turbo run build --filter=@soroscope/dev...
+
+      - name: Engine tests against the binary being published
+        run: pnpm --filter @soroscope/dev test:engine
+
+      - name: Package
+        run: >
+          node packages/dev/scripts/package-engine.mjs package
+          --package ${{ matrix.package }}
+          --library packages/dev/engine/target/release/${{ matrix.library }}
+          --out out/${{ matrix.package }}
+        shell: bash
+
+      - name: Upload
+        uses: actions/upload-artifact@v5
+        with:
+          name: engine-${{ matrix.os }}-${{ matrix.cpu }}${{ matrix.libc && format('-{0}', matrix.libc) || '' }}
+          path: out/${{ matrix.package }}
+          if-no-files-found: error
+
+  publish:
+    name: Publish platform packages
+    needs: build
+    if: ${{ inputs.publish }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # npm provenance
+    steps:
+      - name: Setup Node.js
+        uses: actions/setup-node@v6.4.0
+        with:
+          node-version: 22
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Download every platform package
+        uses: actions/download-artifact@v5
+        with:
+          pattern: engine-*
+          path: packages-out
+
+      - name: Publish (skips versions that already exist)
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          test -n "$NODE_AUTH_TOKEN" || { echo "NPM_TOKEN is not set"; exit 1; }
+          for dir in packages-out/*/; do
+            name=$(node -p "require('./$dir/package.json').name")
+            version=$(node -p "require('./$dir/package.json').version")
+            if npm view "$name@$version" version >/dev/null 2>&1; then
+              echo "$name@$version already published, skipping"
+            else
+              (cd "$dir" && npm publish --access public --provenance)
+            fi
+          done

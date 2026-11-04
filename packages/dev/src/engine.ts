@@ -1,6 +1,8 @@
 import { existsSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { ENGINE_BINARY, detectLibc, enginePackageFor } from './platform';
 import { decodeSimulationResponse, type RpcCaller, type RawSimulateResponse, type SimulationReport } from '@soroscope/core';
 
 /**
@@ -62,7 +64,7 @@ type NativeEngineCtor = new (options: {
 export class EngineNotBuiltError extends Error {
   constructor(readonly searched: string[]) {
     super(
-      `The @soroscope/dev engine binary was not found. Build it with \`pnpm --filter @soroscope/dev build:engine\` (needs Rust), or set SOROSCOPE_ENGINE_PATH. Looked in:\n  ${searched.join('\n  ')}`,
+      `The @soroscope/dev engine binary was not found. Install the prebuilt package for your platform (it is an optional dependency of @soroscope/dev), build it with \`pnpm --filter @soroscope/dev build:engine\` (needs Rust), or set SOROSCOPE_ENGINE_PATH. Looked in:\n  ${searched.join('\n  ')}`,
     );
     this.name = 'EngineNotBuiltError';
   }
@@ -74,25 +76,84 @@ function nativeFileName(): string {
   return 'libsoroscope_engine.so';
 }
 
-let cached: NativeEngineCtor | undefined;
+/**
+ * Where the prebuilt engine for this machine lives, if its package is
+ * installed. `undefined` when none is published for this platform, or the
+ * optional dependency was not installed (for example `--no-optional`).
+ */
+function installedEnginePath(): string | undefined {
+  const pkg = enginePackageFor({ platform: process.platform, arch: process.arch, libc: detectLibc() });
+  if (pkg === undefined) return undefined;
+  try {
+    return createRequire(import.meta.url).resolve(`${pkg}/${ENGINE_BINARY}`);
+  } catch {
+    return undefined;
+  }
+}
 
-/** Load the native engine. Exposed so callers can fail early with a clear message. */
-export function loadNativeEngine(): NativeEngineCtor {
-  if (cached !== undefined) return cached;
+/** What the native module exports. */
+interface NativeModule {
+  Engine: NativeEngineCtor;
+  hostProtocolVersion: () => number;
+}
+
+/**
+ * Thrown when the network to emulate runs a different protocol than the
+ * `soroban-env-host` this package embeds, in a way the host cannot cope with.
+ *
+ * - Network ahead of the host: the host runs contracts built for its own
+ *   protocol or older, and would fail mid-session with `contract protocol
+ *   number is newer than host`.
+ * - Network behind the host: the host's cost model has more entries than the
+ *   network recorded (protocol 30 added cost types), so it cannot meter calls.
+ */
+export class UnsupportedProtocolError extends Error {
+  constructor(
+    readonly networkProtocol: number,
+    readonly hostProtocol: number,
+  ) {
+    super(
+      networkProtocol > hostProtocol
+        ? `The network runs protocol ${networkProtocol}, but this build of @soroscope/dev embeds a soroban-env-host for protocol ${hostProtocol}, which cannot run contracts built for a newer protocol. Update @soroscope/dev.`
+        : `The network runs protocol ${networkProtocol}, but this build of @soroscope/dev embeds a soroban-env-host for protocol ${hostProtocol}, whose cost model the older network's configuration does not cover. Use a network on protocol ${hostProtocol}, or a @soroscope/dev build for protocol ${networkProtocol}.`,
+    );
+    this.name = 'UnsupportedProtocolError';
+  }
+}
+
+let cachedModule: NativeModule | undefined;
+
+function loadNativeModule(): NativeModule {
+  if (cachedModule !== undefined) return cachedModule;
   const here = dirname(fileURLToPath(import.meta.url));
   const candidates = [
     process.env.SOROSCOPE_ENGINE_PATH,
+    // A local build wins over an installed package, so working on the engine just works.
     // From src/ (tests) and from dist/ (built package), the crate is one level up.
     resolve(here, '../engine/target/release', nativeFileName()),
+    installedEnginePath(),
   ].filter((p): p is string => p !== undefined && p !== '');
   const found = candidates.find((p) => existsSync(p));
   if (found === undefined) throw new EngineNotBuiltError(candidates);
   // process.dlopen accepts any file name; require() would only for `.node`.
-  const mod: { exports: { Engine?: NativeEngineCtor } } = { exports: {} };
+  const mod: { exports: Partial<NativeModule> } = { exports: {} };
   process.dlopen(mod, found);
-  if (mod.exports.Engine === undefined) throw new Error(`${found} is not the Soroscope engine (no Engine export)`);
-  cached = mod.exports.Engine;
-  return cached;
+  const { Engine, hostProtocolVersion } = mod.exports;
+  if (Engine === undefined || hostProtocolVersion === undefined) {
+    throw new Error(`${found} is not the Soroscope engine (missing Engine or hostProtocolVersion export)`);
+  }
+  cachedModule = { Engine, hostProtocolVersion };
+  return cachedModule;
+}
+
+/** Load the native engine. Exposed so callers can fail early with a clear message. */
+export function loadNativeEngine(): NativeEngineCtor {
+  return loadNativeModule().Engine;
+}
+
+/** The newest protocol the embedded `soroban-env-host` can run. */
+export function hostProtocolVersion(): number {
+  return loadNativeModule().hostProtocolVersion();
 }
 
 /**
@@ -106,16 +167,25 @@ export class LocalNetwork {
 
   /** Start an empty local ledger that meters and prices calls like the network `config` came from. */
   static create(config: NetworkConfigSnapshot, options: { timestamp?: number } = {}): LocalNetwork {
-    const Engine = loadNativeEngine();
-    return new LocalNetwork(
-      new Engine({
-        networkPassphrase: config.networkPassphrase,
-        protocolVersion: config.protocolVersion,
-        sequence: config.latestLedger,
-        timestamp: options.timestamp ?? Math.floor(Date.now() / 1000),
-        configEntries: config.configEntries,
-      }),
-    );
+    const { Engine, hostProtocolVersion: hostProtocol } = loadNativeModule();
+    const supported = hostProtocol();
+    if (config.protocolVersion > supported) throw new UnsupportedProtocolError(config.protocolVersion, supported);
+    try {
+      return new LocalNetwork(
+        new Engine({
+          networkPassphrase: config.networkPassphrase,
+          protocolVersion: config.protocolVersion,
+          sequence: config.latestLedger,
+          timestamp: options.timestamp ?? Math.floor(Date.now() / 1000),
+          configEntries: config.configEntries,
+        }),
+      );
+    } catch (e) {
+      if (e instanceof Error && e.message.includes('cost model mismatch')) {
+        throw new UnsupportedProtocolError(config.protocolVersion, supported);
+      }
+      throw e;
+    }
   }
 
   /** `G...` address of the local account that deploys and invokes. It never signs anything. */

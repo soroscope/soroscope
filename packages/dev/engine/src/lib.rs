@@ -20,7 +20,7 @@ use sha2::{Digest, Sha256};
 use soroban_env_host::e2e_invoke::RecordingInvocationAuthMode;
 use soroban_env_host::storage::{EntryWithLiveUntil, SnapshotSource};
 use soroban_env_host::xdr::{
-    AccountEntry, AccountEntryExt, AccountId, ContractDataDurability, ContractExecutable,
+    AccountEntry, AccountEntryExt, AccountId, ContractCostType, ContractDataDurability, ContractExecutable,
     ContractId, ContractIdPreimage, ContractIdPreimageFromAddress, CreateContractArgsV2, Hash,
     HostFunction, InvokeContractArgs, LedgerEntry, LedgerEntryData, LedgerEntryExt, LedgerKey,
     LedgerKeyAccount, LedgerKeyConfigSetting, LedgerKeyContractCode, LedgerKeyContractData,
@@ -33,6 +33,14 @@ use soroban_simulation::simulation::{
     SimulationAdjustmentConfig,
 };
 use soroban_simulation::NetworkConfig;
+
+/// The newest protocol this build of the host can run. A host executes
+/// contracts built for the same or an older protocol, so a network ahead of it
+/// would fail with an opaque `contract protocol number is newer than host`.
+#[napi]
+pub fn host_protocol_version() -> u32 {
+    soroban_env_host::meta::INTERFACE_VERSION.protocol
+}
 
 fn err(msg: impl std::fmt::Display) -> Error {
     Error::new(Status::GenericFailure, msg.to_string())
@@ -134,6 +142,14 @@ pub struct Engine {
 impl Engine {
     #[napi(constructor)]
     pub fn new(options: EngineOptions) -> Result<Self> {
+        // Defence in depth: the TypeScript layer raises a typed error first.
+        if options.protocol_version > host_protocol_version() {
+            return Err(err(format!(
+                "network protocol {} is newer than the host this engine embeds ({})",
+                options.protocol_version,
+                host_protocol_version()
+            )));
+        }
         let mut ledger = Ledger::default();
         for c in &options.config_entries {
             let data: LedgerEntryData = from_b64(&c.xdr, "config LedgerEntryData")?;
@@ -146,6 +162,21 @@ impl Engine {
         }
         let network_config = NetworkConfig::load_from_snapshot(&ledger)
             .map_err(|e| err(format!("network config incomplete: {e:#}")))?;
+        // The host builds its budget from the network's cost model and needs one
+        // entry per cost type it defines. A network on an older protocol than
+        // the host has fewer (the host would fail with an opaque
+        // `Error(Context, InternalError)` on the first call), so say so here.
+        let defined = ContractCostType::VARIANTS.len();
+        let recorded = network_config.cpu_cost_params.0.len();
+        if recorded != defined || network_config.memory_cost_params.0.len() != defined {
+            return Err(err(format!(
+                "cost model mismatch: the network's configuration (protocol {}) has {} cost types, the embedded host (protocol {}) defines {}",
+                options.protocol_version,
+                recorded,
+                host_protocol_version(),
+                defined
+            )));
+        }
         let mut ledger_info = LedgerInfo {
             protocol_version: options.protocol_version,
             sequence_number: options.sequence,

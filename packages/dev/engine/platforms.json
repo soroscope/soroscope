@@ -1,0 +1,7 @@
+[
+  { "package": "@soroscope/dev-linux-x64-gnu", "os": "linux", "cpu": "x64", "libc": "glibc", "rustTarget": "x86_64-unknown-linux-gnu", "runner": "ubuntu-latest", "library": "libsoroscope_engine.so" },
+  { "package": "@soroscope/dev-linux-arm64-gnu", "os": "linux", "cpu": "arm64", "libc": "glibc", "rustTarget": "aarch64-unknown-linux-gnu", "runner": "ubuntu-24.04-arm", "library": "libsoroscope_engine.so" },
+  { "package": "@soroscope/dev-darwin-x64", "os": "darwin", "cpu": "x64", "rustTarget": "x86_64-apple-darwin", "runner": "macos-15-intel", "library": "libsoroscope_engine.dylib" },
+  { "package": "@soroscope/dev-darwin-arm64", "os": "darwin", "cpu": "arm64", "rustTarget": "aarch64-apple-darwin", "runner": "macos-latest", "library": "libsoroscope_engine.dylib" },
+  { "package": "@soroscope/dev-win32-x64-msvc", "os": "win32", "cpu": "x64", "rustTarget": "x86_64-pc-windows-msvc", "runner": "windows-latest", "library": "soroscope_engine.dll" }
+]

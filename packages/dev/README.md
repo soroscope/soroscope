@@ -5,13 +5,14 @@ Run Soroban contracts inside your own process, the way `localhost` serves a web 
 | Status | |
 |---|---|
 | Maturity | **preview**: the engine, the watch loop and spec-typed calls work and are tested; the `soroscope dev` prompt is new |
-| Published | no (the native engine needs prebuilt binaries per platform first) |
+| Published | no. The per-platform engine packages and their release workflow exist ([`engine-binaries.yml`](../../.github/workflows/engine-binaries.yml)) but have only been run on linux-x64; see [`OUTSTANDING.md`](../../OUTSTANDING.md) |
+| Protocol | **30** (`soroban-env-host` 30.0.0): runs against testnet. Mainnet is on 29 and is refused until it upgrades; see [Protocols](#protocols) |
 
 ## `soroscope dev`
 
 ```sh
 cd my-contract            # the crate with the contract's Cargo.toml
-soroscope dev             # or: soroscope dev path/to/crate --network mainnet
+soroscope dev             # or: soroscope dev path/to/crate --network testnet
 ```
 
 ```
@@ -73,12 +74,24 @@ Contracts run inside `soroban-env-host`, the host stellar-core runs, through `so
 - **The numbers are the network's.** Instructions, read and write bytes, footprint size and resource fee equal live testnet `simulateTransaction`, call for call. [`parity.test.ts`](./tests/engine/parity.test.ts) checks this against [recorded live responses](./tests/fixtures/engine-parity.json) for the exact WASM the network ran.
 - **The loop is tested with a real compiler.** [`loop.test.ts`](./tests/engine/loop.test.ts) builds a copy of the fixture contract, edits it on disk, and checks the rebuild, the swap, the storage that survived, and recovery from a compile error.
 
+## Protocols
+
+A `soroban-env-host` runs contracts built for its own protocol or older, and meters calls with a cost model that gets new entries at each protocol (86 cost types at protocol 29, 95 at 30). So one host cannot emulate every network at once:
+
+| Network protocol | This build (host 30) |
+|---|---|
+| 30 (testnet) | runs; costs equal live `simulateTransaction` |
+| 29 (mainnet) | refused with `UnsupportedProtocolError`: the network's configuration lacks the 9 cost types the host needs |
+| 31 or newer | refused with `UnsupportedProtocolError`: the host cannot run newer contracts |
+
+Refusing is deliberate. Padding the missing cost types would give numbers that look right and are not the network's. `.github/workflows/protocol-drift.yml` fails when a live network gets ahead of the embedded host, and `hostProtocolVersion()` reports what a build embeds.
+
 ## Limits
 
 - Auth is **recorded, not enforced**, as in RPC simulation: every `require_auth` passes and is reported.
 - New entries get the network's minimum TTL. A contract's own `extend_ttl` calls are not yet applied to the local ledger.
 - The ledger starts empty except for one funded local account: no native asset contract, no other contracts unless you deploy them. Fork-testing will load real ones.
-- One contract per session. Built for protocol 29 (`soroban-env-host` 29.0.2).
+- One contract per session.
 
 ## Building
 
@@ -91,6 +104,7 @@ pnpm --filter @soroscope/dev test:engine    # engine, session, parity and watch-
 
 ## Next
 
-1. Prebuilt engine binaries per platform, so `npx @soroscope/cli dev` works without Rust.
-2. Fork: load live mainnet or testnet entries into the local ledger on demand.
-3. Several contracts in one session (a contract that calls another).
+1. Publish: prebuilt engine binaries exist as a pipeline; they need running on every platform, then publishing.
+2. Run against both live protocols at once (two hosts in one engine), so mainnet works while testnet is ahead.
+3. Fork: load live mainnet or testnet entries into the local ledger on demand.
+4. Several contracts in one session (a contract that calls another).
