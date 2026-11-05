@@ -2,21 +2,30 @@ import { createHash } from 'node:crypto';
 import { decodeSimulationResponse } from '@soroscope/core';
 import { describe, expect, it } from 'vitest';
 import { LocalNetwork } from '../../src';
-import { fixture, recordedAt, v2Wasm } from './helpers';
+import { fixture, fixture29, recordedAtOf, type ParityFixture } from './helpers';
 
-// The fixture holds live testnet `simulateTransaction` responses for calls on a
+// Each fixture holds live testnet `simulateTransaction` responses for calls on a
 // contract built from these exact WASM bytes, and the network configuration of
-// the same moment. The engine must compute the same numbers, not similar ones.
-describe('parity with live testnet simulateTransaction', () => {
-  const net = LocalNetwork.create(fixture, { timestamp: recordedAt });
+// the same moment. The engine must compute the same numbers, not similar ones,
+// on the host for that fixture's protocol.
+describe.each<[string, ParityFixture]>([
+  ['protocol 30', fixture],
+  ['protocol 29', fixture29],
+])('parity with live testnet simulateTransaction (%s)', (_name, fx) => {
+  const v2Wasm = Buffer.from(fx.v2Wasm, 'base64');
+  const net = LocalNetwork.create(fx, { timestamp: recordedAtOf(fx) });
   const { contractId, wasmHash } = net.deploy(v2Wasm);
 
-  it('ran the same code the network ran', () => {
-    expect(wasmHash).toBe(fixture.live.wasmHash);
-    expect(createHash('sha256').update(v2Wasm).digest('hex')).toBe(fixture.live.wasmHash);
+  it('ran on the host for the protocol it was recorded on', () => {
+    expect(net.protocol).toBe(fx.protocolVersion);
   });
 
-  for (const call of fixture.calls) {
+  it('ran the same code the network ran', () => {
+    expect(wasmHash).toBe(fx.live.wasmHash);
+    expect(createHash('sha256').update(v2Wasm).digest('hex')).toBe(fx.live.wasmHash);
+  });
+
+  for (const call of fx.calls) {
     const label = `${call.fn}(${call.args.length} arg${call.args.length === 1 ? '' : 's'})`;
     it(`${label}: same outcome, instructions, bytes, footprint and resource fee`, () => {
       const live = decodeSimulationResponse(call.live);

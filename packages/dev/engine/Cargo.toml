@@ -12,8 +12,13 @@ description = "In-process Soroban execution for @soroscope/dev: runs a contract 
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-soroban-env-host = { version = "=30.0.0", features = ["recording_mode"] }
-soroban-simulation = "30"
+# One host per protocol the engine can emulate, renamed so both link into one
+# library. A host only runs the protocol it was released for; see src/lib.rs.
+# Add the next protocol here, as host31/sim31, when the network moves.
+host29 = { package = "soroban-env-host", version = "=29.0.2", features = ["recording_mode"] }
+sim29 = { package = "soroban-simulation", version = "=29.0.2" }
+host30 = { package = "soroban-env-host", version = "=30.0.0", features = ["recording_mode"] }
+sim30 = { package = "soroban-simulation", version = "=30.0.0" }
 napi = { version = "3", default-features = false, features = ["napi6"] }
 napi-derive = "3"
 base64 = "0.22"

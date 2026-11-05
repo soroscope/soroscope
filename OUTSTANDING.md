@@ -10,44 +10,38 @@ read once. "Closes when" is a check anyone can run.
 
 ## 1. Blocking the product
 
-### 1.1 `@soroscope/dev` can run one protocol, and the two live networks are on different ones
+### 1.1 Each protocol upgrade needs a new host, and the 29 evidence is not mainnet's
 
-The engine embeds one `soroban-env-host`, now 30.0.0. Checked 2026-11-04 against
-the live networks:
+The engine embeds one `soroban-env-host` per protocol (29.0.2 and 30.0.0, renamed
+in `Cargo.toml`, the same engine body instantiated once for each) and picks by
+the network's protocol. This was necessary, not a preference: the cost model gains
+entries at each protocol (`stellar-xdr` defines 86 `ContractCostType` variants
+through protocol 29 and 95 in 30), so a host cannot meter a configuration from a
+different protocol. With a single protocol-30 host, the first build against the
+protocol-29 fixture failed 15 of 24 engine tests with
+`Error(Context, InternalError)`.
 
-| Network | Protocol | `soroscope dev` |
-|---|---|---|
-| testnet | 30 | runs; costs equal live `simulateTransaction` on all 9 recorded calls (ledger 5561299) |
-| mainnet | 29 | refused with `UnsupportedProtocolError` |
+Checked 2026-11-05: testnet is on 30 and mainnet on 29; both load into the
+matching host, deploy the fixture contract and run it. Two hosts do link into one
+`cdylib` (12 MB, 8-20 minute cold build); the isolation spike alone proved less
+than that, because LTO dropped the host code it did not call.
 
-One host cannot serve both, and this is not a version-pin oversight. The cost
-model gains entries at each protocol: `stellar-xdr` defines 86 `ContractCostType`
-variants through protocol 29 and 95 in 30. A protocol-29 network's recorded
-configuration therefore has nine fewer entries than the v30 host needs to build
-its budget. Before the guard, that surfaced as `Error(Context, InternalError)` on
-the first WASM upload, which says nothing. The first v30 build against the
-protocol-29 fixture failed 15 of 24 engine tests this way.
+What is still open:
 
-Padding the missing nine entries would make mainnet "work" with numbers that look
-right and are not the network's, which is the one thing this package promises
-not to do. So it refuses.
-
-**Cost of leaving it alone:** `--network mainnet` is unusable until mainnet
-upgrades to protocol 30. When it does, the problem is the other way round for
-anyone still on a protocol-29 engine. Every protocol upgrade reopens this.
-
-**Closes when:** one binary runs both protocols (two hosts side by side, chosen
-by the network's protocol: `soroban-env-host` 29.0.2 and 30.0.0 renamed in
-`Cargo.toml`, the engine body instantiated once per host), with a parity
-fixture recorded from each network, both passing in CI. Unverified: that two
-`soroban-env-host` majors link into one `cdylib` without clashing. Try that
-first, in isolation, before building on it. If they do not link, the fallback is
-one engine package per protocol and a loader that picks by network.
-
-**What exists now:** `UnsupportedProtocolError` (network ahead of the host, or
-behind its cost model), `hostProtocolVersion()`, and
-`.github/workflows/protocol-drift.yml`, which fails twice a week when a live
-network is ahead of the embedded host and reports when one is behind.
+- **The protocol-29 parity evidence is testnet's.** `engine-parity-protocol-29.json`
+  was recorded on 2026-10-31 while testnet ran 29. It proves the 29 host
+  reproduces a live `simulateTransaction` call for call. Mainnet's configuration
+  (fees, limits) differs from testnet's, and mainnet was only smoke-tested, not
+  compared to a live mainnet simulation, because that needs a contract deployed
+  to mainnet. It cannot be re-recorded: testnet has moved on.
+  **Closes when:** a read-only mainnet contract is simulated live and the engine,
+  given the same WASM and state, matches it. That needs fork-testing (3.1).
+- **Every upgrade is a build-and-record chore.** Add `hostNN`/`simNN` to
+  `Cargo.toml`, one `mod vNN` in `src/lib.rs`, record a fixture from that network.
+  `protocol-drift.yml` fails when a network gets ahead of every embedded host.
+  Drop the oldest host once neither network runs it, or the binary and the build
+  keep growing. **Closes when:** the old host is removed after mainnet reaches 30,
+  with the 29 fixture retired alongside it.
 
 ### 1.2 Nothing is published
 
@@ -177,9 +171,10 @@ Context for whoever picks this up; not a to-do list.
   calls, the `soroscope dev` prompt. 35 engine tests, including parity with a
   live `simulateTransaction` and a real compiler in the watch loop.
 - Found that testnet was on protocol 30 when the parity fixture, recorded four days earlier,
-  was still at 29. Bumped the host to 30.0.0, re-recorded the fixture from
-  live testnet, and added the guard and the drift check so the next upgrade is
-  an alert instead of a surprise.
+  was still at 29. Added a host for 30, re-recorded the fixture from live
+  testnet, and kept the 29 host and its fixture so mainnet still works. Added
+  the guard and the drift check so the next upgrade is an alert instead of a
+  surprise.
 - Rust crates are now watched: Dependabot (cargo, with protocol-major bumps
   excluded on purpose, since `protocol-drift.yml` is what announces those) and a
   `cargo audit` job in `audit.yml`. Run locally first: as first written it
@@ -188,5 +183,5 @@ Context for whoever picks this up; not a to-do list.
 - The prebuilt-binary pipeline in 1.3.
 
 Verified at that point: `pnpm lint`, `pnpm typecheck` (14 packages), `pnpm test`
-(505 unit tests), `pnpm --filter @soroscope/dev test:engine` (35 tests) and
+(505 unit tests), `pnpm --filter @soroscope/dev test:engine` (48 tests) and
 `pnpm check:fixtures` all clean.

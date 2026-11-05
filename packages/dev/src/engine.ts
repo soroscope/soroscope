@@ -45,6 +45,7 @@ export interface SwapResult {
 interface NativeEngine {
   readonly sourceAccount: string;
   readonly sequence: number;
+  readonly protocol: number;
   readonly entryCount: number;
   advance(ledgers: number, secondsPerLedger?: number): void;
   uploadWasm(wasm: Buffer): string;
@@ -94,28 +95,26 @@ function installedEnginePath(): string | undefined {
 /** What the native module exports. */
 interface NativeModule {
   Engine: NativeEngineCtor;
+  supportedProtocols: () => number[];
   hostProtocolVersion: () => number;
 }
 
 /**
- * Thrown when the network to emulate runs a different protocol than the
- * `soroban-env-host` this package embeds, in a way the host cannot cope with.
- *
- * - Network ahead of the host: the host runs contracts built for its own
- *   protocol or older, and would fail mid-session with `contract protocol
- *   number is newer than host`.
- * - Network behind the host: the host's cost model has more entries than the
- *   network recorded (protocol 30 added cost types), so it cannot meter calls.
+ * Thrown when the network to emulate runs a protocol this build does not embed
+ * a `soroban-env-host` for. A host only runs the protocol it was released for
+ * (a newer network's contracts are refused, and an older network's cost model
+ * lacks entries the host needs), so the engine links one host per protocol it
+ * supports and refuses any other rather than guess.
  */
 export class UnsupportedProtocolError extends Error {
   constructor(
     readonly networkProtocol: number,
-    readonly hostProtocol: number,
+    readonly supportedProtocols: readonly number[],
   ) {
     super(
-      networkProtocol > hostProtocol
-        ? `The network runs protocol ${networkProtocol}, but this build of @soroscope/dev embeds a soroban-env-host for protocol ${hostProtocol}, which cannot run contracts built for a newer protocol. Update @soroscope/dev.`
-        : `The network runs protocol ${networkProtocol}, but this build of @soroscope/dev embeds a soroban-env-host for protocol ${hostProtocol}, whose cost model the older network's configuration does not cover. Use a network on protocol ${hostProtocol}, or a @soroscope/dev build for protocol ${networkProtocol}.`,
+      `The network runs protocol ${networkProtocol}, but this build of @soroscope/dev embeds a soroban-env-host only for protocol${supportedProtocols.length === 1 ? '' : 's'} ${supportedProtocols.join(' and ')}. ${
+        networkProtocol > Math.max(...supportedProtocols) ? 'Update @soroscope/dev.' : 'Use a network on a supported protocol.'
+      }`,
     );
     this.name = 'UnsupportedProtocolError';
   }
@@ -138,11 +137,11 @@ function loadNativeModule(): NativeModule {
   // process.dlopen accepts any file name; require() would only for `.node`.
   const mod: { exports: Partial<NativeModule> } = { exports: {} };
   process.dlopen(mod, found);
-  const { Engine, hostProtocolVersion } = mod.exports;
-  if (Engine === undefined || hostProtocolVersion === undefined) {
-    throw new Error(`${found} is not the Soroscope engine (missing Engine or hostProtocolVersion export)`);
+  const { Engine, supportedProtocols, hostProtocolVersion } = mod.exports;
+  if (Engine === undefined || supportedProtocols === undefined || hostProtocolVersion === undefined) {
+    throw new Error(`${found} is not the current Soroscope engine (missing Engine, supportedProtocols or hostProtocolVersion export)`);
   }
-  cachedModule = { Engine, hostProtocolVersion };
+  cachedModule = { Engine, supportedProtocols, hostProtocolVersion };
   return cachedModule;
 }
 
@@ -151,9 +150,14 @@ export function loadNativeEngine(): NativeEngineCtor {
   return loadNativeModule().Engine;
 }
 
-/** The newest protocol the embedded `soroban-env-host` can run. */
+/** The newest protocol the engine can emulate. */
 export function hostProtocolVersion(): number {
   return loadNativeModule().hostProtocolVersion();
+}
+
+/** Every protocol the engine can emulate, oldest first. */
+export function supportedProtocols(): number[] {
+  return loadNativeModule().supportedProtocols();
 }
 
 /**
@@ -167,25 +171,23 @@ export class LocalNetwork {
 
   /** Start an empty local ledger that meters and prices calls like the network `config` came from. */
   static create(config: NetworkConfigSnapshot, options: { timestamp?: number } = {}): LocalNetwork {
-    const { Engine, hostProtocolVersion: hostProtocol } = loadNativeModule();
-    const supported = hostProtocol();
-    if (config.protocolVersion > supported) throw new UnsupportedProtocolError(config.protocolVersion, supported);
-    try {
-      return new LocalNetwork(
-        new Engine({
-          networkPassphrase: config.networkPassphrase,
-          protocolVersion: config.protocolVersion,
-          sequence: config.latestLedger,
-          timestamp: options.timestamp ?? Math.floor(Date.now() / 1000),
-          configEntries: config.configEntries,
-        }),
-      );
-    } catch (e) {
-      if (e instanceof Error && e.message.includes('cost model mismatch')) {
-        throw new UnsupportedProtocolError(config.protocolVersion, supported);
-      }
-      throw e;
-    }
+    const { Engine, supportedProtocols: supported } = loadNativeModule();
+    const protocols = supported();
+    if (!protocols.includes(config.protocolVersion)) throw new UnsupportedProtocolError(config.protocolVersion, protocols);
+    return new LocalNetwork(
+      new Engine({
+        networkPassphrase: config.networkPassphrase,
+        protocolVersion: config.protocolVersion,
+        sequence: config.latestLedger,
+        timestamp: options.timestamp ?? Math.floor(Date.now() / 1000),
+        configEntries: config.configEntries,
+      }),
+    );
+  }
+
+  /** The protocol this local ledger emulates. */
+  get protocol(): number {
+    return this.native.protocol;
   }
 
   /** `G...` address of the local account that deploys and invokes. It never signs anything. */

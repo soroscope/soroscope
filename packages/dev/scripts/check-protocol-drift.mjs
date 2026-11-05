@@ -1,28 +1,31 @@
 #!/usr/bin/env node
-// Fails when a live Stellar network runs a newer protocol than the
-// soroban-env-host the engine embeds. A host runs contracts built for its own
-// protocol or older, so once the network moves ahead, `soroscope dev` refuses
-// it (UnsupportedProtocolError) and the host must be bumped and the parity
-// fixture re-recorded. A network *behind* the host is reported but does not
-// fail the check: protocol upgrades add cost types, so the engine refuses an
-// older network's configuration, but that resolves when the network upgrades.
+// Fails when a live Stellar network runs a protocol newer than every
+// soroban-env-host the engine embeds. A host runs only the protocol it was
+// released for (the cost model gains entries at each one), so the engine links
+// one host per supported protocol and `soroscope dev` refuses a network on any
+// other (UnsupportedProtocolError). When a network moves ahead, add a host for
+// the new protocol in engine/Cargo.toml and src/lib.rs, rebuild, and record a
+// parity fixture from that network (packages/test-utils/scripts/record-engine-parity.mjs).
+//
+// A network on a protocol the engine does not embed but that is not ahead (for
+// example a very old one) is reported and does not fail the check.
 // Run twice a week by .github/workflows/protocol-drift.yml.
 //
 //   node scripts/check-protocol-drift.mjs              check testnet and mainnet
-//   node scripts/check-protocol-drift.mjs --offline    only print the embedded protocol
+//   node scripts/check-protocol-drift.mjs --offline    only print the embedded protocols
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const lock = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), '../engine/Cargo.lock'), 'utf8');
-const host = /name = "soroban-env-host"\nversion = "(\d+)\./.exec(lock);
-if (host === null) {
+// soroban-env-host's major version is the protocol it implements.
+const embedded = [...lock.matchAll(/name = "soroban-env-host"\nversion = "(\d+)\./g)].map((m) => Number(m[1])).sort((a, b) => a - b);
+if (embedded.length === 0) {
   console.error('soroban-env-host not found in engine/Cargo.lock');
   process.exit(2);
 }
-// soroban-env-host's major version is the protocol it implements.
-const hostProtocol = Number(host[1]);
-console.log(`embedded soroban-env-host: protocol ${hostProtocol}`);
+const newest = embedded[embedded.length - 1];
+console.log(`embedded soroban-env-host: protocol ${embedded.join(', ')}`);
 if (process.argv.includes('--offline')) process.exit(0);
 
 const networks = {
@@ -42,20 +45,19 @@ for (const [name, url] of Object.entries(networks)) {
     const { result } = await res.json();
     const protocol = result?.protocolVersion;
     if (typeof protocol !== 'number') throw new Error(`no protocolVersion in ${JSON.stringify(result)}`);
-    const status =
-      protocol > hostProtocol
-        ? 'AHEAD OF HOST'
-        : protocol < hostProtocol
-          ? 'behind host: the engine refuses it until that network upgrades'
-          : 'in step';
+    const status = embedded.includes(protocol)
+      ? 'supported'
+      : protocol > newest
+        ? 'AHEAD OF EVERY EMBEDDED HOST'
+        : 'no embedded host for it: the engine refuses this network';
     console.log(`${name}: protocol ${protocol} (${status})`);
-    if (protocol > hostProtocol) drifted = true;
+    if (protocol > newest) drifted = true;
   } catch (e) {
     // A provider outage is not drift: say so, but do not fail the check on it.
     console.warn(`${name}: could not read the protocol (${e.message})`);
   }
 }
 if (drifted) {
-  console.error('\nA network runs a newer protocol than the embedded host. Bump soroban-env-host and soroban-simulation in engine/Cargo.toml, rebuild, and re-record the parity fixture (packages/test-utils/scripts/record-engine-parity.mjs).');
+  console.error('\nA network runs a newer protocol than every embedded host. Add a host for it (see the header of this script), rebuild, and record a parity fixture from that network.');
   process.exit(1);
 }

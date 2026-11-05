@@ -33,7 +33,7 @@ Everything below is built on that knowledge.
 | [`@soroscope/mcp`](./packages/mcp) | Read-only MCP server so AI agents can check RPC health, decode XDR and simulate calls. | implemented, tested live |
 | [`@soroscope/invoke`](./packages/invoke) | Build contract calls from a contract's spec; deploy and call a WASM build on testnet. | implemented, tested live |
 | `@soroscope/gql` | GraphQL gateway generated from a contract spec. | frozen |
-| [`@soroscope/dev`](./packages/dev) | `soroscope dev`: run a contract in-process inside `soroban-env-host`, rebuild and hot-swap it on save with storage kept, call it by name. Costs match live testnet exactly (protocol 30; mainnet runs 29 and is refused until it upgrades). `soroscope gen` for TypeScript types (Orbital codegen). | preview, tested |
+| [`@soroscope/dev`](./packages/dev) | `soroscope dev`: run a contract in-process inside `soroban-env-host`, rebuild and hot-swap it on save with storage kept, call it by name. Costs match live testnet exactly (testnet on protocol 30, mainnet on 29: one host each). `soroscope gen` for TypeScript types (Orbital codegen). | preview, tested |
 | `@soroscope/testing` | Fork-testing harness for contracts. | scaffold |
 | `@soroscope/inspect` | SAC / SEP-41 token inspector and `stellar.toml` linter. | frozen |
 | `@soroscope/differential` | Simulate on several providers and report where they disagree. | scaffold |
@@ -157,7 +157,7 @@ Built, in order of what was judged most valuable (see the research behind it in 
 
 In progress:
 
-- **`soroscope dev`** (`@soroscope/dev`, preview): save a contract and call it a moment later, without a network. Contracts run in-process inside `soroban-env-host`; each save rebuilds and hot-swaps the code with storage kept; functions are called by name with arguments typed from the spec, and every call shows its events and cost, which equal live testnet `simulateTransaction`. `soroscope gen` writes TypeScript types from the spec using Orbital's codegen. Next: publish the prebuilt engine binaries, and run against mainnet's protocol as well as testnet's (see [`OUTSTANDING.md`](./OUTSTANDING.md)).
+- **`soroscope dev`** (`@soroscope/dev`, preview): save a contract and call it a moment later, without a network. Contracts run in-process inside `soroban-env-host`; each save rebuilds and hot-swaps the code with storage kept; functions are called by name with arguments typed from the spec, and every call shows its events and cost, which equal live testnet `simulateTransaction`. `soroscope gen` writes TypeScript types from the spec using Orbital's codegen. Next: publish the prebuilt engine binaries (see [`OUTSTANDING.md`](./OUTSTANDING.md)).
 
 Next, not started:
 

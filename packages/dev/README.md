@@ -6,13 +6,13 @@ Run Soroban contracts inside your own process, the way `localhost` serves a web 
 |---|---|
 | Maturity | **preview**: the engine, the watch loop and spec-typed calls work and are tested; the `soroscope dev` prompt is new |
 | Published | no. The per-platform engine packages and their release workflow exist ([`engine-binaries.yml`](../../.github/workflows/engine-binaries.yml)) but have only been run on linux-x64; see [`OUTSTANDING.md`](../../OUTSTANDING.md) |
-| Protocol | **30** (`soroban-env-host` 30.0.0): runs against testnet. Mainnet is on 29 and is refused until it upgrades; see [Protocols](#protocols) |
+| Protocol | **29 and 30**: one `soroban-env-host` each, picked by the network's protocol. Testnet (30) and mainnet (29) both run; see [Protocols](#protocols) |
 
 ## `soroscope dev`
 
 ```sh
 cd my-contract            # the crate with the contract's Cargo.toml
-soroscope dev             # or: soroscope dev path/to/crate --network testnet
+soroscope dev             # or: soroscope dev path/to/crate --network mainnet
 ```
 
 ```
@@ -76,15 +76,15 @@ Contracts run inside `soroban-env-host`, the host stellar-core runs, through `so
 
 ## Protocols
 
-A `soroban-env-host` runs contracts built for its own protocol or older, and meters calls with a cost model that gets new entries at each protocol (86 cost types at protocol 29, 95 at 30). So one host cannot emulate every network at once:
+A `soroban-env-host` runs only the protocol it was released for, and meters calls with a cost model that gains entries at each protocol (86 cost types at protocol 29, 95 at 30). So the engine links one host per protocol and picks by the network's:
 
-| Network protocol | This build (host 30) |
-|---|---|
-| 30 (testnet) | runs; costs equal live `simulateTransaction` |
-| 29 (mainnet) | refused with `UnsupportedProtocolError`: the network's configuration lacks the 9 cost types the host needs |
-| 31 or newer | refused with `UnsupportedProtocolError`: the host cannot run newer contracts |
+| Network protocol | Host | Evidence |
+|---|---|---|
+| 30 (testnet) | `soroban-env-host` 30.0.0 | costs equal a live `simulateTransaction` on 9 recorded calls (testnet, ledger 5561299) |
+| 29 (mainnet) | `soroban-env-host` 29.0.2 | costs equal a live `simulateTransaction` on 9 recorded calls, recorded from testnet while it ran 29; mainnet's own configuration loads and runs, but has not been compared to a live mainnet simulation |
+| anything else | none | refused with `UnsupportedProtocolError`, which names the protocols this build supports |
 
-Refusing is deliberate. Padding the missing cost types would give numbers that look right and are not the network's. `.github/workflows/protocol-drift.yml` fails when a live network gets ahead of the embedded host, and `hostProtocolVersion()` reports what a build embeds.
+Refusing is deliberate: padding or guessing would give numbers that look right and are not the network's. A configuration labelled with the wrong protocol is refused too (`cost model mismatch`). `supportedProtocols()` lists what a build embeds, and `.github/workflows/protocol-drift.yml` fails when a live network gets ahead of every embedded host. To add the next protocol, see [`OUTSTANDING.md`](../../OUTSTANDING.md) 1.1.
 
 ## Limits
 
@@ -105,6 +105,5 @@ pnpm --filter @soroscope/dev test:engine    # engine, session, parity and watch-
 ## Next
 
 1. Publish: prebuilt engine binaries exist as a pipeline; they need running on every platform, then publishing.
-2. Run against both live protocols at once (two hosts in one engine), so mainnet works while testnet is ahead.
-3. Fork: load live mainnet or testnet entries into the local ledger on demand.
-4. Several contracts in one session (a contract that calls another).
+2. Fork: load live mainnet or testnet entries into the local ledger on demand.
+3. Several contracts in one session (a contract that calls another).

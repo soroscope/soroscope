@@ -11,6 +11,7 @@ export {
   UnsupportedProtocolError,
   fetchNetworkConfig,
   hostProtocolVersion,
+  supportedProtocols,
   loadNativeEngine,
 } from './engine';
 export type { NetworkConfigSnapshot, LocalCallResult, DeployedLocalContract, SwapResult } from './engine';
