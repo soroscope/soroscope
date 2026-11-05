@@ -1490,7 +1490,7 @@ dependencies = [
  "soroban-env-host 30.0.0",
  "soroban-simulation 29.0.2",
  "soroban-simulation 30.0.0",
- "stellar-strkey 0.0.13",
+ "stellar-strkey 1.0.0",
 ]
 
 [[package]]
