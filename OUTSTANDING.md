@@ -45,6 +45,10 @@ resolves.
 `probe`, the router, the CI action and the MCP server are finished and tested
 live; they are just not installable.
 
+The steps, including the `soroscope` npm organisation and two blockers found while
+writing them (`@soroscope/cli` depends on two private packages; `release.yml` never
+runs the engine `link` step), are in [`RELEASING.md`](./RELEASING.md).
+
 **Closes when:** the `NPM_TOKEN` repository secret is set (publishing is the
 owner's call, not something a commit can do), a changeset covers core, invoke,
 cli, ci and mcp, the `Release` workflow publishes them, and `v1` is tagged so

@@ -3,6 +3,8 @@ title: Installation
 description: Install the Soroscope packages you need.
 ---
 
+> **Not on npm yet.** The commands below are what installing will look like once the first release is out. Until then, use [From source](#from-source). This page will drop this note when `npm view @soroscope/core` resolves.
+
 Soroscope needs **Node.js 20 or newer** (22 or newer for `@soroscope/invoke`, `@soroscope/ci` and `@soroscope/mcp`, because `@stellar/stellar-sdk` requires it).
 
 ## Library
@@ -45,3 +47,14 @@ pnpm test
 ```
 
 `pnpm test:integration` runs the live-network suites against Stellar testnet.
+
+### The local engine (`soroscope dev`)
+
+`soroscope dev` and `@soroscope/testing` need a native engine, a Rust library. From source:
+
+```sh
+pnpm --filter @soroscope/dev build:engine   # needs Rust; the first build takes 8-20 minutes
+pnpm --filter @soroscope/dev test:engine
+```
+
+Prebuilt binaries for Linux (x64, arm64), macOS (x64, arm64) and Windows x64 build and pass in CI; they are not published yet. `SOROSCOPE_ENGINE_PATH` points at a binary built elsewhere.

@@ -18,13 +18,17 @@ import ts from 'typescript'
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const contentDir = join(root, 'packages/demo/content')
 
-/** Published packages whose imports the docs may show. */
+/** Packages whose imports the docs may show. */
 const PACKAGES = {
   '@soroscope/core': 'packages/core',
   '@soroscope/invoke': 'packages/invoke',
   '@soroscope/ci': 'packages/ci',
   '@soroscope/mcp': 'packages/mcp',
   '@soroscope/cli': 'packages/cli',
+  // Preview packages: not on npm yet, but the docs show their imports.
+  '@soroscope/dev': 'packages/dev',
+  '@soroscope/testing': 'packages/testing',
+  '@soroscope/differential': 'packages/differential',
 }
 
 /** Every exported name (values and types) of a package's entry point. */

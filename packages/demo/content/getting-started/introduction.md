@@ -14,6 +14,9 @@ Soroscope is a set of developer tools for Stellar and Soroban that share one cor
 | [`@soroscope/ci`](/docs/guides/ci-resource-checks) | A GitHub Action that fails a pull request when a contract call gets more expensive. |
 | [`@soroscope/mcp`](/docs/guides/mcp-server) | A read-only MCP server so AI agents can check RPC health, decode XDR and simulate calls. |
 | [`@soroscope/invoke`](/docs/api/invoke) | Build contract calls from a contract's own spec, with named arguments. |
+| [`@soroscope/dev`](/docs/guides/local-development) | `soroscope dev`: run a contract in-process, hot-swap it on every save, and call it from a prompt with the network's real costs. Preview. |
+| [`@soroscope/testing`](/docs/guides/fork-testing) | Replay calls against recorded live mainnet state, offline, and check the engine against the network. Preview. |
+| [`@soroscope/differential`](/docs/guides/comparing-providers) | `simulate --compare`: one call on every provider, and where they disagree. Preview. |
 
 ## What it is for
 
@@ -28,4 +31,4 @@ Soroscope does not manage wallets, keys or accounts, and nothing in the router, 
 
 ## Status
 
-Soroscope is pre-1.0. The packages above are implemented and tested against the live Stellar network. `@soroscope/dev`, an in-process engine for running contracts without a network, is in progress. A fork-testing harness and differential simulation are scaffolded; a GraphQL gateway, a token and `stellar.toml` inspector and a VS Code extension are frozen. The [roadmap](https://github.com/soroscope/soroscope#roadmap) says which are which.
+Soroscope is pre-1.0. The packages above are implemented and tested against the live Stellar network. The three marked *Preview* work and are tested, but are not published yet, and their edges are listed on their pages: the in-process engine is checked against live testnet and mainnet on the calls recorded, and a new kind of call is not known to match until it has been compared. A GraphQL gateway, a token and `stellar.toml` inspector and a VS Code extension are frozen. The [roadmap](https://github.com/soroscope/soroscope#roadmap) says which are which.

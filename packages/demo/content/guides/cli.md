@@ -25,7 +25,9 @@ Data goes to stdout and diagnostics to stderr, so output is safe to pipe.
 | `decode <type> <base64>` | Decode XDR. `-` reads standard input. |
 | `explain <base64>` | One-line explanation of a transaction result. |
 | `spec <contractId\|file.wasm>` | Functions, errors, events and types. |
-| `simulate --contract C... --fn name --args '{...}'` | Simulate a call and explain the result. |
+| `simulate --contract C... --fn name --args '{...}'` | Simulate a call and explain the result. `--compare` asks every provider separately and reports where they disagree (exit 1 if they do): [Compare providers](/docs/guides/comparing-providers). |
+| `dev [dir]` | Run a contract in-process, rebuild and hot-swap it on every save, call it from a prompt. `--builder stellar\|cargo`, `--init <json>`, `--with <wasm>`: [Develop a contract locally](/docs/guides/local-development). Preview. |
+| `gen <wasm\|crate>` | TypeScript types, Zod schemas and event guards from a contract's spec. `-o <file>`, `--hooks`. Preview. |
 | `check` | Run [CI resource checks](/docs/guides/ci-resource-checks) locally. `--update-baseline`, `--format text\|markdown\|json`, `--fail-on regression\|warning`. |
 
 ## Monitoring with Prometheus

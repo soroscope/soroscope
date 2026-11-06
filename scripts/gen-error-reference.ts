@@ -46,7 +46,7 @@ generated: true
 
 <!-- Generated from packages/core/src/decode/codes.ts by scripts/gen-error-reference.ts. Do not edit directly; run \`pnpm docs:errors\`. -->
 
-This page lists every result code the [error decoder](/docs/api/error-decoding) recognises,
+This page lists every result code the [error decoder](/docs/guides/contract-errors) recognises,
 generated straight from the SDK's source so it always matches what \`explainTransactionError\`
 and \`decodeTransactionResult\` actually return.
 

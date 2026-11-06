@@ -1,6 +1,6 @@
 # Soroscope Docs Site
 
-Next.js 16 documentation site for the [`@soroscope/core`](../sdk) SDK: rendered
+Next.js 16 documentation site for the [Soroscope](../..) packages: rendered
 markdown docs, full-text search, and an optional AI docs assistant.
 
 ## Structure
