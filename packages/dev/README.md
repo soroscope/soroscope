@@ -5,7 +5,7 @@ Run Soroban contracts inside your own process, the way `localhost` serves a web 
 | Status | |
 |---|---|
 | Maturity | **preview**: the engine, the watch loop and spec-typed calls work and are tested; the `soroscope dev` prompt is new |
-| Published | no. The per-platform engine packages and their release workflow exist ([`engine-binaries.yml`](../../.github/workflows/engine-binaries.yml)) but have only been run on linux-x64; see [`OUTSTANDING.md`](../../OUTSTANDING.md) |
+| Published | no. The per-platform engine packages and their release workflow exist ([`engine-binaries.yml`](../../.github/workflows/engine-binaries.yml)) and build and pass every engine test on Linux (x64, arm64), macOS (x64, arm64) and Windows; see [`OUTSTANDING.md`](../../OUTSTANDING.md) |
 | Protocol | **29 and 30**: one `soroban-env-host` each, picked by the network's protocol. Testnet (30) and mainnet (29) both run; see [Protocols](#protocols) |
 
 ## `soroscope dev`
@@ -126,5 +126,5 @@ pnpm --filter @soroscope/dev test:engine    # engine, session, parity and watch-
 
 ## Next
 
-1. Publish: the prebuilt engine binaries build and pass on Linux, Windows and (once re-run) macOS; they need publishing.
+1. Publish: the prebuilt engine binaries build and pass on all five platforms; they need publishing.
 2. Fork a past ledger, and write state back to a fork.

@@ -51,7 +51,7 @@ cli, ci and mcp, the `Release` workflow publishes them, and `v1` is tagged so
 the Action reference resolves. Then, from an empty directory:
 `npx @soroscope/cli probe --network mainnet` prints a table.
 
-### 1.3 The engine's prebuilt binaries: built on three platforms, macOS to re-run
+### 1.3 The engine's prebuilt binaries: built and tested on all five platforms, not yet published
 
 `@soroscope/dev` needs a native engine. The pipeline exists:
 `packages/dev/engine/platforms.json` is the single platform list;
@@ -61,25 +61,23 @@ fork tests against the binary being published, and publishes only on an explicit
 `publish` input. The loader (`src/platform.ts`, `src/engine.ts`) finds a local
 build first, then the installed platform package.
 
-The first run on all five platforms (2026-11-06, publish off):
-
-| Platform | Result |
-|---|---|
-| linux-x64, linux-arm64, win32-x64 | built; every engine test passed |
-| darwin-arm64, darwin-x64 | built; parity and every other engine test passed; the watch-loop test failed |
+Two runs on all five platforms (2026-11-06, publish off). The first: linux-x64,
+linux-arm64 and win32-x64 passed everything; darwin-arm64 and darwin-x64 built and
+passed parity and every other engine test, but the watch-loop test failed. After the
+fix below, **all five pass**: every engine test and every fork test, on the binary
+that would be published.
 
 The macOS failure was a real bug, not a runner quirk: `resolveProject` compared
 the path it was given with the real path `cargo metadata` reports, and macOS's
 `/tmp` and `/var` are symlinks into `/private`. It would have rejected any
 contract crate reached through a symlink. Fixed with `realpath`, with a test that
 builds a symlink explicitly so it fails on Linux too (verified failing on the
-unfixed code). **Not yet confirmed on macOS CI** after the fix.
+unfixed code), and confirmed passing on both macOS runners.
 
 Not supported, by choice: musl (Alpine) and Windows on ARM. The loader says so
 in its error rather than failing obscurely.
 
-**Closes when:** the workflow is re-run green on all five platforms, the packages
-are published, and `@soroscope/dev` is flipped from `private` with
+**Closes when:** the packages are published, and `@soroscope/dev` is flipped from `private` with
 `package-engine.mjs link` run before its publish. Note that `@soroscope/cli`
 depends on `@soroscope/dev` and `@soroscope/differential`, both private today: a
 public package cannot depend on a private one, so both must be published before,
@@ -210,7 +208,8 @@ Context for whoever picks this up; not a to-do list.
 - 2026-11-06: the engine gained the native asset contract, `extend_ttl`, live-entry loading,
   a real source account and companion contracts; fork-testing and differential simulation were
   built and checked against live mainnet; five-platform binary build run (3 of 5 green, macOS
-  symlink bug found and fixed).
+  symlink bug found and fixed, then 5 of 5 green); the repository formatted so the
+  Format check, red on every recent commit, passes.
 
 Verified at that point: `pnpm lint`, `pnpm typecheck` (14 packages), `pnpm test`
 (519 unit tests), `pnpm --filter @soroscope/dev test:engine` (60 tests) and `pnpm --filter @soroscope/testing test:engine` (9 tests) and
