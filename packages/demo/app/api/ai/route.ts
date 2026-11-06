@@ -190,7 +190,11 @@ export async function POST(request: NextRequest) {
         `Groq returned ${upstream.status} for model ${model}: ${(await upstream.text().catch(() => '')).slice(0, 300)}`,
       );
       return NextResponse.json(
-        { error: 'The AI service returned an error — please try again shortly.' },
+        {
+          error: 'The AI service returned an error — please try again shortly.',
+          // Only the number: enough to tell a bad key (401) from a retired model (400/404) or a quota (429).
+          upstreamStatus: upstream.status,
+        },
         { status: 502 },
       );
     }
