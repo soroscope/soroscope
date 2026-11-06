@@ -26,7 +26,7 @@ pnpm test
 
 ## Project Structure
 
-Soroscope is a pnpm workspace under `packages/`. `core` is the foundation (zero runtime dependencies); `cli`, `ci`, `mcp` and `invoke` build on it. `test-utils` (private) holds fixture recorders and the fixture contract. `gql`, `dev`, `testing`, `inspect`, `differential` and `vscode` are scaffolds that say so in their READMEs. `demo` is the documentation site; its `content/` is the source of truth for the docs, and `docs/` is generated from it.
+Soroscope is a pnpm workspace under `packages/`. `core` is the foundation (zero runtime dependencies); `cli`, `ci`, `mcp` and `invoke` build on it. `test-utils` (private) holds fixture recorders and the fixture contract. `dev` (with its Rust engine), `differential` and `testing` are previews that list their limits in their READMEs; `gql`, `inspect` and `vscode` are frozen scaffolds. `demo` is the documentation site; its `content/` is the source of truth for the docs, and `docs/` is generated from it.
 
 Keep `core` free of runtime dependencies. If it needs something the platform lacks, that is a design question to raise first.
 

@@ -1,6 +1,7 @@
 # Soroscope
 
 [![CI](https://github.com/soroscope/soroscope/actions/workflows/ci.yml/badge.svg)](https://github.com/soroscope/soroscope/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/@soroscope/cli?label=npm)](https://www.npmjs.com/package/@soroscope/cli)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 
 Developer tooling for Stellar and Soroban, built on one idea: **know what each RPC provider can really do before you rely on it.**
@@ -23,23 +24,32 @@ Look at the second and fifth rows: `getLedgers` answers far beyond the advertise
 
 Everything below is built on that knowledge.
 
+## Install
+
+```sh
+npm install --global @soroscope/cli
+soroscope probe --network mainnet
+```
+
+Or `npm install @soroscope/core` for the library, `npx -y @soroscope/mcp` for the agent server, and `uses: soroscope/soroscope/packages/ci@v1` for the GitHub Action. `soroscope dev` installs with the CLI, along with the prebuilt engine for Linux (x64, arm64), macOS (x64, arm64) or Windows x64; it also needs Rust to compile your contract. The documentation is in [`packages/demo/content`](./packages/demo/content) (a Next.js site) and, rendered for GitHub, in [`docs/`](./docs).
+
 ## Packages
 
-| Package | What it does | Status |
-|---|---|---|
-| [`@soroscope/core`](./packages/core) | Retention-aware RPC router and provider registry; provider probe; XDR decoders; contract specs; decoded simulation reports. Zero runtime dependencies. | implemented, tested live |
-| [`@soroscope/cli`](./packages/cli) | `soroscope probe`, `route-explain`, `decode`, `explain`, `spec`, `simulate`, `check`. | implemented, tested live |
-| [`@soroscope/ci`](./packages/ci) | GitHub Action: fail a pull request when a Soroban call gets more expensive. | implemented, tested live |
-| [`@soroscope/mcp`](./packages/mcp) | Read-only MCP server so AI agents can check RPC health, decode XDR and simulate calls. | implemented, tested live |
-| [`@soroscope/invoke`](./packages/invoke) | Build contract calls from a contract's spec; deploy and call a WASM build on testnet. | implemented, tested live |
-| `@soroscope/gql` | GraphQL gateway generated from a contract spec. | frozen |
-| [`@soroscope/dev`](./packages/dev) | `soroscope dev`: run a contract in-process inside `soroban-env-host`, rebuild and hot-swap it on save with storage kept, call it by name. Costs match live testnet exactly (testnet on protocol 30, mainnet on 29: one host each). `soroscope gen` for TypeScript types (Orbital codegen). | preview, tested |
-| [`@soroscope/testing`](./packages/testing) | Run calls against recorded live mainnet state on the engine, and check the engine against the network. | preview, tested |
-| `@soroscope/inspect` | SAC / SEP-41 token inspector and `stellar.toml` linter. | frozen |
-| [`@soroscope/differential`](./packages/differential) | Simulate on several providers and report where they disagree (`soroscope simulate --compare`). | preview, tested |
-| [`soroscope-vscode`](./packages/vscode) | Decoded events, auth trees and footprints in the editor. | frozen |
+| Package                                              | What it does                                                                                                                                                                                                                                                                               | Status                                        |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------- |
+| [`@soroscope/core`](./packages/core)                 | Retention-aware RPC router and provider registry; provider probe; XDR decoders; contract specs; decoded simulation reports. Zero runtime dependencies.                                                                                                                                     | implemented, tested live                      |
+| [`@soroscope/cli`](./packages/cli)                   | `soroscope probe`, `route-explain`, `decode`, `explain`, `spec`, `simulate`, `check`.                                                                                                                                                                                                      | implemented, tested live                      |
+| [`@soroscope/ci`](./packages/ci)                     | GitHub Action: fail a pull request when a Soroban call gets more expensive.                                                                                                                                                                                                                | implemented, tested live                      |
+| [`@soroscope/mcp`](./packages/mcp)                   | Read-only MCP server so AI agents can check RPC health, decode XDR and simulate calls.                                                                                                                                                                                                     | implemented, tested live                      |
+| [`@soroscope/invoke`](./packages/invoke)             | Build contract calls from a contract's spec; deploy and call a WASM build on testnet.                                                                                                                                                                                                      | implemented, tested live                      |
+| `@soroscope/gql`                                     | GraphQL gateway generated from a contract spec.                                                                                                                                                                                                                                            | frozen                                        |
+| [`@soroscope/dev`](./packages/dev)                   | `soroscope dev`: run a contract in-process inside `soroban-env-host`, rebuild and hot-swap it on save with storage kept, call it by name. Costs match live testnet exactly (testnet on protocol 30, mainnet on 29: one host each). `soroscope gen` for TypeScript types (Orbital codegen). | preview, tested; on npm with prebuilt engines |
+| [`@soroscope/testing`](./packages/testing)           | Run calls against recorded live mainnet state on the engine, and check the engine against the network.                                                                                                                                                                                     | preview, tested; not published yet            |
+| `@soroscope/inspect`                                 | SAC / SEP-41 token inspector and `stellar.toml` linter.                                                                                                                                                                                                                                    | frozen                                        |
+| [`@soroscope/differential`](./packages/differential) | Simulate on several providers and report where they disagree (`soroscope simulate --compare`).                                                                                                                                                                                             | preview, tested; on npm, used by the CLI      |
+| [`soroscope-vscode`](./packages/vscode)              | Decoded events, auth trees and footprints in the editor.                                                                                                                                                                                                                                   | frozen                                        |
 
-A **scaffold** builds and exports its types and says so in its README. It has no implementation. A **frozen** package is a scaffold that is not planned. See the [roadmap](#roadmap).
+A **preview** package works and is tested, and its README lists what it does not do yet; its API may change. A **frozen** package is a scaffold: it builds and exports its types, has no implementation, and is not planned. See the [roadmap](#roadmap).
 
 ## What you can do with it
 
@@ -54,10 +64,14 @@ soroscope route-explain getEvents --network mainnet --start-ledger 64000000
 **Route calls so they land somewhere that can serve them.**
 
 ```ts
-import { SoroscopeRouter, publicProviderUrls } from '@soroscope/core'
+import { SoroscopeRouter, publicProviderUrls } from '@soroscope/core';
 
-const router = await SoroscopeRouter.create({ providers: publicProviderUrls('mainnet') })
-const events = await router.call('getEvents', { startLedger, filters: [{ type: 'contract' }], pagination: { limit: 20 } })
+const router = await SoroscopeRouter.create({ providers: publicProviderUrls('mainnet') });
+const events = await router.call('getEvents', {
+  startLedger,
+  filters: [{ type: 'contract' }],
+  pagination: { limit: 20 },
+});
 ```
 
 If no provider retains the ledger you asked for, you get `NoEligibleProviderError` listing why each was ruled out, not a refusal from the provider.
@@ -100,6 +114,8 @@ Nothing in the router, CLI or MCP server signs or submits a transaction, and the
 - The router, probe, CLI, Action and MCP server are tested against **live testnet RPC providers**, including real failures (DNS, refused connection, timeout, HTTP 404/403, out-of-range ledgers).
 - A purpose-built [fixture contract](./packages/test-utils/fixture-contract) is deployed to testnet. It has real contract errors, auth, events, all three storage durabilities, and cost knobs, so a CI regression test compares `work(10)` with `work(5000)`, not an edited number.
 - The CI check runs the whole Mode-B path for real: deploys the WASM twice with different throwaway keys and requires the two measurements to be equal.
+- The local engine is checked against the network: instructions, bytes read and written, footprint and resource fee equal a live `simulateTransaction`, call for call, on 9 recorded testnet calls and 5 recorded **mainnet** calls (including a USDC transfer and a cross-contract DEX quote). The watch loop is tested with a real compiler. `pnpm --filter @soroscope/dev test:engine` and `pnpm --filter @soroscope/testing test:engine` run these.
+- The published Action has been run end to end from `@v1`: it deployed the fixture contract to testnet twice with different throwaway keys and the second run matched the first baseline.
 - A lint rule **bans** `vi.mock`, `vi.fn`, `vi.spyOn` and friends in tests. Fixtures must carry a provenance block saying how they were recorded.
 
 `pnpm test` runs the unit suite (real recorded fixtures, no network). `pnpm test:integration` runs the live suites. The live suites depend on public infrastructure, so they run in their own workflow rather than gating merges.
@@ -115,6 +131,8 @@ pnpm test                 # unit tests
 pnpm test:integration     # live testnet
 pnpm lint
 pnpm check:fixtures       # every fixture has provenance
+pnpm --filter @soroscope/dev build:engine   # the native engine (needs Rust; 8-20 minutes cold)
+pnpm --filter @soroscope/dev test:engine
 ```
 
 Re-record fixtures (needs network and the `stellar` CLI; uses throwaway keys in a temp directory, never your own):
@@ -139,7 +157,7 @@ soroscope/
 │   ├── mcp/           @soroscope/mcp
 │   ├── invoke/        @soroscope/invoke
 │   ├── test-utils/    fixture recorders and the fixture contract (private)
-│   ├── dev/           @soroscope/dev       (in-process engine: dev/engine is a Rust crate)
+│   ├── dev/           @soroscope/dev       (in-process engine: dev/engine is a Rust crate; prebuilt per platform)
 │   ├── testing differential   preview
 │   ├── gql inspect vscode     frozen
 │   └── demo/          documentation site (Next.js)
@@ -154,14 +172,15 @@ Built, in order of what was judged most valuable (see the research behind it in 
 1. Retention-aware routing and provider health monitoring
 2. CI fee and resource regression checks
 3. MCP and agent interface for decode and simulate
+4. **`soroscope dev`** (`@soroscope/dev`, preview, on npm): save a contract and call it a moment later, without a network. Contracts run in-process inside `soroban-env-host`; each save rebuilds and hot-swaps the code with storage kept; functions are called by name with arguments typed from the spec, and every call shows its events and cost, which equal the network's own simulation on the calls checked. `soroscope gen` writes TypeScript types from the spec using Orbital's codegen.
+5. **Provider comparison** (`soroscope simulate --compare`, preview, on npm).
+6. **Fork-testing** (`@soroscope/testing`, preview, not published): run calls against recorded live mainnet state, offline.
 
-In progress:
+Next, in order (the full list, with what closes each, is in [`OUTSTANDING.md`](./OUTSTANDING.md)):
 
-- **`soroscope dev`** (`@soroscope/dev`, preview): save a contract and call it a moment later, without a network. Contracts run in-process inside `soroban-env-host`; each save rebuilds and hot-swaps the code with storage kept; functions are called by name with arguments typed from the spec, and every call shows its events and cost, which equal live testnet `simulateTransaction`. `soroscope gen` writes TypeScript types from the spec using Orbital's codegen. Next: publish the prebuilt engine binaries (see [`OUTSTANDING.md`](./OUTSTANDING.md)).
-
-Next:
-
-- **Forking a past ledger** and carrying state between forked calls (`@soroscope/testing` runs recorded live state today).
+- Record more kinds of calls (a lending pool, an AMM swap that writes state, nested authorization) and compare them with the network, so the engine's evidence covers what people run.
+- **Forking a past ledger** and carrying state between forked calls; then publish `@soroscope/testing`.
+- A real provider disagreement for `--compare` to show, when one turns up.
 
 Frozen, not planned: the GraphQL gateway (`@soroscope/gql`), the token and `stellar.toml` inspector (`@soroscope/inspect`) and the VS Code extension. Their READMEs say why.
 

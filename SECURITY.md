@@ -4,12 +4,12 @@ The Soroscope maintainers take the security of Soroscope and its dependencies se
 
 ## Supported Versions
 
-Security fixes are provided for the latest minor release of the published `@soroscope/*` packages (`core`, `invoke`, `cli`, `ci`, `mcp`, which are versioned together) on npm. Older minor versions do not receive backports; please upgrade to the latest minor before requesting a fix.
+Security fixes are provided for the latest minor release of the published `@soroscope/*` packages (`core`, `invoke`, `cli`, `ci`, `mcp`, `dev` and `differential`, which are versioned together, and the `@soroscope/dev-*` engine packages) on npm. Older minor versions do not receive backports; please upgrade to the latest minor before requesting a fix.
 
-| Version           | Supported          |
-| ----------------- | ------------------ |
-| Latest minor      | :white_check_mark: |
-| Older minors      | :x:                |
+| Version      | Supported          |
+| ------------ | ------------------ |
+| Latest minor | :white_check_mark: |
+| Older minors | :x:                |
 
 ## Reporting a Vulnerability
 

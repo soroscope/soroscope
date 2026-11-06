@@ -7,17 +7,18 @@ Soroscope is **pre-1.0**. Minor versions may change APIs; patch versions will no
 
 ## Versions move together
 
-`@soroscope/core`, `invoke`, `cli`, `ci` and `mcp` are released as a fixed group: they always share a version number, so a matching set of versions always works together.
+`@soroscope/core`, `invoke`, `cli`, `ci`, `mcp`, `dev` and `differential` are released as a fixed group: they always share a version number, so a matching set of versions always works together. `@soroscope/dev`'s five prebuilt engine packages (`@soroscope/dev-<platform>`) carry the same number.
 
 ## What counts as stable
 
-| | |
-|---|---|
-| Exit codes of the CLI | Stable. Scripts depend on them. |
-| `soroscope.config.json` and the baseline format | Versioned with `"version": 1`; a breaking change will bump it and the tools will say so. |
-| Decoded shapes (`ScVal`, events, auth entries, reports) | May gain fields. Existing fields will not change meaning without a minor-version note. |
-| Router internals, the registry's snapshot format | May change. |
-| Scaffolded packages | No API promise at all. |
+|                                                         |                                                                                                    |
+| ------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Exit codes of the CLI                                   | Stable. Scripts depend on them.                                                                    |
+| `soroscope.config.json` and the baseline format         | Versioned with `"version": 1`; a breaking change will bump it and the tools will say so.           |
+| Decoded shapes (`ScVal`, events, auth entries, reports) | May gain fields. Existing fields will not change meaning without a minor-version note.             |
+| Router internals, the registry's snapshot format        | May change.                                                                                        |
+| Preview packages (`dev`, `differential`, `testing`)     | Work and are tested, but their APIs may change in any release. Their pages list what is not built. |
+| Frozen packages (`gql`, `inspect`, `vscode`)            | No API promise at all.                                                                             |
 
 ## Protocol changes
 

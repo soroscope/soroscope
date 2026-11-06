@@ -14,20 +14,21 @@ core  ──►  invoke  ──►  ci  ──►  cli
   └───────────┴────────────────►  cli, mcp   (they use core and invoke directly too)
 ```
 
-Read an arrow as "is used by". `core` is at the bottom and depends on nothing; `cli` and `mcp` sit at the top and use everything below them.
+The engine packages hang off the side of this graph: `dev` uses `core`; `testing` uses `core` and `dev`; `differential` uses `core`; and `cli` uses `dev` and `differential`. Read an arrow as "is used by". `core` is at the bottom and depends on nothing; `cli` and `mcp` sit at the top and use everything below them.
 
-| Package | Role | Runtime dependencies | Published |
-|---|---|---|---|
-| `core` | Router, provider registry, probe, decoders, contract specs, simulation reports | none | yes |
-| `invoke` | Build a contract call from a spec; deploy WASM; send a transaction; friendbot | `core`, `@stellar/stellar-sdk` | yes |
-| `ci` | Measure invocations, compare with a committed baseline, render a PR comment; the Action | `core`, `invoke`, `@stellar/stellar-sdk`, `zod` | yes |
-| `cli` | `soroscope probe`, `route-explain`, `decode`, `explain`, `spec`, `simulate`, `check` | `core`, `invoke`, `ci`, `commander`, `@stellar/stellar-sdk` | yes |
-| `mcp` | Read-only MCP server | `core`, `invoke`, `ci`, `@modelcontextprotocol/sdk`, `zod` | yes |
-| `test-utils` | Fixture recorders and the fixture contract | none | private |
-| `demo` | Documentation site (Next.js); `content/` is the source of the docs | | private |
-| `dev` | In-process Soroban engine (`dev/engine`, Rust + N-API, embeds `soroban-env-host` and `soroban-simulation`), watch-rebuild-swap loop, spec-typed calls; spec parsing and TypeScript codegen from Orbital (`@orbital-stellar/abi-registry`) | `@soroscope/core`, `@orbital-stellar/abi-registry`, `@stellar/stellar-sdk` | private |
-| `testing`, `differential` | Scaffolds: they build and export types, with no implementation | | private |
-| `gql`, `inspect`, `vscode` | Frozen: scaffolds that are not planned | | private |
+| Package                    | Role                                                                                                                                                                                                                                      | Runtime dependencies                                                               | Published                                                           |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| `core`                     | Router, provider registry, probe, decoders, contract specs, simulation reports                                                                                                                                                            | none                                                                               | yes                                                                 |
+| `invoke`                   | Build a contract call from a spec; deploy WASM; send a transaction; friendbot                                                                                                                                                             | `core`, `@stellar/stellar-sdk`                                                     | yes                                                                 |
+| `ci`                       | Measure invocations, compare with a committed baseline, render a PR comment; the Action                                                                                                                                                   | `core`, `invoke`, `@stellar/stellar-sdk`, `zod`                                    | yes                                                                 |
+| `cli`                      | `soroscope probe`, `route-explain`, `decode`, `explain`, `spec`, `simulate` (`--compare`), `check`, `dev`, `gen`                                                                                                                          | `core`, `invoke`, `ci`, `dev`, `differential`, `commander`, `@stellar/stellar-sdk` | yes                                                                 |
+| `mcp`                      | Read-only MCP server                                                                                                                                                                                                                      | `core`, `invoke`, `ci`, `@modelcontextprotocol/sdk`, `zod`                         | yes                                                                 |
+| `test-utils`               | Fixture recorders and the fixture contract                                                                                                                                                                                                | none                                                                               | private                                                             |
+| `demo`                     | Documentation site (Next.js); `content/` is the source of the docs                                                                                                                                                                        |                                                                                    | private                                                             |
+| `dev`                      | In-process Soroban engine (`dev/engine`, Rust + N-API, embeds `soroban-env-host` and `soroban-simulation`), watch-rebuild-swap loop, spec-typed calls; spec parsing and TypeScript codegen from Orbital (`@orbital-stellar/abi-registry`) | `@soroscope/core`, `@orbital-stellar/abi-registry`, `@stellar/stellar-sdk`         | yes (preview), with five prebuilt engine packages, one per platform |
+| `testing`                  | Fork-testing preview: record a call's live state once, replay it offline on the `dev` engine, compare with the network                                                                                                                    | `core`, `dev`, `@stellar/stellar-sdk`                                              | private (preview)                                                   |
+| `differential`             | Simulate on several providers and group the answers per field; `simulate --compare`                                                                                                                                                       | `core`                                                                             | yes (preview)                                                       |
+| `gql`, `inspect`, `vscode` | Frozen: scaffolds that are not planned                                                                                                                                                                                                    |                                                                                    | private                                                             |
 
 **The rule that shapes the graph:** `core` has no runtime dependencies. Anything that needs the Stellar SDK, a schema validator or a CLI framework belongs in a package above it. If `core` needs something the platform lacks, raise it as a design question before adding a dependency.
 
@@ -35,15 +36,15 @@ Read an arrow as "is used by". `core` is at the bottom and depends on nothing; `
 
 All paths are under `packages/core/src`.
 
-| Directory | What it does |
-|---|---|
-| `rpc/` | Transport to one endpoint. `RpcClient` makes JSON-RPC calls and reports HTTP status, `Retry-After` and latency. `errors.ts` defines the error classes. `classify.ts` turns an error into a `FailureClass` and parses the "out of retention" messages. `methods.ts` holds each RPC method's profile and works out which ledger a request needs. |
-| `routing/` | `ProviderRegistry` (state and decisions, no I/O) and `SoroscopeRouter` (does the calls). `catalog.ts` lists public providers per network. |
-| `probe/` | `probeProviders` measures latency, lag, retention and real `getLedgers` reach. `format.ts` renders table, JSON and Prometheus output. |
-| `xdr/` | A minimal XDR reader and writer, base64 helpers and strkey encoding. No SDK. |
-| `decode/` | Decoders: `ScVal`, diagnostic events, auth entries, Soroban transaction data, ledger keys and entries, transaction results. |
-| `spec/` | Parse a contract's WASM custom section into functions, types, events and named errors; fetch a spec from the network. |
-| `simulation/` | `TransactionSimulator` runs `simulateTransaction` through any `RpcCaller` and returns a decoded `SimulationReport`. |
+| Directory     | What it does                                                                                                                                                                                                                                                                                                                                   |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `rpc/`        | Transport to one endpoint. `RpcClient` makes JSON-RPC calls and reports HTTP status, `Retry-After` and latency. `errors.ts` defines the error classes. `classify.ts` turns an error into a `FailureClass` and parses the "out of retention" messages. `methods.ts` holds each RPC method's profile and works out which ledger a request needs. |
+| `routing/`    | `ProviderRegistry` (state and decisions, no I/O) and `SoroscopeRouter` (does the calls). `catalog.ts` lists public providers per network.                                                                                                                                                                                                      |
+| `probe/`      | `probeProviders` measures latency, lag, retention and real `getLedgers` reach. `format.ts` renders table, JSON and Prometheus output.                                                                                                                                                                                                          |
+| `xdr/`        | A minimal XDR reader and writer, base64 helpers and strkey encoding. No SDK.                                                                                                                                                                                                                                                                   |
+| `decode/`     | Decoders: `ScVal`, diagnostic events, auth entries, Soroban transaction data, ledger keys and entries, transaction results.                                                                                                                                                                                                                    |
+| `spec/`       | Parse a contract's WASM custom section into functions, types, events and named errors; fetch a spec from the network.                                                                                                                                                                                                                          |
+| `simulation/` | `TransactionSimulator` runs `simulateTransaction` through any `RpcCaller` and returns a decoded `SimulationReport`.                                                                                                                                                                                                                            |
 
 ### Method profiles: the input to every routing decision
 
@@ -110,16 +111,30 @@ The server registers read-only tools: `rpc_status`, `rpc_route_explain`, `decode
 
 Nothing in `core`, `cli` or `mcp` signs or submits a transaction. Signing exists only in `invoke`, and the CI check uses it only to deploy to testnet with a throwaway key.
 
+## The local engine (`packages/dev`)
+
+`soroscope dev` runs a contract with no network, so it has to be the same code the network runs.
+
+- **Rust crate, N-API.** `dev/engine/src/lib.rs` embeds `soroban-env-host` (what stellar-core runs) and `soroban-simulation` (what Stellar RPC's `simulateTransaction` runs), over a ledger held in memory. TypeScript loads it as a native module (`src/engine.ts`); a call takes about 3 ms.
+- **One host per protocol.** A host only runs the protocol it was released for, and its cost model gains entries at each protocol (86 `ContractCostType` variants through protocol 29, 95 in 30). So `Cargo.toml` links `host29` and `host30` (and their `sim` crates) under different names, `host_engine!` in `lib.rs` instantiates the same engine body once per host, and `Engine` picks one from the network's protocol. An unknown protocol is refused (`UnsupportedProtocolError`) rather than guessed. A new protocol is a new `hostNN`/`simNN`, one `mod vNN` and a recorded fixture; `scripts/check-protocol-drift.mjs` fails when a live network is ahead of every host.
+- **Hot swap.** `DevLoop` watches the crate, rebuilds, and calls `swapWasm`, which replaces the contract's code entry and keeps its storage. `DevSession` types arguments from the contract's spec.
+- **What a call returns.** The same `SimulationReport` `core` decodes from RPC, so every consumer reads one shape. TTL changes are not in `soroban-simulation`'s result, so a committed call runs a second time in recording mode on the same state and seed to read them.
+- **Real state.** `loadEntries` puts live ledger entries into the ledger, including each entry's `extXdr` (sponsorship): without it a sponsored entry is 44 bytes smaller and the fee is wrong. `packages/testing` builds on this to record a call's footprint and entries from live RPC once and replay them offline.
+- **Shipping.** `dev/engine/platforms.json` is the platform list. `.github/workflows/engine-binaries.yml` builds each natively, runs the engine and fork tests against the binary it will publish, and publishes one `@soroscope/dev-<platform>` package each. `scripts/package-engine.mjs link --verify` writes them into `dev`'s `optionalDependencies` and refuses to publish `dev` if any is missing from npm. See [RELEASING.md](./RELEASING.md).
+
+The evidence that it matches the network, and what is not covered, is in [packages/dev/README.md](./packages/dev/README.md) and [OUTSTANDING.md](./OUTSTANDING.md).
+
 ## How the tests are organised
 
 The central rule is that **nothing is mocked**. See the [testing rule in CONTRIBUTING.md](./CONTRIBUTING.md#the-testing-rule-nothing-is-mocked); this section is the structure behind it.
 
-| Kind | Where | Runs with | Network |
-|---|---|---|---|
-| Unit | `packages/*/tests/unit` | `pnpm test` | none; reads recorded fixtures |
-| Live integration | `packages/*/tests/integration` | `pnpm test:integration` | public testnet providers |
-| Fixture provenance | `packages/test-utils/scripts/check-fixtures.mjs` | `pnpm check:fixtures` | none |
-| Doc example drift | `scripts/check-doc-examples.mjs` | `pnpm docs:test` | none |
+| Kind                          | Where                                                        | Runs with                                                      | Network                             |
+| ----------------------------- | ------------------------------------------------------------ | -------------------------------------------------------------- | ----------------------------------- |
+| Unit                          | `packages/*/tests/unit`                                      | `pnpm test`                                                    | none; reads recorded fixtures       |
+| Live integration              | `packages/*/tests/integration`                               | `pnpm test:integration`                                        | public testnet providers            |
+| Engine (needs the Rust build) | `packages/dev/tests/engine`, `packages/testing/tests/engine` | `pnpm --filter @soroscope/dev test:engine`, same for `testing` | none; reads recorded live responses |
+| Fixture provenance            | `packages/test-utils/scripts/check-fixtures.mjs`             | `pnpm check:fixtures`                                          | none                                |
+| Doc example drift             | `scripts/check-doc-examples.mjs`                             | `pnpm docs:test`                                               | none                                |
 
 - **Recorded fixtures.** `packages/test-utils/scripts` records real RPC responses and real Soroban XDR into `packages/core/tests/fixtures`. Every fixture has a `provenance` block (tool, time, network, ledger, CLI version).
 - **The oracle.** For XDR, the recorder also stores what the official `stellar xdr decode` prints for the same bytes. `tests/helpers/oracle.ts` maps Soroscope's decoded tree onto that JSON shape, so a decoder test is `expect(toOracle(decode(blob))).toEqual(official)`. Contract specs are checked the same way against `stellar contract info`.
@@ -135,12 +150,12 @@ Live suites depend on public infrastructure and can fail when a provider is degr
 
 ## Where to start
 
-| If you want to... | Start in |
-|---|---|
-| Change how a provider is chosen | `core/src/routing/ProviderRegistry.ts` (`eligible`, `rank`) |
-| Teach the router about a new RPC method | `core/src/rpc/methods.ts` (add a profile) |
-| Add or fix a decoder | `core/src/decode`, then record a fixture ([guide](./packages/test-utils/ADDING-A-FIXTURE.md)) |
-| Add a CLI command | `cli/src/commands`, registered in `cli/src/cli.ts` |
-| Add a metric to the CI check | `ci/src/metrics.ts`, `ci/src/compare.ts` |
-| Add an MCP tool | `mcp/src/server.ts` (the `tool(...)` helper applies the secret check) |
-| Implement a scaffold package | its README says what it should do; ask in an issue before starting |
+| If you want to...                       | Start in                                                                                       |
+| --------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| Change how a provider is chosen         | `core/src/routing/ProviderRegistry.ts` (`eligible`, `rank`)                                    |
+| Teach the router about a new RPC method | `core/src/rpc/methods.ts` (add a profile)                                                      |
+| Add or fix a decoder                    | `core/src/decode`, then record a fixture ([guide](./packages/test-utils/ADDING-A-FIXTURE.md))  |
+| Add a CLI command                       | `cli/src/commands`, registered in `cli/src/cli.ts`                                             |
+| Add a metric to the CI check            | `ci/src/metrics.ts`, `ci/src/compare.ts`                                                       |
+| Add an MCP tool                         | `mcp/src/server.ts` (the `tool(...)` helper applies the secret check)                          |
+| Unfreeze `gql`, `inspect` or `vscode`   | their READMEs say what they should do and why they are frozen; ask in an issue before starting |
