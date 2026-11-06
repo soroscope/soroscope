@@ -19,12 +19,14 @@ export interface DevOptions extends GlobalOptions {
   builder?: 'stellar' | 'cargo';
   /** JSON object of named constructor arguments for the first deploy. */
   init?: string;
+  /** Companion contracts (.wasm files) to deploy beside it, called as `name.fn`. */
+  with?: string[];
 }
 
 /** A REPL line, parsed. */
 export type ReplInput =
   | { kind: 'empty' }
-  | { kind: 'call'; fn: string; args: Record<string, unknown>; commit: boolean }
+  | { kind: 'call'; fn: string; args: Record<string, unknown>; commit: boolean; contract?: string }
   | { kind: 'command'; name: string; rest: string[] };
 
 /** Split on whitespace, keeping quoted strings and bracketed JSON together. */
@@ -78,7 +80,12 @@ export function parseReplLine(line: string): ReplInput {
   if (head === undefined) return { kind: 'empty' };
   if (head.startsWith('.')) return { kind: 'command', name: head.slice(1), rest };
   const commit = !head.startsWith('?');
-  const fn = commit ? head : head.slice(1);
+  const target = commit ? head : head.slice(1);
+  // `name.fn` calls a companion contract added with --with; a bare `fn` calls the one under development.
+  const dot = target.indexOf('.');
+  const contract = dot === -1 ? undefined : target.slice(0, dot);
+  const fn = dot === -1 ? target : target.slice(dot + 1);
+  if (contract !== undefined && !/^[A-Za-z_][A-Za-z0-9_-]*$/.test(contract)) throw new Error(`"${contract}" is not a contract name.`);
   if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(fn)) throw new Error(`"${fn}" is not a function name.`);
   const args: Record<string, unknown> = {};
   for (const t of rest) {
@@ -86,7 +93,7 @@ export function parseReplLine(line: string): ReplInput {
     if (eq <= 0) throw new Error(`Arguments are name=value; got "${t}".`);
     args[t.slice(0, eq)] = parseValue(t.slice(eq + 1));
   }
-  return { kind: 'call', fn, args, commit };
+  return contract === undefined ? { kind: 'call', fn, args, commit } : { kind: 'call', fn, args, commit, contract };
 }
 
 const n = (x: number | bigint): string => x.toLocaleString('en-US');
@@ -154,6 +161,7 @@ function formatLoopEvent(e: Dev.DevLoopEvent): string {
 
 const HELP = `Call a function:     mint to=me amount=1000      ("me" is the local account)
 Simulate only:       ?balance who=me
+Companion contract:  token.balance who=me      (added with --with token.wasm)
 Commands:            .fns  .events  .advance <ledgers>  .gen [file.ts]  .help  .exit`;
 
 /**
@@ -213,6 +221,15 @@ export async function runDev(
     if (err instanceof dev.BuildError) throw new CliError(`${err.message}\n${err.output}`, ExitCode.Usage);
     throw err;
   }
+  for (const file of opts.with ?? []) {
+    const name = basename(file).replace(/\.wasm$/, '').replace(/[^A-Za-z0-9_-]/g, '_');
+    try {
+      const { contractId } = session.addContract(name, new Uint8Array(readFileSync(file)));
+      io.err(`✓ ${name}: ${contractId}   (call as ${name}.fn)`);
+    } catch (err) {
+      throw new CliError(`--with ${file}: ${(err as Error).message}`, ExitCode.Usage);
+    }
+  }
   io.err(`local account ${session.network.sourceAccount}\n${HELP}`);
 
   const rl = createInterface({ input, output, prompt: 'soroscope> ', terminal: input === process.stdin && process.stdin.isTTY });
@@ -249,7 +266,7 @@ function handle(
   if (input.kind === 'empty') return;
   const iface = session.interface;
   if (input.kind === 'call') {
-    io.out(formatOutcome(session.call(input.fn, input.args, { commit: input.commit })));
+    io.out(formatOutcome(session.call(input.fn, input.args, { commit: input.commit, ...(input.contract === undefined ? {} : { contract: input.contract }) })));
     return;
   }
   switch (input.name) {

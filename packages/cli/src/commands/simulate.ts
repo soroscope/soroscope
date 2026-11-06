@@ -21,6 +21,8 @@ export interface SimulateCommandOptions extends GlobalOptions {
   args?: string;
   source?: string;
   json?: boolean;
+  /** Send the same simulation to every selected provider separately and report where they disagree. */
+  compare?: boolean;
 }
 
 /**
@@ -49,6 +51,14 @@ export async function runSimulate(opts: SimulateCommandOptions, io: Io): Promise
       networkPassphrase: passphrase,
       spec,
     });
+    if (opts.compare === true) {
+      if (selection.urls.length < 2) throw new CliError('--compare needs at least two providers (--network mainnet or testnet, or several --rpc).', ExitCode.Usage);
+      const { differentialSimulate, describeDifferential } = await import('@soroscope/differential');
+      const result = await differentialSimulate(xdr, { providers: selection.urls });
+      io.out(describeDifferential(result));
+      if (result.compared === 0) return ExitCode.Network;
+      return result.disagreements.length === 0 ? ExitCode.Ok : ExitCode.Failure;
+    }
     const report = await new TransactionSimulator(router).simulateAndExplain(xdr);
     if (opts.json === true) {
       io.out(JSON.stringify(toJsonSafe(report), null, 2));

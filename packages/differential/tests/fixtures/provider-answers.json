@@ -1,0 +1,311 @@
+{
+  "provenance": {
+    "tool": "packages/test-utils/scripts/record-differential.mjs",
+    "recordedAt": "2026-11-06T14:23:09.236Z",
+    "node": "v24.18.0",
+    "network": "mainnet",
+    "method": "simulateTransaction",
+    "note": "The same simulated calls sent to every public mainnet provider in the catalogue, at the same moment."
+  },
+  "calls": [
+    {
+      "name": "XLM name()",
+      "transaction": "AAAAAgAAAAA7mRE4Dv6Yi6CokA6xz+RPNm99vpRr7QdyQPf2JN8VxQAAAGQAAAAAAAAAAQAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAGAAAAAAAAAABJbT82FmuwvpjSEOMSJs8PBDJi20hvk/TyzDLaJU++XcAAAAEbmFtZQAAAAAAAAAAAAAAAAAAAAA=",
+      "answers": [
+        {
+          "provider": "https://mainnet.sorobanrpc.com",
+          "latencyMs": 1472,
+          "raw": {
+            "transactionData": "AAAAAAAAAAEAAAAGAAAAASW0/NhZrsL6Y0hDjEibPDwQyYttIb5P08swy2iVPvl3AAAAFAAAAAEAAAAAAAHGHQAAAAAAAAAAAAAAAAAAF/8=",
+            "events": [
+              "AAAAAQAAAAAAAAAAAAAAAgAAAAAAAAADAAAADwAAAAdmbl9jYWxsAAAAAA0AAAAgJbT82FmuwvpjSEOMSJs8PBDJi20hvk/TyzDLaJU++XcAAAAPAAAABG5hbWUAAAAB",
+              "AAAAAQAAAAAAAAABJbT82FmuwvpjSEOMSJs8PBDJi20hvk/TyzDLaJU++XcAAAACAAAAAAAAAAIAAAAPAAAACWZuX3JldHVybgAAAAAAAA8AAAAEbmFtZQAAAA4AAAAGbmF0aXZlAAA="
+            ],
+            "minResourceFee": "6143",
+            "results": [
+              {
+                "auth": [],
+                "xdr": "AAAADgAAAAZuYXRpdmUAAA=="
+              }
+            ],
+            "latestLedger": 65337788
+          }
+        },
+        {
+          "provider": "https://soroban-rpc.mainnet.stellar.gateway.fm",
+          "latencyMs": 1480,
+          "raw": {
+            "transactionData": "AAAAAAAAAAEAAAAGAAAAASW0/NhZrsL6Y0hDjEibPDwQyYttIb5P08swy2iVPvl3AAAAFAAAAAEAAAAAAAHGHQAAAAAAAAAAAAAAAAAAF/8=",
+            "events": [
+              "AAAAAQAAAAAAAAAAAAAAAgAAAAAAAAADAAAADwAAAAdmbl9jYWxsAAAAAA0AAAAgJbT82FmuwvpjSEOMSJs8PBDJi20hvk/TyzDLaJU++XcAAAAPAAAABG5hbWUAAAAB",
+              "AAAAAQAAAAAAAAABJbT82FmuwvpjSEOMSJs8PBDJi20hvk/TyzDLaJU++XcAAAACAAAAAAAAAAIAAAAPAAAACWZuX3JldHVybgAAAAAAAA8AAAAEbmFtZQAAAA4AAAAGbmF0aXZlAAA="
+            ],
+            "minResourceFee": "6143",
+            "results": [
+              {
+                "auth": [],
+                "xdr": "AAAADgAAAAZuYXRpdmUAAA=="
+              }
+            ],
+            "latestLedger": 65337788
+          }
+        },
+        {
+          "provider": "https://rpc.lightsail.network",
+          "latencyMs": 1536,
+          "raw": {
+            "transactionData": "AAAAAAAAAAEAAAAGAAAAASW0/NhZrsL6Y0hDjEibPDwQyYttIb5P08swy2iVPvl3AAAAFAAAAAEAAAAAAAHGHQAAAAAAAAAAAAAAAAAAF/8=",
+            "events": [
+              "AAAAAQAAAAAAAAAAAAAAAgAAAAAAAAADAAAADwAAAAdmbl9jYWxsAAAAAA0AAAAgJbT82FmuwvpjSEOMSJs8PBDJi20hvk/TyzDLaJU++XcAAAAPAAAABG5hbWUAAAAB",
+              "AAAAAQAAAAAAAAABJbT82FmuwvpjSEOMSJs8PBDJi20hvk/TyzDLaJU++XcAAAACAAAAAAAAAAIAAAAPAAAACWZuX3JldHVybgAAAAAAAA8AAAAEbmFtZQAAAA4AAAAGbmF0aXZlAAA="
+            ],
+            "minResourceFee": "6143",
+            "results": [
+              {
+                "auth": [],
+                "xdr": "AAAADgAAAAZuYXRpdmUAAA=="
+              }
+            ],
+            "latestLedger": 65337788
+          }
+        },
+        {
+          "provider": "https://soroban-rpc.creit.tech",
+          "latencyMs": 1212,
+          "raw": {
+            "transactionData": "AAAAAAAAAAEAAAAGAAAAASW0/NhZrsL6Y0hDjEibPDwQyYttIb5P08swy2iVPvl3AAAAFAAAAAEAAAAAAAHGHQAAAAAAAAAAAAAAAAAAF/8=",
+            "minResourceFee": "6143",
+            "results": [
+              {
+                "auth": [],
+                "xdr": "AAAADgAAAAZuYXRpdmUAAA=="
+              }
+            ],
+            "latestLedger": 65337788
+          }
+        },
+        {
+          "provider": "https://archive-rpc.lightsail.network",
+          "latencyMs": 1603,
+          "raw": {
+            "transactionData": "AAAAAAAAAAEAAAAGAAAAASW0/NhZrsL6Y0hDjEibPDwQyYttIb5P08swy2iVPvl3AAAAFAAAAAEAAAAAAAHGHQAAAAAAAAAAAAAAAAAAF/8=",
+            "events": [
+              "AAAAAQAAAAAAAAAAAAAAAgAAAAAAAAADAAAADwAAAAdmbl9jYWxsAAAAAA0AAAAgJbT82FmuwvpjSEOMSJs8PBDJi20hvk/TyzDLaJU++XcAAAAPAAAABG5hbWUAAAAB",
+              "AAAAAQAAAAAAAAABJbT82FmuwvpjSEOMSJs8PBDJi20hvk/TyzDLaJU++XcAAAACAAAAAAAAAAIAAAAPAAAACWZuX3JldHVybgAAAAAAAA8AAAAEbmFtZQAAAA4AAAAGbmF0aXZlAAA="
+            ],
+            "minResourceFee": "6143",
+            "results": [
+              {
+                "auth": [],
+                "xdr": "AAAADgAAAAZuYXRpdmUAAA=="
+              }
+            ],
+            "latestLedger": 65337789
+          }
+        }
+      ]
+    },
+    {
+      "name": "Soroswap quote: 1 XLM -> USDC",
+      "transaction": "AAAAAgAAAAA7mRE4Dv6Yi6CokA6xz+RPNm99vpRr7QdyQPf2JN8VxQAAAGQAAAAAAAAAAQAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAGAAAAAAAAAABDdXHEOpqSiOzIgf9Ew6t+cnOiZ9DCOk+T/5T+68QigQAAAAWcm91dGVyX2dldF9hbW91bnRzX291dAAAAAAAAgAAAAoAAAAAAAAAAAAAAAAAmJaAAAAAEAAAAAEAAAACAAAAEgAAAAEltPzYWa7C+mNIQ4xImzw8EMmLbSG+T9PLMMtolT75dwAAABIAAAABre/OWa7lKWj3YGHUlMJSW3Vln6QpamX0me8p5WR35JYAAAAAAAAAAAAAAAA=",
+      "answers": [
+        {
+          "provider": "https://mainnet.sorobanrpc.com",
+          "latencyMs": 494,
+          "raw": {
+            "transactionData": "AAAAAAAAAAQAAAAGAAAAAQ3VxxDqakojsyIH/RMOrfnJzomfQwjpPk/+U/uvEIoEAAAAFAAAAAEAAAAGAAAAARnx47s3t3BwCYy1zPqlwAspF/4W4550JO4pssJd13rnAAAAFAAAAAEAAAAHGAUUVoFrZvEudzpW93xXlPrBsft6tuItT61aQSdw9z4AAAAHTD2z69LWoqsj3h9iLqq7OVAVObRhG2hiLsTkf3bEugcAAAAAABG/5gAAAAAAAAAAAAAAAAAAG8M=",
+            "events": [
+              "AAAAAQAAAAAAAAAAAAAAAgAAAAAAAAADAAAADwAAAAdmbl9jYWxsAAAAAA0AAAAgDdXHEOpqSiOzIgf9Ew6t+cnOiZ9DCOk+T/5T+68QigQAAAAPAAAAFnJvdXRlcl9nZXRfYW1vdW50c19vdXQAAAAAABAAAAABAAAAAgAAAAoAAAAAAAAAAAAAAAAAmJaAAAAAEAAAAAEAAAACAAAAEgAAAAEltPzYWa7C+mNIQ4xImzw8EMmLbSG+T9PLMMtolT75dwAAABIAAAABre/OWa7lKWj3YGHUlMJSW3Vln6QpamX0me8p5WR35JY=",
+              "AAAAAQAAAAAAAAABDdXHEOpqSiOzIgf9Ew6t+cnOiZ9DCOk+T/5T+68QigQAAAACAAAAAAAAAAMAAAAPAAAAB2ZuX2NhbGwAAAAADQAAACAZ8eO7N7dwcAmMtcz6pcALKRf+FuOedCTuKbLCXdd65wAAAA8AAAAMZ2V0X3Jlc2VydmVzAAAAAQ==",
+              "AAAAAQAAAAAAAAABGfHjuze3cHAJjLXM+qXACykX/hbjnnQk7imywl3XeucAAAACAAAAAAAAAAIAAAAPAAAACWZuX3JldHVybgAAAAAAAA8AAAAMZ2V0X3Jlc2VydmVzAAAAEAAAAAEAAAACAAAACgAAAAAAAAAAAAADRcI6tm4AAAAKAAAAAAAAAAAAAACBEwxhbA==",
+              "AAAAAQAAAAAAAAABDdXHEOpqSiOzIgf9Ew6t+cnOiZ9DCOk+T/5T+68QigQAAAACAAAAAAAAAAIAAAAPAAAACWZuX3JldHVybgAAAAAAAA8AAAAWcm91dGVyX2dldF9hbW91bnRzX291dAAAAAAAEAAAAAEAAAACAAAACgAAAAAAAAAAAAAAAACYloAAAAAKAAAAAAAAAAAAAAAAABdwVA=="
+            ],
+            "minResourceFee": "7107",
+            "results": [
+              {
+                "auth": [],
+                "xdr": "AAAAEAAAAAEAAAACAAAACgAAAAAAAAAAAAAAAACYloAAAAAKAAAAAAAAAAAAAAAAABdwVA=="
+              }
+            ],
+            "latestLedger": 65337789
+          }
+        },
+        {
+          "provider": "https://soroban-rpc.mainnet.stellar.gateway.fm",
+          "latencyMs": 319,
+          "raw": {
+            "transactionData": "AAAAAAAAAAQAAAAGAAAAAQ3VxxDqakojsyIH/RMOrfnJzomfQwjpPk/+U/uvEIoEAAAAFAAAAAEAAAAGAAAAARnx47s3t3BwCYy1zPqlwAspF/4W4550JO4pssJd13rnAAAAFAAAAAEAAAAHGAUUVoFrZvEudzpW93xXlPrBsft6tuItT61aQSdw9z4AAAAHTD2z69LWoqsj3h9iLqq7OVAVObRhG2hiLsTkf3bEugcAAAAAABG/5gAAAAAAAAAAAAAAAAAAG8M=",
+            "events": [
+              "AAAAAQAAAAAAAAAAAAAAAgAAAAAAAAADAAAADwAAAAdmbl9jYWxsAAAAAA0AAAAgDdXHEOpqSiOzIgf9Ew6t+cnOiZ9DCOk+T/5T+68QigQAAAAPAAAAFnJvdXRlcl9nZXRfYW1vdW50c19vdXQAAAAAABAAAAABAAAAAgAAAAoAAAAAAAAAAAAAAAAAmJaAAAAAEAAAAAEAAAACAAAAEgAAAAEltPzYWa7C+mNIQ4xImzw8EMmLbSG+T9PLMMtolT75dwAAABIAAAABre/OWa7lKWj3YGHUlMJSW3Vln6QpamX0me8p5WR35JY=",
+              "AAAAAQAAAAAAAAABDdXHEOpqSiOzIgf9Ew6t+cnOiZ9DCOk+T/5T+68QigQAAAACAAAAAAAAAAMAAAAPAAAAB2ZuX2NhbGwAAAAADQAAACAZ8eO7N7dwcAmMtcz6pcALKRf+FuOedCTuKbLCXdd65wAAAA8AAAAMZ2V0X3Jlc2VydmVzAAAAAQ==",
+              "AAAAAQAAAAAAAAABGfHjuze3cHAJjLXM+qXACykX/hbjnnQk7imywl3XeucAAAACAAAAAAAAAAIAAAAPAAAACWZuX3JldHVybgAAAAAAAA8AAAAMZ2V0X3Jlc2VydmVzAAAAEAAAAAEAAAACAAAACgAAAAAAAAAAAAADRcI6tm4AAAAKAAAAAAAAAAAAAACBEwxhbA==",
+              "AAAAAQAAAAAAAAABDdXHEOpqSiOzIgf9Ew6t+cnOiZ9DCOk+T/5T+68QigQAAAACAAAAAAAAAAIAAAAPAAAACWZuX3JldHVybgAAAAAAAA8AAAAWcm91dGVyX2dldF9hbW91bnRzX291dAAAAAAAEAAAAAEAAAACAAAACgAAAAAAAAAAAAAAAACYloAAAAAKAAAAAAAAAAAAAAAAABdwVA=="
+            ],
+            "minResourceFee": "7107",
+            "results": [
+              {
+                "auth": [],
+                "xdr": "AAAAEAAAAAEAAAACAAAACgAAAAAAAAAAAAAAAACYloAAAAAKAAAAAAAAAAAAAAAAABdwVA=="
+              }
+            ],
+            "latestLedger": 65337789
+          }
+        },
+        {
+          "provider": "https://rpc.lightsail.network",
+          "latencyMs": 352,
+          "raw": {
+            "transactionData": "AAAAAAAAAAQAAAAGAAAAAQ3VxxDqakojsyIH/RMOrfnJzomfQwjpPk/+U/uvEIoEAAAAFAAAAAEAAAAGAAAAARnx47s3t3BwCYy1zPqlwAspF/4W4550JO4pssJd13rnAAAAFAAAAAEAAAAHGAUUVoFrZvEudzpW93xXlPrBsft6tuItT61aQSdw9z4AAAAHTD2z69LWoqsj3h9iLqq7OVAVObRhG2hiLsTkf3bEugcAAAAAABG/5gAAAAAAAAAAAAAAAAAAG8M=",
+            "events": [
+              "AAAAAQAAAAAAAAAAAAAAAgAAAAAAAAADAAAADwAAAAdmbl9jYWxsAAAAAA0AAAAgDdXHEOpqSiOzIgf9Ew6t+cnOiZ9DCOk+T/5T+68QigQAAAAPAAAAFnJvdXRlcl9nZXRfYW1vdW50c19vdXQAAAAAABAAAAABAAAAAgAAAAoAAAAAAAAAAAAAAAAAmJaAAAAAEAAAAAEAAAACAAAAEgAAAAEltPzYWa7C+mNIQ4xImzw8EMmLbSG+T9PLMMtolT75dwAAABIAAAABre/OWa7lKWj3YGHUlMJSW3Vln6QpamX0me8p5WR35JY=",
+              "AAAAAQAAAAAAAAABDdXHEOpqSiOzIgf9Ew6t+cnOiZ9DCOk+T/5T+68QigQAAAACAAAAAAAAAAMAAAAPAAAAB2ZuX2NhbGwAAAAADQAAACAZ8eO7N7dwcAmMtcz6pcALKRf+FuOedCTuKbLCXdd65wAAAA8AAAAMZ2V0X3Jlc2VydmVzAAAAAQ==",
+              "AAAAAQAAAAAAAAABGfHjuze3cHAJjLXM+qXACykX/hbjnnQk7imywl3XeucAAAACAAAAAAAAAAIAAAAPAAAACWZuX3JldHVybgAAAAAAAA8AAAAMZ2V0X3Jlc2VydmVzAAAAEAAAAAEAAAACAAAACgAAAAAAAAAAAAADRcI6tm4AAAAKAAAAAAAAAAAAAACBEwxhbA==",
+              "AAAAAQAAAAAAAAABDdXHEOpqSiOzIgf9Ew6t+cnOiZ9DCOk+T/5T+68QigQAAAACAAAAAAAAAAIAAAAPAAAACWZuX3JldHVybgAAAAAAAA8AAAAWcm91dGVyX2dldF9hbW91bnRzX291dAAAAAAAEAAAAAEAAAACAAAACgAAAAAAAAAAAAAAAACYloAAAAAKAAAAAAAAAAAAAAAAABdwVA=="
+            ],
+            "minResourceFee": "7107",
+            "results": [
+              {
+                "auth": [],
+                "xdr": "AAAAEAAAAAEAAAACAAAACgAAAAAAAAAAAAAAAACYloAAAAAKAAAAAAAAAAAAAAAAABdwVA=="
+              }
+            ],
+            "latestLedger": 65337789
+          }
+        },
+        {
+          "provider": "https://soroban-rpc.creit.tech",
+          "latencyMs": 240,
+          "raw": {
+            "transactionData": "AAAAAAAAAAQAAAAGAAAAAQ3VxxDqakojsyIH/RMOrfnJzomfQwjpPk/+U/uvEIoEAAAAFAAAAAEAAAAGAAAAARnx47s3t3BwCYy1zPqlwAspF/4W4550JO4pssJd13rnAAAAFAAAAAEAAAAHGAUUVoFrZvEudzpW93xXlPrBsft6tuItT61aQSdw9z4AAAAHTD2z69LWoqsj3h9iLqq7OVAVObRhG2hiLsTkf3bEugcAAAAAABG/5gAAAAAAAAAAAAAAAAAAG8M=",
+            "minResourceFee": "7107",
+            "results": [
+              {
+                "auth": [],
+                "xdr": "AAAAEAAAAAEAAAACAAAACgAAAAAAAAAAAAAAAACYloAAAAAKAAAAAAAAAAAAAAAAABdwVA=="
+              }
+            ],
+            "latestLedger": 65337789
+          }
+        },
+        {
+          "provider": "https://archive-rpc.lightsail.network",
+          "latencyMs": 488,
+          "raw": {
+            "transactionData": "AAAAAAAAAAQAAAAGAAAAAQ3VxxDqakojsyIH/RMOrfnJzomfQwjpPk/+U/uvEIoEAAAAFAAAAAEAAAAGAAAAARnx47s3t3BwCYy1zPqlwAspF/4W4550JO4pssJd13rnAAAAFAAAAAEAAAAHGAUUVoFrZvEudzpW93xXlPrBsft6tuItT61aQSdw9z4AAAAHTD2z69LWoqsj3h9iLqq7OVAVObRhG2hiLsTkf3bEugcAAAAAABG/5gAAAAAAAAAAAAAAAAAAG8M=",
+            "events": [
+              "AAAAAQAAAAAAAAAAAAAAAgAAAAAAAAADAAAADwAAAAdmbl9jYWxsAAAAAA0AAAAgDdXHEOpqSiOzIgf9Ew6t+cnOiZ9DCOk+T/5T+68QigQAAAAPAAAAFnJvdXRlcl9nZXRfYW1vdW50c19vdXQAAAAAABAAAAABAAAAAgAAAAoAAAAAAAAAAAAAAAAAmJaAAAAAEAAAAAEAAAACAAAAEgAAAAEltPzYWa7C+mNIQ4xImzw8EMmLbSG+T9PLMMtolT75dwAAABIAAAABre/OWa7lKWj3YGHUlMJSW3Vln6QpamX0me8p5WR35JY=",
+              "AAAAAQAAAAAAAAABDdXHEOpqSiOzIgf9Ew6t+cnOiZ9DCOk+T/5T+68QigQAAAACAAAAAAAAAAMAAAAPAAAAB2ZuX2NhbGwAAAAADQAAACAZ8eO7N7dwcAmMtcz6pcALKRf+FuOedCTuKbLCXdd65wAAAA8AAAAMZ2V0X3Jlc2VydmVzAAAAAQ==",
+              "AAAAAQAAAAAAAAABGfHjuze3cHAJjLXM+qXACykX/hbjnnQk7imywl3XeucAAAACAAAAAAAAAAIAAAAPAAAACWZuX3JldHVybgAAAAAAAA8AAAAMZ2V0X3Jlc2VydmVzAAAAEAAAAAEAAAACAAAACgAAAAAAAAAAAAADRcI6tm4AAAAKAAAAAAAAAAAAAACBEwxhbA==",
+              "AAAAAQAAAAAAAAABDdXHEOpqSiOzIgf9Ew6t+cnOiZ9DCOk+T/5T+68QigQAAAACAAAAAAAAAAIAAAAPAAAACWZuX3JldHVybgAAAAAAAA8AAAAWcm91dGVyX2dldF9hbW91bnRzX291dAAAAAAAEAAAAAEAAAACAAAACgAAAAAAAAAAAAAAAACYloAAAAAKAAAAAAAAAAAAAAAAABdwVA=="
+            ],
+            "minResourceFee": "7107",
+            "results": [
+              {
+                "auth": [],
+                "xdr": "AAAAEAAAAAEAAAACAAAACgAAAAAAAAAAAAAAAACYloAAAAAKAAAAAAAAAAAAAAAAABdwVA=="
+              }
+            ],
+            "latestLedger": 65337789
+          }
+        }
+      ]
+    },
+    {
+      "name": "USDC balance of the issuer's own holder",
+      "transaction": "AAAAAgAAAAA7mRE4Dv6Yi6CokA6xz+RPNm99vpRr7QdyQPf2JN8VxQAAAGQAAAAAAAAAAQAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAGAAAAAAAAAABre/OWa7lKWj3YGHUlMJSW3Vln6QpamX0me8p5WR35JYAAAAHYmFsYW5jZQAAAAABAAAAEgAAAAAAAAAAO5kROA7+mIugqJAOsc/kTzZvfb6Ua+0HckD39iTfFcUAAAAAAAAAAAAAAAA=",
+      "answers": [
+        {
+          "provider": "https://mainnet.sorobanrpc.com",
+          "latencyMs": 448,
+          "raw": {
+            "transactionData": "AAAAAAAAAAEAAAAGAAAAAa3vzlmu5Slo92Bh1JTCUlt1ZZ+kKWpl9JnvKeVkd+SWAAAAFAAAAAEAAAAAAAJK9wAAAAAAAAAAAAAAAAAAGH0=",
+            "events": [
+              "AAAAAQAAAAAAAAAAAAAAAgAAAAAAAAADAAAADwAAAAdmbl9jYWxsAAAAAA0AAAAgre/OWa7lKWj3YGHUlMJSW3Vln6QpamX0me8p5WR35JYAAAAPAAAAB2JhbGFuY2UAAAAAEgAAAAAAAAAAO5kROA7+mIugqJAOsc/kTzZvfb6Ua+0HckD39iTfFcU=",
+              "AAAAAQAAAAAAAAABre/OWa7lKWj3YGHUlMJSW3Vln6QpamX0me8p5WR35JYAAAACAAAAAAAAAAIAAAAPAAAACWZuX3JldHVybgAAAAAAAA8AAAAHYmFsYW5jZQAAAAAKAAAAAAAAAAB//////////w=="
+            ],
+            "minResourceFee": "6269",
+            "results": [
+              {
+                "auth": [],
+                "xdr": "AAAACgAAAAAAAAAAf/////////8="
+              }
+            ],
+            "latestLedger": 65337789
+          }
+        },
+        {
+          "provider": "https://soroban-rpc.mainnet.stellar.gateway.fm",
+          "latencyMs": 304,
+          "raw": {
+            "transactionData": "AAAAAAAAAAEAAAAGAAAAAa3vzlmu5Slo92Bh1JTCUlt1ZZ+kKWpl9JnvKeVkd+SWAAAAFAAAAAEAAAAAAAJK9wAAAAAAAAAAAAAAAAAAGH0=",
+            "events": [
+              "AAAAAQAAAAAAAAAAAAAAAgAAAAAAAAADAAAADwAAAAdmbl9jYWxsAAAAAA0AAAAgre/OWa7lKWj3YGHUlMJSW3Vln6QpamX0me8p5WR35JYAAAAPAAAAB2JhbGFuY2UAAAAAEgAAAAAAAAAAO5kROA7+mIugqJAOsc/kTzZvfb6Ua+0HckD39iTfFcU=",
+              "AAAAAQAAAAAAAAABre/OWa7lKWj3YGHUlMJSW3Vln6QpamX0me8p5WR35JYAAAACAAAAAAAAAAIAAAAPAAAACWZuX3JldHVybgAAAAAAAA8AAAAHYmFsYW5jZQAAAAAKAAAAAAAAAAB//////////w=="
+            ],
+            "minResourceFee": "6269",
+            "results": [
+              {
+                "auth": [],
+                "xdr": "AAAACgAAAAAAAAAAf/////////8="
+              }
+            ],
+            "latestLedger": 65337789
+          }
+        },
+        {
+          "provider": "https://rpc.lightsail.network",
+          "latencyMs": 324,
+          "raw": {
+            "transactionData": "AAAAAAAAAAEAAAAGAAAAAa3vzlmu5Slo92Bh1JTCUlt1ZZ+kKWpl9JnvKeVkd+SWAAAAFAAAAAEAAAAAAAJK9wAAAAAAAAAAAAAAAAAAGH0=",
+            "events": [
+              "AAAAAQAAAAAAAAAAAAAAAgAAAAAAAAADAAAADwAAAAdmbl9jYWxsAAAAAA0AAAAgre/OWa7lKWj3YGHUlMJSW3Vln6QpamX0me8p5WR35JYAAAAPAAAAB2JhbGFuY2UAAAAAEgAAAAAAAAAAO5kROA7+mIugqJAOsc/kTzZvfb6Ua+0HckD39iTfFcU=",
+              "AAAAAQAAAAAAAAABre/OWa7lKWj3YGHUlMJSW3Vln6QpamX0me8p5WR35JYAAAACAAAAAAAAAAIAAAAPAAAACWZuX3JldHVybgAAAAAAAA8AAAAHYmFsYW5jZQAAAAAKAAAAAAAAAAB//////////w=="
+            ],
+            "minResourceFee": "6269",
+            "results": [
+              {
+                "auth": [],
+                "xdr": "AAAACgAAAAAAAAAAf/////////8="
+              }
+            ],
+            "latestLedger": 65337789
+          }
+        },
+        {
+          "provider": "https://soroban-rpc.creit.tech",
+          "latencyMs": 219,
+          "raw": {
+            "transactionData": "AAAAAAAAAAEAAAAGAAAAAa3vzlmu5Slo92Bh1JTCUlt1ZZ+kKWpl9JnvKeVkd+SWAAAAFAAAAAEAAAAAAAJK9wAAAAAAAAAAAAAAAAAAGH0=",
+            "minResourceFee": "6269",
+            "results": [
+              {
+                "auth": [],
+                "xdr": "AAAACgAAAAAAAAAAf/////////8="
+              }
+            ],
+            "latestLedger": 65337789
+          }
+        },
+        {
+          "provider": "https://archive-rpc.lightsail.network",
+          "latencyMs": 460,
+          "raw": {
+            "transactionData": "AAAAAAAAAAEAAAAGAAAAAa3vzlmu5Slo92Bh1JTCUlt1ZZ+kKWpl9JnvKeVkd+SWAAAAFAAAAAEAAAAAAAJK9wAAAAAAAAAAAAAAAAAAGH0=",
+            "events": [
+              "AAAAAQAAAAAAAAAAAAAAAgAAAAAAAAADAAAADwAAAAdmbl9jYWxsAAAAAA0AAAAgre/OWa7lKWj3YGHUlMJSW3Vln6QpamX0me8p5WR35JYAAAAPAAAAB2JhbGFuY2UAAAAAEgAAAAAAAAAAO5kROA7+mIugqJAOsc/kTzZvfb6Ua+0HckD39iTfFcU=",
+              "AAAAAQAAAAAAAAABre/OWa7lKWj3YGHUlMJSW3Vln6QpamX0me8p5WR35JYAAAACAAAAAAAAAAIAAAAPAAAACWZuX3JldHVybgAAAAAAAA8AAAAHYmFsYW5jZQAAAAAKAAAAAAAAAAB//////////w=="
+            ],
+            "minResourceFee": "6269",
+            "results": [
+              {
+                "auth": [],
+                "xdr": "AAAACgAAAAAAAAAAf/////////8="
+              }
+            ],
+            "latestLedger": 65337789
+          }
+        }
+      ]
+    }
+  ]
+}

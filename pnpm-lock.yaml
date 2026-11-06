@@ -84,6 +84,9 @@ importers:
       '@soroscope/dev':
         specifier: workspace:*
         version: link:../dev
+      '@soroscope/differential':
+        specifier: workspace:*
+        version: link:../differential
       '@soroscope/invoke':
         specifier: workspace:*
         version: link:../invoke
@@ -277,6 +280,12 @@ importers:
       '@soroscope/core':
         specifier: workspace:*
         version: link:../core
+      '@soroscope/dev':
+        specifier: workspace:*
+        version: link:../dev
+      '@stellar/stellar-sdk':
+        specifier: ^17.2.1
+        version: 17.2.1
     devDependencies:
       '@types/node':
         specifier: ^25.9.0

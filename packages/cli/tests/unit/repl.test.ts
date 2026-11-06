@@ -37,3 +37,16 @@ describe('soroscope dev: parseReplLine', () => {
     expect(() => parseReplLine('9lives')).toThrow(/not a function name/);
   });
 });
+
+describe('soroscope dev: companion contracts', () => {
+  it('addresses a companion contract as name.fn, for calls and simulations', () => {
+    expect(parseReplLine('token.balance who=me')).toEqual({ kind: 'call', fn: 'balance', args: { who: 'me' }, commit: true, contract: 'token' });
+    expect(parseReplLine('?token.balance who=me')).toEqual({ kind: 'call', fn: 'balance', args: { who: 'me' }, commit: false, contract: 'token' });
+    expect(parseReplLine('my-token.mint to=me amount=5')).toMatchObject({ contract: 'my-token', fn: 'mint' });
+  });
+
+  it('rejects a malformed name.fn', () => {
+    expect(() => parseReplLine('9tok.balance')).toThrow(/not a contract name/);
+    expect(() => parseReplLine('token.9fn')).toThrow(/not a function name/);
+  });
+});

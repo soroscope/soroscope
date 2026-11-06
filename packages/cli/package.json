@@ -48,7 +48,8 @@
     "@soroscope/ci": "workspace:*",
     "@soroscope/invoke": "workspace:*",
     "@stellar/stellar-sdk": "^17.2.1",
-    "@soroscope/dev": "workspace:*"
+    "@soroscope/dev": "workspace:*",
+    "@soroscope/differential": "workspace:*"
   },
   "devDependencies": {
     "tsup": "^8.5.1",

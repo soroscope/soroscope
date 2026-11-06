@@ -114,6 +114,7 @@ export function buildProgram(io: Io, onResult: (code: ExitCodeValue) => void): C
     .option('--args <json>', 'arguments: {"name": value} (uses the contract spec) or [{"type","value"}]')
     .option('--source <address>', 'source account; need not exist')
     .option('--json', 'print the full report as JSON')
+    .option('--compare', 'simulate on every selected provider separately and report where they disagree (exit 1 if they do)')
     .action(async (opts: Parameters<typeof runSimulate>[0]) => {
       onResult(await runSimulate(opts, io));
     });
@@ -139,6 +140,7 @@ export function buildProgram(io: Io, onResult: (code: ExitCodeValue) => void): C
   )
     .option('--builder <tool>', 'stellar (default when installed) or cargo', oneOf('stellar', 'cargo'))
     .option('--init <json>', 'named constructor arguments for the first deploy, as JSON')
+    .option('--with <wasm>', 'deploy another contract beside it, called as name.fn (repeatable)', (v: string, all: string[] = []) => [...all, v])
     .action(async (dir: string, opts: Parameters<typeof runDev>[1]) => {
       onResult(await runDev(dir, opts, io));
     });
