@@ -51,7 +51,7 @@ Check it worked from an empty directory: `npx @soroscope/cli probe --network mai
 
 The site is `packages/demo`, a Next.js app. Its content is `packages/demo/content/*.md`; `docs/` is generated from it (`pnpm docs:gen`), and `pnpm docs:test` fails if a documented import is not a real export.
 
-Deploy on Vercel:
+The site is deployed at <https://soroscope.vercel.app> (checked 2026-11-06: the docs pages, `/status`, search, `robots.txt` and the sitemap all return 200; the docs assistant reports "not configured" because no `GROQ_API_KEY` is set). To deploy it elsewhere or again, on Vercel:
 
 1. At <https://vercel.com/new>, import `soroscope/soroscope`.
 2. Set **Root Directory** to `packages/demo`, and leave "Include source files outside of the Root Directory" on (the default). Everything else comes from `packages/demo/vercel.json`: it installs from the repository root and builds `@soroscope/core` before the site, because the `/status` page imports it from the workspace and a plain `next build` fails without it.

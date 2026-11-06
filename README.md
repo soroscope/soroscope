@@ -31,7 +31,7 @@ npm install --global @soroscope/cli
 soroscope probe --network mainnet
 ```
 
-Or `npm install @soroscope/core` for the library, `npx -y @soroscope/mcp` for the agent server, and `uses: soroscope/soroscope/packages/ci@v1` for the GitHub Action. `soroscope dev` installs with the CLI, along with the prebuilt engine for Linux (x64, arm64), macOS (x64, arm64) or Windows x64; it also needs Rust to compile your contract. The documentation is in [`packages/demo/content`](./packages/demo/content) (a Next.js site) and, rendered for GitHub, in [`docs/`](./docs).
+Or `npm install @soroscope/core` for the library, `npx -y @soroscope/mcp` for the agent server, and `uses: soroscope/soroscope/packages/ci@v1` for the GitHub Action. `soroscope dev` installs with the CLI, along with the prebuilt engine for Linux (x64, arm64), macOS (x64, arm64) or Windows x64; it also needs Rust to compile your contract. **Documentation: <https://soroscope.vercel.app/docs/getting-started/introduction>.** Its source is [`packages/demo/content`](./packages/demo/content) (a Next.js site) and, rendered for GitHub, [`docs/`](./docs).
 
 ## Packages
 
