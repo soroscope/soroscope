@@ -1,6 +1,6 @@
 # Releasing
 
-**Status:** the first release (`0.1.0` of seven packages and the five engine packages) went out on 2026-11-06. `v1` is not tagged yet.
+**Status:** the first release (`0.1.0` of seven packages and the five engine packages) went out on 2026-11-06.
 
 How Soroscope gets to npm, and what has to be true before the first release. This is the checklist as it was used the first time, then the routine for every release after.
 
@@ -51,11 +51,15 @@ Check it worked from an empty directory: `npx @soroscope/cli probe --network mai
 
 The site is `packages/demo`, a Next.js app. Its content is `packages/demo/content/*.md`; `docs/` is generated from it (`pnpm docs:gen`), and `pnpm docs:test` fails if a documented import is not a real export.
 
-To deploy on Vercel: import the repository, set the **root directory** to `packages/demo`, and leave the install command as the default (Vercel detects the pnpm workspace). Set:
+Deploy on Vercel:
 
-| Variable               | Needed              |                                                                                |
-| ---------------------- | ------------------- | ------------------------------------------------------------------------------ |
-| `NEXT_PUBLIC_SITE_URL` | yes, for production | The site's public URL, used for canonical links, the sitemap and `robots.txt`. |
-| `GROQ_API_KEY`         | no                  | Enables the docs assistant. Without it the panel says it is not configured.    |
+1. At <https://vercel.com/new>, import `soroscope/soroscope`.
+2. Set **Root Directory** to `packages/demo`, and leave "Include source files outside of the Root Directory" on (the default). Everything else comes from `packages/demo/vercel.json`: it installs from the repository root and builds `@soroscope/core` before the site, because the `/status` page imports it from the workspace and a plain `next build` fails without it.
+3. Deploy. Add the variables below any time; they apply to the next deploy.
 
-When the packages are published, drop the "Not on npm yet" note from `content/getting-started/installation.md`.
+| Variable               | Needed                   |                                                                                                                    |
+| ---------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------ |
+| `NEXT_PUBLIC_SITE_URL` | only for a custom domain | Canonical links, the sitemap and `robots.txt`. Without it the site uses Vercel's own production URL automatically. |
+| `GROQ_API_KEY`         | no                       | Enables the docs assistant. Without it the panel says it is not configured.                                        |
+
+The build was tested with `packages/core/dist` deleted first, which is the state Vercel starts in.
