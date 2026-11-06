@@ -5,7 +5,7 @@ description: Run a Soroban contract in your own process, rebuild and hot-swap it
 
 `soroscope dev` runs your contract inside `soroban-env-host`, the same host stellar-core runs, against a ledger held in memory. Save the contract and call it a moment later: no network, no Docker, no faucet, no signing.
 
-> **Status: preview.** The engine, the watch loop and spec-typed calls work and are tested. `@soroscope/dev` is not on npm yet, so build it from source for now (see [Installation](/docs/getting-started/installation)). It needs the `stellar` CLI or `cargo`, plus Rust, to compile your contract.
+> **Status: preview.** The engine, the watch loop and spec-typed calls work and are tested. `soroscope dev` ships with `@soroscope/cli` (the prebuilt engine installs with it; see [Installation](/docs/getting-started/installation)). It needs the `stellar` CLI or `cargo`, plus Rust, to compile your contract.
 
 ## Start
 

@@ -5,7 +5,7 @@ description: Simulate one call on every RPC provider and see exactly where they 
 
 Two RPC providers can answer the same `simulateTransaction` differently: one lags the network, one runs a different protocol during an upgrade, one is misconfigured. `soroscope simulate --compare` asks each provider directly and shows you.
 
-> **Status: preview.** Tested on responses recorded from five real mainnet providers. `@soroscope/differential` is not on npm yet; `--compare` is part of the CLI.
+> **Status: preview.** Tested on responses recorded from five real mainnet providers. `--compare` is part of `@soroscope/cli`; the logic is in `@soroscope/differential`.
 
 ## From the command line
 

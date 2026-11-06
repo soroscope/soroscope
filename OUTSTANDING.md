@@ -34,28 +34,23 @@ What is still open:
   keep growing. **Closes when:** the old host is removed after mainnet reaches 30,
   with the protocol-29 fixtures retired alongside it.
 
-### 1.2 Nothing is published
+### 1.2 Published: `0.1.0` of seven packages, one step left
 
-`registry.npmjs.org` returns 404 for every `@soroscope/*` package, and the
-repository has no tags and no releases. The README shows
-`npx -y @soroscope/mcp` and `uses: soroscope/soroscope/packages/ci@v1`; neither
-resolves.
+On 2026-11-06 the `Release` workflow published `@soroscope/core`, `invoke`, `cli`,
+`ci`, `mcp`, `dev` and `differential` at `0.1.0`, after the five engine packages
+(`@soroscope/dev-<platform>`) were published by `engine-binaries.yml`. Checked from
+an empty directory with the real registry: `npm install @soroscope/cli` installs,
+`soroscope probe --network mainnet` prints the table, and `@soroscope/dev` loads the
+real prebuilt engine (protocols 29 and 30). How it was done, and the two blockers
+found on the way (the CLI depended on two private packages; the engine link step
+was never run), are in [`RELEASING.md`](./RELEASING.md).
 
-**Cost of leaving it alone:** nobody outside this repository can use any of it.
-`probe`, the router, the CI action and the MCP server are finished and tested
-live; they are just not installable.
+**Closes when:** `v1` is tagged so `uses: soroscope/soroscope/packages/ci@v1`
+resolves, and the Action is run once from a real workflow using that reference.
+Each later release must publish the engine packages first (`link --verify` stops
+the release otherwise).
 
-The steps, including the `soroscope` npm organisation and two blockers found while
-writing them (`@soroscope/cli` depends on two private packages; `release.yml` never
-runs the engine `link` step), are in [`RELEASING.md`](./RELEASING.md). Both blockers are fixed in the repository (2026-11-06): `dev` and `differential` are public and in the release group, and `pnpm release` links the engine packages and refuses to publish if any is missing from npm. What remains is the `NPM_TOKEN` secret and running _Engine binaries_ with `publish` on.
-
-**Closes when:** the `NPM_TOKEN` repository secret is set (publishing is the
-owner's call, not something a commit can do), a changeset covers core, invoke,
-cli, ci and mcp, the `Release` workflow publishes them, and `v1` is tagged so
-the Action reference resolves. Then, from an empty directory:
-`npx @soroscope/cli probe --network mainnet` prints a table.
-
-### 1.3 The engine's prebuilt binaries: built and tested on all five platforms, not yet published
+### 1.3 The engine's prebuilt binaries: built, tested and published on all five platforms
 
 `@soroscope/dev` needs a native engine. The pipeline exists:
 `packages/dev/engine/platforms.json` is the single platform list;
@@ -81,11 +76,10 @@ unfixed code), and confirmed passing on both macOS runners.
 Not supported, by choice: musl (Alpine) and Windows on ARM. The loader says so
 in its error rather than failing obscurely.
 
-**Closes when:** the packages are published, and `@soroscope/dev` is flipped from `private` with
-`package-engine.mjs link` run before its publish. Note that `@soroscope/cli`
-depends on `@soroscope/dev` and `@soroscope/differential`, both private today: a
-public package cannot depend on a private one, so both must be published before,
-or with, the CLI.
+**Done 2026-11-06:** published at `0.1.0`. The engine packages carry `@soroscope/dev`'s
+version, so **every version bump needs _Engine binaries_ run with `publish` on first**.
+**Closes when:** a version bump has been released end to end by the routine in
+`RELEASING.md` (nothing so far proves the second release).
 
 ---
 

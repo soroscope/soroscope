@@ -1,6 +1,8 @@
 # Releasing
 
-How Soroscope gets to npm, and what has to be true before the first release. Nothing is published yet (`npm view @soroscope/core` is a 404); this is the checklist for the first time, then the routine for every time after.
+**Status:** the first release (`0.1.0` of seven packages and the five engine packages) went out on 2026-11-06. `v1` is not tagged yet.
+
+How Soroscope gets to npm, and what has to be true before the first release. This is the checklist as it was used the first time, then the routine for every release after.
 
 ## 1. The npm organisation
 
@@ -20,7 +22,7 @@ The platform engine packages (`@soroscope/dev-linux-x64-gnu` and the other four)
 - Add it as the `NPM_TOKEN` repository secret.
 - Alternative, no long-lived secret: npm _trusted publishing_ from GitHub Actions. `publish.yml` already has `id-token: write`. It needs each package's trusted publisher configured on npm after its first publish, so the first release still needs the token.
 
-## 3. Before the first publish
+## 3. Before the first publish (done)
 
 Fixed in the repository:
 

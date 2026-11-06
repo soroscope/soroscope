@@ -5,7 +5,7 @@ description: Record a contract call's real mainnet or testnet state once, then r
 
 `@soroscope/testing` runs a contract call against **real ledger state** without a network at test time, and tells you whether the local engine gave the answer the network gave.
 
-> **Status: preview.** Calls are recorded against a live network and replayed offline. Forking a past ledger and carrying state from one call to the next are not built. Not on npm yet.
+> **Status: preview.** Calls are recorded against a live network and replayed offline. Forking a past ledger and carrying state from one call to the next are not built. `@soroscope/testing` is not on npm yet; it is published once the engine has proved itself on more than the recorded calls.
 
 ## Record once, replay anywhere
 
