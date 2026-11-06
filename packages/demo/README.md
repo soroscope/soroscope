@@ -26,10 +26,10 @@ pnpm --filter @soroscope/demo dev
 The AI assistant is optional. Without a key the panel reports that the
 assistant is not configured — everything else works normally.
 
-| Variable       | Required | Description                                       |
-| -------------- | -------- | ------------------------------------------------- |
-| `GROQ_API_KEY` | No       | Groq API key; enables `/api/ai`                   |
-| `GROQ_MODEL`   | No       | Groq model id (default `llama-3.3-70b-versatile`) |
+| Variable       | Required | Description                                   |
+| -------------- | -------- | --------------------------------------------- |
+| `GROQ_API_KEY` | No       | Groq API key; enables `/api/ai`               |
+| `GROQ_MODEL`   | No       | Groq model id (default `openai/gpt-oss-120b`) |
 
 Copy `.env.example` to `.env.local` and fill in values.
 

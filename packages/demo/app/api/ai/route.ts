@@ -14,7 +14,9 @@ import { allDocPages } from '@/lib/docroutes';
  */
 
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
-const DEFAULT_MODEL = 'llama-3.3-70b-versatile';
+// Groq retired llama-3.3-70b-versatile on 2026-08-16 and recommends this model in its place
+// (https://console.groq.com/docs/deprecations). Override with GROQ_MODEL.
+const DEFAULT_MODEL = 'openai/gpt-oss-120b';
 
 const MAX_TURNS = 8;
 const MAX_MESSAGE_CHARS = 2000;
@@ -160,6 +162,8 @@ export async function POST(request: NextRequest) {
 
   const question = messages[messages.length - 1].content;
 
+  const model = process.env.GROQ_MODEL || DEFAULT_MODEL;
+
   try {
     const upstream = await fetch(GROQ_URL, {
       method: 'POST',
@@ -168,15 +172,23 @@ export async function POST(request: NextRequest) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: process.env.GROQ_MODEL || DEFAULT_MODEL,
+        model,
         messages: [{ role: 'system', content: systemPrompt(relevantPages(question)) }, ...messages],
-        max_tokens: 400,
+        // gpt-oss models reason before answering and the reasoning counts against max_tokens,
+        // so give them room and keep the reasoning short. Other models reject the parameter.
+        max_tokens: model.startsWith('openai/gpt-oss') ? 1200 : 400,
+        ...(model.startsWith('openai/gpt-oss') ? { reasoning_effort: 'low' } : {}),
         temperature: 0.3,
       }),
       signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
     });
 
     if (!upstream.ok) {
+      // Visitors get a generic message; the reason (a retired model, a bad key, a quota) goes to the
+      // server log, where a deployment owner can read it. The response body never contains the key.
+      console.error(
+        `Groq returned ${upstream.status} for model ${model}: ${(await upstream.text().catch(() => '')).slice(0, 300)}`,
+      );
       return NextResponse.json(
         { error: 'The AI service returned an error — please try again shortly.' },
         { status: 502 },
