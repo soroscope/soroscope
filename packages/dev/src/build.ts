@@ -1,5 +1,5 @@
 import { execFile } from 'node:child_process';
-import { readFile } from 'node:fs/promises';
+import { readFile, realpath } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { promisify } from 'node:util';
 
@@ -46,7 +46,9 @@ interface CargoMetadata {
  * where its WASM will be written. Works for standalone crates and workspace members.
  */
 export async function resolveProject(dir: string): Promise<ContractProject> {
-  const abs = resolve(dir);
+  // `cargo metadata` reports real paths, so a project reached through a symlink (macOS's
+  // /tmp and /var are symlinks into /private) would never match the path it was given.
+  const abs = await realpath(resolve(dir)).catch(() => resolve(dir));
   let meta: CargoMetadata;
   try {
     const { stdout } = await run('cargo', ['metadata', '--format-version', '1', '--no-deps'], { cwd: abs, maxBuffer: 64 * 1024 * 1024 });
