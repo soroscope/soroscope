@@ -1,11 +1,10 @@
-/** Maturity of this package. Nothing here is implemented yet. */
-export const status = 'scaffold' as const;
+/**
+ * Maturity of this package. `preview`: calls can be recorded against a live
+ * network (its own simulation plus the exact state the call touches) and replayed
+ * on the in-process engine, offline, with the result compared to the network's.
+ * Forking at an arbitrary past ledger and writing state back are not built.
+ */
+export const status = 'preview' as const;
 
-import type { RpcCaller } from '@soroscope/core';
-
-export interface ForkOptions {
-  /** RPC endpoint or router the fork reads missing state from. */
-  rpc: RpcCaller;
-  /** Ledger to fork at. Defaults to the latest ledger. */
-  ledger?: number;
-}
+export { forkAndCompare, recordFork, replayFork } from './fork';
+export type { ForkCall, ForkCallRecording, ForkOptions, ForkRecording, ForkResult } from './fork';

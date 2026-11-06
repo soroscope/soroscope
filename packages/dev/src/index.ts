@@ -14,7 +14,7 @@ export {
   supportedProtocols,
   loadNativeEngine,
 } from './engine';
-export type { NetworkConfigSnapshot, LocalCallResult, DeployedLocalContract, SwapResult } from './engine';
+export type { NetworkConfigSnapshot, LiveLedgerEntry, LocalCallResult, DeployedLocalContract, SwapResult } from './engine';
 
 export { DevSession } from './session';
 export type { ReloadResult, CallOutcome } from './session';

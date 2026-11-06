@@ -76,10 +76,12 @@ jobs:
         shell: bash
 
       - name: Build packages the engine tests import
-        run: pnpm exec turbo run build --filter=@soroscope/dev...
+        run: pnpm exec turbo run build --filter=@soroscope/dev... --filter=@soroscope/testing...
 
       - name: Engine tests against the binary being published
-        run: pnpm --filter @soroscope/dev test:engine
+        run: |
+          pnpm --filter @soroscope/dev test:engine
+          pnpm --filter @soroscope/testing test:engine
 
       - name: Package
         run: >

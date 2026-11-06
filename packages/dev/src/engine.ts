@@ -30,6 +30,20 @@ export interface LocalCallResult {
   committed: boolean;
 }
 
+/** A live ledger entry as `getLedgerEntries` returns it. */
+export interface LiveLedgerEntry {
+  /** Base64 `LedgerEntryData` XDR. */
+  xdr: string;
+  lastModifiedLedgerSeq: number;
+  /** The entry's TTL, for contract data and code. */
+  liveUntilLedgerSeq?: number | undefined;
+  /**
+   * Base64 `LedgerEntryExt` (`extXdr` in `getLedgerEntries`): who sponsors the entry.
+   * Keep it: a sponsored entry is 44 bytes larger, which changes bytes read and the fee.
+   */
+  extXdr?: string | undefined;
+}
+
 export interface DeployedLocalContract {
   contractId: string;
   wasmHash: string;
@@ -47,6 +61,8 @@ interface NativeEngine {
   readonly sequence: number;
   readonly protocol: number;
   readonly entryCount: number;
+  readonly nativeAssetContract: string;
+  loadEntries(entries: { xdr: string; lastModifiedLedgerSeq: number; liveUntilLedgerSeq?: number; extXdr?: string }[]): number;
   advance(ledgers: number, secondsPerLedger?: number): void;
   uploadWasm(wasm: Buffer): string;
   deploy(wasm: Buffer, constructorArgs?: string[]): DeployedLocalContract;
@@ -59,6 +75,7 @@ type NativeEngineCtor = new (options: {
   sequence: number;
   timestamp: number;
   configEntries: { xdr: string; lastModifiedLedgerSeq: number }[];
+  sourceAccount?: string;
 }) => NativeEngine;
 
 /** Thrown when the native engine has not been built for this platform. */
@@ -170,7 +187,19 @@ export class LocalNetwork {
   private constructor(private readonly native: NativeEngine) {}
 
   /** Start an empty local ledger that meters and prices calls like the network `config` came from. */
-  static create(config: NetworkConfigSnapshot, options: { timestamp?: number } = {}): LocalNetwork {
+  static create(
+    config: NetworkConfigSnapshot,
+    options: {
+      timestamp?: number;
+      /**
+       * `G...` account to invoke as, instead of the synthetic local one. Use it when
+       * forking a live network: the call then runs as an account that exists there.
+       * Its ledger entry is not created; {@link LocalNetwork.loadEntries} it if the
+       * call reads it.
+       */
+      sourceAccount?: string;
+    } = {},
+  ): LocalNetwork {
     const { Engine, supportedProtocols: supported } = loadNativeModule();
     const protocols = supported();
     if (!protocols.includes(config.protocolVersion)) throw new UnsupportedProtocolError(config.protocolVersion, protocols);
@@ -181,7 +210,34 @@ export class LocalNetwork {
         sequence: config.latestLedger,
         timestamp: options.timestamp ?? Math.floor(Date.now() / 1000),
         configEntries: config.configEntries,
+        ...(options.sourceAccount === undefined ? {} : { sourceAccount: options.sourceAccount }),
       }),
+    );
+  }
+
+  /**
+   * `C...` address of the native (XLM) asset contract in this ledger. It depends
+   * only on the network passphrase, so it is the address contracts use on the
+   * live network, and calls to it (`balance`, `transfer`...) work locally.
+   */
+  get nativeAssetContract(): string {
+    return this.native.nativeAssetContract;
+  }
+
+  /**
+   * Put live ledger entries into the local ledger, replacing any with the same
+   * key. This is how a fork gets real state: fetch the entries a call touches
+   * with `getLedgerEntries`, load them, then call.
+   * @returns How many entries were loaded.
+   */
+  loadEntries(entries: readonly LiveLedgerEntry[]): number {
+    return this.native.loadEntries(
+      entries.map((e) => ({
+        xdr: e.xdr,
+        lastModifiedLedgerSeq: e.lastModifiedLedgerSeq,
+        ...(e.liveUntilLedgerSeq === undefined ? {} : { liveUntilLedgerSeq: e.liveUntilLedgerSeq }),
+        ...(e.extXdr === undefined ? {} : { extXdr: e.extXdr }),
+      })),
     );
   }
 

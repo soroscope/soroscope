@@ -93,3 +93,41 @@ describe('DevSession', () => {
     expect(() => s.call('version')).toThrow(/No contract loaded/);
   });
 });
+
+describe('companion contracts (several contracts in one session)', () => {
+  const make = (): DevSession => {
+    const s = DevSession.create(fixture, { timestamp: recordedAt });
+    s.reload(v1Wasm);
+    return s;
+  };
+
+  it('deploys another contract beside the one under development, with its own address and storage', () => {
+    const s = make();
+    const { contractId } = s.addContract('other', v1Wasm);
+    expect(contractId).toMatch(/^C[A-Z2-7]{55}$/);
+    expect(contractId).not.toBe(s.contractId);
+    expect(s.contracts).toEqual([{ name: 'other', contractId }]);
+
+    s.call('put', { key: 'k', val: '7' });
+    expect(s.call('get', { key: 'k' }).value).toBe('7');
+    // The companion is a separate contract: it does not see the other's storage.
+    expect(s.call('get', { key: 'k' }, { contract: 'other' }).report.ok).toBe(false);
+    s.call('put', { key: 'k', val: '9' }, { contract: 'other' });
+    expect(s.call('get', { key: 'k' }, { contract: 'other' }).value).toBe('9');
+    expect(s.call('get', { key: 'k' }).value).toBe('7');
+  });
+
+  it('refuses a duplicate name and an unknown contract, naming what exists', () => {
+    const s = make();
+    s.addContract('other', v1Wasm);
+    expect(() => s.addContract('other', v1Wasm)).toThrow(/already in this session/);
+    expect(() => s.call('get', { key: 'k' }, { contract: 'nope' })).toThrow(/No contract named "nope".*other/);
+  });
+
+  it('keeps a companion through a hot swap of the contract under development', () => {
+    const s = make();
+    const { contractId } = s.addContract('other', v1Wasm);
+    s.reload(v2Wasm);
+    expect(s.contracts[0]!.contractId).toBe(contractId);
+  });
+});

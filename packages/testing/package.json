@@ -20,8 +20,8 @@
   "scripts": {
     "build": "tsup",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run --passWithNoTests",
-    "test:integration": "vitest run --config vitest.integration.config.ts --passWithNoTests"
+    "test:integration": "vitest run --config vitest.integration.config.ts --passWithNoTests",
+    "test:engine": "vitest run --config vitest.engine.config.ts --passWithNoTests"
   },
   "keywords": [
     "stellar",
@@ -39,7 +39,9 @@
     "node": ">=20"
   },
   "dependencies": {
-    "@soroscope/core": "workspace:*"
+    "@soroscope/core": "workspace:*",
+    "@soroscope/dev": "workspace:*",
+    "@stellar/stellar-sdk": "^17.2.1"
   },
   "devDependencies": {
     "@types/node": "^25.9.0",

@@ -59,6 +59,19 @@ pub struct ConfigEntryInput {
     pub last_modified_ledger_seq: u32,
 }
 
+/// One live ledger entry as `getLedgerEntries` returns it, to load into the local ledger.
+#[napi(object)]
+pub struct LedgerEntryInput {
+    /// Base64 `LedgerEntryData` XDR.
+    pub xdr: String,
+    pub last_modified_ledger_seq: u32,
+    /// The entry's TTL, for entry types that have one (contract data and code).
+    pub live_until_ledger_seq: Option<u32>,
+    /// Base64 `LedgerEntryExt` XDR (`extXdr` in `getLedgerEntries`): who sponsors the entry.
+    /// A sponsored entry is 44 bytes larger, which changes the bytes read and the fee.
+    pub ext_xdr: Option<String>,
+}
+
 #[napi(object)]
 pub struct EngineOptions {
     pub network_passphrase: String,
@@ -69,6 +82,9 @@ pub struct EngineOptions {
     pub timestamp: i64,
     /// Every CONFIG_SETTING entry of the network to emulate (fee rates, cost model, TTL limits).
     pub config_entries: Vec<ConfigEntryInput>,
+    /// `G...` account to invoke as, instead of the synthetic local one. Its ledger
+    /// entry is not created: load it with `load_entries` if the call reads it.
+    pub source_account: Option<String>,
 }
 
 #[napi(object)]
@@ -97,7 +113,7 @@ macro_rules! host_engine {
         use $host::e2e_invoke::RecordingInvocationAuthMode;
         use $host::storage::{EntryWithLiveUntil, SnapshotSource};
         use $host::xdr::{
-            AccountEntry, AccountEntryExt, AccountId, ContractCostType, ContractDataDurability,
+            AccountEntry, AccountEntryExt, AccountId, Asset, ContractCostType, ContractDataDurability,
             ContractExecutable, ContractId, ContractIdPreimage, ContractIdPreimageFromAddress,
             CreateContractArgsV2, Hash, HostFunction, InvokeContractArgs, LedgerEntry,
             LedgerEntryData, LedgerEntryExt, LedgerKey, LedgerKeyAccount, LedgerKeyConfigSetting,
@@ -110,10 +126,12 @@ macro_rules! host_engine {
             simulate_invoke_host_function_op, InvokeHostFunctionSimulationResult,
             SimulationAdjustmentConfig,
         };
+        use $host::budget::Budget;
         use $sim::NetworkConfig;
+        use $host::e2e_invoke::invoke_host_function_in_recording_mode;
 
         use super::{
-            err, hex, parse_contract, sha256, unhex, DeployResult, EngineOptions, SwapResult,
+            err, hex, parse_contract, sha256, unhex, DeployResult, EngineOptions, LedgerEntryInput, SwapResult,
         };
         use napi::Result;
 
@@ -178,6 +196,7 @@ macro_rules! host_engine {
             ledger_info: LedgerInfo,
             source: AccountId,
             nonce: u64,
+            native_asset: String,
         }
 
         impl Core {
@@ -217,33 +236,91 @@ macro_rules! host_engine {
                 };
                 network_config.fill_config_fields_in_ledger_info(&mut ledger_info);
 
-                // A local, never-signing source account, funded so contracts that read
-                // it (or the native asset) behave as they would for a real deployer.
-                let source = AccountId(PublicKey::PublicKeyTypeEd25519(Uint256(sha256(
-                    b"soroscope-dev local source account",
-                ))));
-                let account = LedgerEntry {
-                    last_modified_ledger_seq: options.sequence,
-                    data: LedgerEntryData::Account(AccountEntry {
-                        account_id: source.clone(),
-                        balance: 10_000_000_000_000,
-                        seq_num: SequenceNumber(i64::from(options.sequence) << 32),
-                        num_sub_entries: 0,
-                        inflation_dest: None,
-                        flags: 0,
-                        home_domain: String32::default(),
-                        thresholds: Thresholds([1, 0, 0, 0]),
-                        signers: VecM::default(),
-                        ext: AccountEntryExt::V0,
-                    }),
-                    ext: LedgerEntryExt::V0,
+                // The account calls run as. By default a local, never-signing one, funded
+                // so contracts that read it (or the native asset) behave as they would for
+                // a real deployer. When the caller names a real account (forking a live
+                // network), that one is used and its entry is expected to be loaded.
+                let (source, synthetic) = match &options.source_account {
+                    Some(g) => {
+                        let key = stellar_strkey::ed25519::PublicKey::from_string(g)
+                            .map_err(|e| err(format!("invalid source account {g:?}: {e}")))?;
+                        (AccountId(PublicKey::PublicKeyTypeEd25519(Uint256(key.0))), false)
+                    }
+                    None => (
+                        AccountId(PublicKey::PublicKeyTypeEd25519(Uint256(sha256(
+                            b"soroscope-dev local source account",
+                        )))),
+                        true,
+                    ),
                 };
-                ledger.0.insert(
-                    Rc::new(LedgerKey::Account(LedgerKeyAccount { account_id: source.clone() })),
-                    (Rc::new(account), None),
-                );
+                if synthetic {
+                    let account = LedgerEntry {
+                        last_modified_ledger_seq: options.sequence,
+                        data: LedgerEntryData::Account(AccountEntry {
+                            account_id: source.clone(),
+                            balance: 10_000_000_000_000,
+                            seq_num: SequenceNumber(i64::from(options.sequence) << 32),
+                            num_sub_entries: 0,
+                            inflation_dest: None,
+                            flags: 0,
+                            home_domain: String32::default(),
+                            thresholds: Thresholds([1, 0, 0, 0]),
+                            signers: VecM::default(),
+                            ext: AccountEntryExt::V0,
+                        }),
+                        ext: LedgerEntryExt::V0,
+                    };
+                    ledger.0.insert(
+                        Rc::new(LedgerKey::Account(LedgerKeyAccount { account_id: source.clone() })),
+                        (Rc::new(account), None),
+                    );
+                }
 
-                Ok(Self { ledger, network_config, ledger_info, source, nonce: 0 })
+                let mut core = Self { ledger, network_config, ledger_info, source, nonce: 0, native_asset: String::new() };
+                core.deploy_native_asset()?;
+                Ok(core)
+            }
+
+            /// Instantiate the native (XLM) Stellar Asset Contract, as the network has
+            /// had since Soroban launched. Its address depends only on the network
+            /// passphrase, so it is the same address contracts use on the live network.
+            fn deploy_native_asset(&mut self) -> Result<()> {
+                let hf = HostFunction::CreateContractV2(CreateContractArgsV2 {
+                    contract_id_preimage: ContractIdPreimage::Asset(Asset::Native),
+                    executable: ContractExecutable::StellarAsset,
+                    constructor_args: VecM::default(),
+                });
+                let seed = self.next_seed();
+                let sim = self.run(hf, seed)?;
+                self.require_ok(&sim, "native asset contract")?;
+                self.commit(&sim)?;
+                let id = match sim.invoke_result {
+                    Ok(ScVal::Address(ScAddress::Contract(ContractId(Hash(id))))) => id,
+                    other => return Err(err(format!("native asset contract returned an unexpected value: {other:?}"))),
+                };
+                self.native_asset = stellar_strkey::Contract(id).to_string();
+                Ok(())
+            }
+
+            /// `C...` address of the native asset contract in this ledger.
+            pub fn native_asset(&self) -> String {
+                self.native_asset.clone()
+            }
+
+            /// Put live ledger entries (as `getLedgerEntries` returns them) into the
+            /// local ledger, replacing any entry with the same key. Returns how many.
+            pub fn load_entries(&mut self, entries: &[LedgerEntryInput]) -> Result<u32> {
+                for e in entries {
+                    let data: LedgerEntryData = from_b64(&e.xdr, "ledger entry data")?;
+                    let ext = match &e.ext_xdr {
+                        Some(x) => from_b64::<LedgerEntryExt>(x, "ledger entry extension")?,
+                        None => LedgerEntryExt::V0,
+                    };
+                    let entry = LedgerEntry { last_modified_ledger_seq: e.last_modified_ledger_seq, data, ext };
+                    let key = Rc::new(key_of(&entry)?);
+                    self.ledger.0.insert(key, (Rc::new(entry), e.live_until_ledger_seq));
+                }
+                Ok(entries.len() as u32)
             }
 
             /// `G...` strkey of the local source account (the deployer and default invoker).
@@ -262,7 +339,8 @@ macro_rules! host_engine {
             }
 
             pub fn upload_wasm(&mut self, wasm: &[u8]) -> Result<String> {
-                let sim = self.run(HostFunction::UploadContractWasm(wasm.to_vec().try_into().map_err(err)?))?;
+                let seed = self.next_seed();
+                let sim = self.run(HostFunction::UploadContractWasm(wasm.to_vec().try_into().map_err(err)?), seed)?;
                 self.require_ok(&sim, "upload")?;
                 self.commit(&sim)?;
                 Ok(hex(&sha256(wasm)))
@@ -284,7 +362,8 @@ macro_rules! host_engine {
                     executable: ContractExecutable::Wasm(Hash(unhex(&wasm_hash)?)),
                     constructor_args: args.try_into().map_err(err)?,
                 });
-                let sim = self.run(hf)?;
+                let seed = self.next_seed();
+                let sim = self.run(hf, seed)?;
                 self.require_ok(&sim, "deploy")?;
                 self.commit(&sim)?;
                 let id = match sim.invoke_result {
@@ -304,9 +383,16 @@ macro_rules! host_engine {
                     function_name: ScSymbol(function.to_string().try_into().map_err(err)?),
                     args: args.try_into().map_err(err)?,
                 });
-                let sim = self.run(hf)?;
+                let seed = self.next_seed();
+                let sim = self.run(hf.clone(), seed)?;
                 if commit && sim.invoke_result.is_ok() {
+                    // The simulation result carries no TTL changes, so a contract's own
+                    // `extend_ttl` would be lost. The recording-mode result has them: run
+                    // it once more on the same state and seed (deterministic) to read them,
+                    // before the writes change the state it runs against.
+                    let ttl = self.ttl_changes(hf, seed)?;
                     self.commit(&sim)?;
+                    self.apply_ttl_changes(ttl);
                 }
                 self.to_rpc_json(&sim)
             }
@@ -351,9 +437,59 @@ macro_rules! host_engine {
                 self.ledger.0.len() as u32
             }
 
-            fn run(&mut self, hf: HostFunction) -> Result<InvokeHostFunctionSimulationResult> {
+            fn next_seed(&mut self) -> [u8; 32] {
                 self.nonce += 1;
-                let seed = sha256(format!("soroscope-dev prng {}", self.nonce).as_bytes());
+                sha256(format!("soroscope-dev prng {}", self.nonce).as_bytes())
+            }
+
+            /// Entries whose TTL the call extended, with their new `live_until`.
+            fn ttl_changes(&self, hf: HostFunction, seed: [u8; 32]) -> Result<Vec<(LedgerKey, u32)>> {
+                // Which entries a call extended depends on its arguments and the ledger, not
+                // on byte accounting, so the raw ledger and the network's own limits suffice.
+                let snapshot = Rc::new(self.ledger.clone());
+                let budget = Budget::try_from_configs(
+                    self.network_config.tx_max_instructions as u64,
+                    u64::from(self.network_config.tx_memory_limit),
+                    self.network_config.cpu_cost_params.clone(),
+                    self.network_config.memory_cost_params.clone(),
+                )
+                .map_err(|e| err(format!("cannot create budget: {e:?}")))?;
+                let mut diagnostics = vec![];
+                let result = invoke_host_function_in_recording_mode(
+                    &budget,
+                    false,
+                    &hf,
+                    &self.source,
+                    RecordingInvocationAuthMode::recording(false, false),
+                    self.ledger_info.clone(),
+                    snapshot,
+                    seed,
+                    &mut diagnostics,
+                )
+                .map_err(|e| err(format!("ttl pass failed: {e:?}")))?;
+                let mut out = vec![];
+                for change in &result.ledger_changes {
+                    let Some(ttl) = &change.ttl_change else { continue };
+                    if ttl.new_live_until_ledger <= ttl.old_live_until_ledger {
+                        continue;
+                    }
+                    let key = LedgerKey::from_xdr(&change.encoded_key, Limits::none())
+                        .map_err(|e| err(format!("invalid ledger key in ttl change: {e}")))?;
+                    out.push((key, ttl.new_live_until_ledger));
+                }
+                Ok(out)
+            }
+
+            /// TTLs only ever grow: keep the later of the current and the new one.
+            fn apply_ttl_changes(&mut self, changes: Vec<(LedgerKey, u32)>) {
+                for (key, new_live_until) in changes {
+                    if let Some((_, live_until)) = self.ledger.0.get_mut(&Rc::new(key)) {
+                        *live_until = Some(live_until.map_or(new_live_until, |old| old.max(new_live_until)));
+                    }
+                }
+            }
+
+            fn run(&mut self, hf: HostFunction, seed: [u8; 32]) -> Result<InvokeHostFunctionSimulationResult> {
                 simulate_invoke_host_function_op(
                     Rc::new(self.ledger.clone()),
                     &self.network_config,
@@ -592,5 +728,17 @@ impl Engine {
     #[napi(getter)]
     pub fn entry_count(&self) -> u32 {
         on!(self, c => c.entry_count())
+    }
+
+    /// `C...` address of the native (XLM) asset contract in this ledger.
+    #[napi(getter)]
+    pub fn native_asset_contract(&self) -> String {
+        on!(self, c => c.native_asset())
+    }
+
+    /// Load live ledger entries into the local ledger. Returns how many.
+    #[napi]
+    pub fn load_entries(&mut self, entries: Vec<LedgerEntryInput>) -> Result<u32> {
+        on!(mut self, c => c.load_entries(&entries))
     }
 }

@@ -126,7 +126,10 @@ jobs:
           pnpm --filter @soroscope/dev build:engine
 
       - name: Build packages the engine tests import
-        run: pnpm exec turbo run build --filter=@soroscope/dev...
+        run: pnpm exec turbo run build --filter=@soroscope/dev... --filter=@soroscope/testing...
 
       - name: Engine, session and watch-loop tests (recorded live parity; no network needed)
         run: pnpm --filter @soroscope/dev test:engine
+
+      - name: Fork tests (the engine against recorded live mainnet state; no network needed)
+        run: pnpm --filter @soroscope/testing test:engine
