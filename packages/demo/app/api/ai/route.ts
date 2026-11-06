@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
-import { allDocPages } from '@/lib/docroutes';
+import { allDocPages, docSections } from '@/lib/docroutes';
+import { renderReply } from '@/lib/ai-markdown';
 
 /**
  * Docs assistant backed by the Groq chat-completions API.
@@ -17,6 +18,12 @@ const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 // Groq retired llama-3.3-70b-versatile on 2026-08-16 and recommends this model in its place
 // (https://console.groq.com/docs/deprecations). Override with GROQ_MODEL.
 const DEFAULT_MODEL = 'openai/gpt-oss-120b';
+
+// The pages a reply may point to (the reference section is too long to list).
+const GUIDE_TITLES = docSections
+  .slice(0, 3)
+  .flatMap((s) => s.items.map((i) => i.title))
+  .join('; ');
 
 const MAX_TURNS = 8;
 const MAX_MESSAGE_CHARS = 2000;
@@ -118,8 +125,11 @@ function systemPrompt(pages: ScoredPage[]): string {
     'checks, and an MCP server).',
     'Answer ONLY from the documentation excerpts below. If the excerpts do not cover the',
     'question, say so and suggest the closest doc page instead of guessing.',
-    'Reply in plain text without markdown formatting, in at most 120 words.',
-    'When you reference a doc page, name it by its title.',
+    'Be brief: at most 120 words. You may use markdown: **bold**, `inline code`, bullet or',
+    'numbered lists, and fenced code blocks with the opening and closing fence each on their own',
+    'line. Do not use headings or tables.',
+    'When you reference a doc page, name it by its exact title from this list, and never invent',
+    'a page: ' + GUIDE_TITLES + '.',
     '',
     context,
   ].join('\n');
@@ -210,7 +220,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return NextResponse.json({ reply });
+    return NextResponse.json({ reply, html: renderReply(reply) });
   } catch {
     return NextResponse.json(
       { error: 'Could not reach the AI service — please try again shortly.' },

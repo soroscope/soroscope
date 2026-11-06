@@ -264,3 +264,69 @@ body {
 .doc-content .callout-caution .callout-title {
   color: #ff6b6b;
 }
+
+/* The docs assistant's replies (HTML from lib/ai-markdown.ts) */
+.ai-reply > :first-child {
+  margin-top: 0;
+}
+.ai-reply > :last-child {
+  margin-bottom: 0;
+}
+.ai-reply p {
+  margin: 0.5em 0;
+}
+.ai-reply strong {
+  color: #fff;
+  font-weight: 600;
+}
+.ai-reply a {
+  color: #e8ff47;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.ai-reply code {
+  background: rgba(255, 255, 255, 0.08);
+  color: #e8ff47;
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  font-size: 0.85em;
+  font-family: var(--font-mono);
+  overflow-wrap: anywhere;
+}
+.ai-reply pre {
+  background: #000;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+  margin: 0.6em 0;
+  overflow-x: auto;
+  font-size: 0.78rem;
+  line-height: 1.6;
+}
+.ai-reply pre code {
+  background: transparent;
+  color: #d4d4d4;
+  padding: 0;
+  overflow-wrap: normal;
+  white-space: pre;
+}
+.ai-reply ul,
+.ai-reply ol {
+  margin: 0.5em 0;
+  padding-left: 1.25em;
+}
+.ai-reply ul {
+  list-style: disc;
+}
+.ai-reply ol {
+  list-style: decimal;
+}
+.ai-reply li {
+  margin: 0.2em 0;
+}
+.ai-reply blockquote {
+  margin: 0.5em 0;
+  padding-left: 0.75em;
+  border-left: 2px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.6);
+}

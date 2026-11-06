@@ -6,6 +6,8 @@ type Message = {
   id: string;
   role: 'user' | 'assistant';
   content: string;
+  /** Sanitized HTML of `content`, rendered by the server. Absent for user messages and errors. */
+  html?: string;
   error?: boolean;
 };
 
@@ -65,11 +67,16 @@ export default function AIPanel({ open, onClose }: Props) {
           messages: history.map(({ role, content }) => ({ role, content })),
         }),
       });
-      const data = (await res.json()) as { reply?: string; error?: string };
+      const data = (await res.json()) as { reply?: string; html?: string; error?: string };
 
       reply =
         res.ok && data.reply
-          ? { id: (Date.now() + 1).toString(), role: 'assistant', content: data.reply }
+          ? {
+              id: (Date.now() + 1).toString(),
+              role: 'assistant',
+              content: data.reply,
+              html: data.html,
+            }
           : {
               id: (Date.now() + 1).toString(),
               role: 'assistant',
@@ -139,8 +146,8 @@ export default function AIPanel({ open, onClose }: Props) {
                   <SparklesIcon />
                 </div>
                 <div className="bg-white/[0.05] rounded-xl rounded-tl-sm px-3 py-2.5 text-sm text-white/80 leading-relaxed">
-                  Hi! I&apos;m your Soroscope docs assistant. Ask me about RPC provider routing, decoding
-                  failed calls, CI resource checks, or the MCP server.
+                  Hi! I&apos;m your Soroscope docs assistant. Ask me about RPC provider routing,
+                  decoding failed calls, CI resource checks, or the MCP server.
                 </div>
               </div>
 
@@ -172,7 +179,7 @@ export default function AIPanel({ open, onClose }: Props) {
                   {msg.role === 'user' ? 'U' : <SparklesIcon />}
                 </div>
                 <div
-                  className={`max-w-[220px] rounded-xl px-3 py-2.5 text-sm leading-relaxed ${
+                  className={`min-w-0 max-w-[250px] rounded-xl px-3 py-2.5 text-sm leading-relaxed ${
                     msg.role === 'user'
                       ? 'bg-accent/10 text-accent rounded-tr-sm'
                       : msg.error
@@ -180,7 +187,13 @@ export default function AIPanel({ open, onClose }: Props) {
                         : 'bg-white/[0.05] text-white/80 rounded-tl-sm'
                   }`}
                 >
-                  {msg.content}
+                  {msg.html ? (
+                    // Server-rendered from the model's markdown and passed through a strict allowlist
+                    // (lib/ai-markdown.ts, tested against script, handler and javascript: payloads).
+                    <div className="ai-reply" dangerouslySetInnerHTML={{ __html: msg.html }} />
+                  ) : (
+                    msg.content
+                  )}
                 </div>
               </div>
             ))
