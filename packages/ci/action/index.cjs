@@ -73330,9 +73330,9 @@ var RpcClient = class {
     } finally {
       options?.signal?.removeEventListener("abort", onAbort);
     }
-    let text;
+    let text2;
     try {
-      text = await response.text();
+      text2 = await response.text();
     } catch (cause) {
       clearTimeout(timer);
       if (timedOut) {
@@ -73347,7 +73347,7 @@ var RpcClient = class {
     }
     clearTimeout(timer);
     const latencyMs = performance.now() - started;
-    const snippet = text.slice(0, SNIPPET_CHARS);
+    const snippet = text2.slice(0, SNIPPET_CHARS);
     if (!response.ok) {
       throw new RpcHttpError(
         `HTTP ${response.status} from ${this.url}`,
@@ -73359,7 +73359,7 @@ var RpcClient = class {
     }
     let parsed;
     try {
-      parsed = JSON.parse(text);
+      parsed = JSON.parse(text2);
     } catch {
       throw new RpcProtocolError(`Response from ${this.url} is not JSON`, this.url, snippet);
     }
@@ -74541,11 +74541,11 @@ function toHex(bytes) {
   return out;
 }
 var DECODE = Object.fromEntries([...ALPHABET2].map((c, i) => [c, i]));
-function unbase32(text) {
+function unbase32(text2) {
   const out = [];
   let buffer = 0;
   let bits = 0;
-  for (const ch of text) {
+  for (const ch of text2) {
     const v = DECODE[ch];
     if (v === void 0) throw new TypeError(`Invalid strkey character "${ch}"`);
     buffer = buffer << 5 | v;
@@ -74558,23 +74558,23 @@ function unbase32(text) {
   }
   return Uint8Array.from(out);
 }
-function decodeStrkey(text) {
-  if (!/^[A-Z2-7]+$/.test(text)) throw new TypeError(`"${text}" is not a strkey`);
-  const raw = unbase32(text);
-  if (raw.length < 3) throw new TypeError(`"${text}" is too short to be a strkey`);
+function decodeStrkey(text2) {
+  if (!/^[A-Z2-7]+$/.test(text2)) throw new TypeError(`"${text2}" is not a strkey`);
+  const raw = unbase32(text2);
+  if (raw.length < 3) throw new TypeError(`"${text2}" is too short to be a strkey`);
   const body = raw.subarray(0, raw.length - 2);
   const crc = crc16Xmodem(body);
   const expected = (raw[raw.length - 2] ?? 0) | (raw[raw.length - 1] ?? 0) << 8;
-  if (crc !== expected) throw new TypeError(`"${text}" has an invalid strkey checksum`);
-  if (encodeStrkey(body[0] ?? 0, body.subarray(1)) !== text) {
-    throw new TypeError(`"${text}" is not a canonical strkey`);
+  if (crc !== expected) throw new TypeError(`"${text2}" has an invalid strkey checksum`);
+  if (encodeStrkey(body[0] ?? 0, body.subarray(1)) !== text2) {
+    throw new TypeError(`"${text2}" is not a canonical strkey`);
   }
   return { version: body[0] ?? 0, payload: body.subarray(1) };
 }
-function decodeContractId(text) {
-  const { version: version3, payload } = decodeStrkey(text);
+function decodeContractId(text2) {
+  const { version: version3, payload } = decodeStrkey(text2);
   if (version3 !== STRKEY_VERSION.contract || payload.length !== 32) {
-    throw new TypeError(`"${text}" is not a contract id (expected a C... address)`);
+    throw new TypeError(`"${text2}" is not a contract id (expected a C... address)`);
   }
   return payload;
 }

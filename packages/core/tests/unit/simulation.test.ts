@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   ContractSpec,
+  compareSimulations,
   decodeSimulationResponse,
   describeSimulation,
   findFailure,
@@ -150,5 +151,36 @@ describe('resolveContractError with a real contract spec', () => {
     const host = { ...base, error: { ...base.error, isContractError: false, contractCode: null } };
     const empty = new ContractSpec([], { kind: 'unknown' });
     expect(resolveContractError(host, empty)).toBe(host);
+  });
+});
+
+// compareSimulations is used to check a local engine against the network and to compare
+// providers with each other. These are real recorded responses for different calls, so the
+// differences it must name are real ones.
+describe('compareSimulations', () => {
+  const report = (name: string) => decodeSimulationResponse(sim(name));
+
+  it('finds no difference between a simulation and itself', () => {
+    for (const n of ['name', 'symbol', 'balance of a funded account', 'transfer exceeding the balance']) {
+      expect(compareSimulations(report(n), report(n)), n).toEqual([]);
+    }
+  });
+
+  it('names the return value when two successful calls return different things', () => {
+    // (name() and symbol() both return "native" for the native asset: they cost differently but agree on the value.)
+    const diffs = compareSimulations(report('name'), report('decimals'));
+    expect(diffs.find((d) => d.field === 'returnValue')).toEqual({ field: 'returnValue', a: '"native"', b: '7' });
+    expect(compareSimulations(report('name'), report('symbol')).map((d) => d.field)).not.toContain('returnValue');
+  });
+
+  it('reports only the outcome when one call succeeds and the other fails', () => {
+    const diffs = compareSimulations(report('name'), report('transfer exceeding the balance'));
+    expect(diffs.map((d) => d.field)).toEqual(['outcome']);
+  });
+
+  it('names a differing footprint', () => {
+    // A balance read touches a trustline or account entry that a name() read does not.
+    const diffs = compareSimulations(report('balance of a funded account'), report('name'));
+    expect(diffs.map((d) => d.field)).toEqual(expect.arrayContaining(['returnValue', 'footprint.readOnly']));
   });
 });
