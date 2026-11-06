@@ -6,10 +6,14 @@
 //       Print the build matrix (engine/platforms.json) as JSON, for the workflow.
 //   node scripts/package-engine.mjs package --package <name> --library <file> --out <dir>
 //       Write <dir>/package.json and <dir>/soroscope-engine.node, ready for `npm publish`.
-//   node scripts/package-engine.mjs link
+//   node scripts/package-engine.mjs link [--verify]
 //       Add every platform package to @soroscope/dev's optionalDependencies at its own
-//       version. Run by the release workflow just before publishing @soroscope/dev; it is
+//       version. Run by `pnpm release` just before publishing @soroscope/dev; it is
 //       not committed, because pnpm cannot resolve packages that are not published yet.
+//       With --verify, first check that every platform package exists on npm at that
+//       version and refuse otherwise: @soroscope/dev published with a missing engine
+//       package installs without an engine and fails when it is first used.
+import { spawnSync } from 'node:child_process';
 import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -62,6 +66,19 @@ if (command === 'matrix') {
   writeFileSync(resolve(out, 'package.json'), `${JSON.stringify(manifest, null, 2)}\n`);
   console.error(`packaged ${name}@${dev.version} -> ${out}`);
 } else if (command === 'link') {
+  if (process.argv.includes('--verify')) {
+    const missing = platforms.filter((p) => {
+      const r = spawnSync('npm', ['view', `${p.package}@${dev.version}`, 'version'], { encoding: 'utf8', shell: process.platform === 'win32' });
+      return r.status !== 0 || r.stdout.trim() !== dev.version;
+    });
+    if (missing.length > 0) {
+      console.error(
+        `not on npm at ${dev.version}: ${missing.map((p) => p.package).join(', ')}\n` +
+          'Run the "Engine binaries" workflow with publish on (it packages at the current @soroscope/dev version), then run Release again.',
+      );
+      process.exit(1);
+    }
+  }
   dev.optionalDependencies = Object.fromEntries(platforms.map((p) => [p.package, dev.version]));
   writeFileSync(devManifestPath, `${JSON.stringify(dev, null, 2)}\n`);
   console.error(`linked ${platforms.length} platform packages at ${dev.version}`);

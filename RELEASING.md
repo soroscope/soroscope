@@ -20,20 +20,27 @@ The platform engine packages (`@soroscope/dev-linux-x64-gnu` and the other four)
 - Add it as the `NPM_TOKEN` repository secret.
 - Alternative, no long-lived secret: npm _trusted publishing_ from GitHub Actions. `publish.yml` already has `id-token: write`. It needs each package's trusted publisher configured on npm after its first publish, so the first release still needs the token.
 
-## 3. Things to fix before the first publish
+## 3. Before the first publish
 
-These are real; none is done.
+Fixed in the repository:
 
-1. **`@soroscope/cli` depends on two private packages.** It depends on `@soroscope/dev` and `@soroscope/differential`, both `"private": true`. Published as is, the CLI would install nowhere. Remove `private` from both, and add them (and `@soroscope/testing` if it ships) to `fixed` in `.changeset/config.json`.
-2. **`@soroscope/dev` needs its engine packages first.** Run the _Engine binaries_ workflow with `publish` on, so the five platform packages exist. Then `node packages/dev/scripts/package-engine.mjs link` must run before `@soroscope/dev` is published; `release.yml` does not run it yet, so add that step.
-3. **A changeset** for the packages being released: `pnpm changeset`.
-4. **A `v1` tag**, so `uses: soroscope/soroscope/packages/ci@v1` resolves.
+- `@soroscope/dev` and `@soroscope/differential` are no longer private, and are in the `fixed` group in `.changeset/config.json`, so all seven packages version together. (`@soroscope/cli` depends on both; with them private it would have installed nowhere.)
+- `pnpm release` now runs `package-engine.mjs link --verify` before `changeset publish`. It writes the five engine packages into `@soroscope/dev`'s `optionalDependencies` at its version, and **refuses to publish anything** if any of them is not on npm at that version. A `@soroscope/dev` published without its engine packages installs and then fails the first time it is used.
+
+Still yours to do, in this order:
+
+1. Add the `NPM_TOKEN` repository secret (section 2).
+2. Run the **Engine binaries** workflow with `publish` on. It builds the five platform packages at `@soroscope/dev`'s current version and publishes them. This must be repeated whenever the version changes, because the engine packages carry the same version as `@soroscope/dev`.
+3. Run **Release** (or push to `main`). With no pending changeset it publishes every package whose version is not on npm yet, so the first release is the current `0.1.0`.
+4. Tag `v1`, so `uses: soroscope/soroscope/packages/ci@v1` resolves.
+
+Until step 2 is done, the **Release** workflow fails at `link --verify` with a message naming the missing packages. That is the check working, not a bug.
 
 ## 4. The routine
 
 1. Land changes with a changeset (`pnpm changeset`).
 2. Merging to `main` makes the _Release_ workflow open a "chore: release" pull request that bumps versions and changelogs.
-3. Merging that pull request publishes every changed package.
+3. Merging that pull request publishes every changed package. If the version changed, run **Engine binaries** with `publish` on first, or `link --verify` stops the release.
 4. `publish.yml` is the manual fallback: pushing a `v*` tag builds and publishes.
 
 Check it worked from an empty directory: `npx @soroscope/cli probe --network mainnet` prints a table.

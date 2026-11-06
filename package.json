@@ -22,7 +22,7 @@
     "docs:gen": "pnpm docs:errors && pnpm docs:api && pnpm docs:sync",
     "changeset": "changeset",
     "version": "changeset version && pnpm install",
-    "release": "turbo run build && changeset publish",
+    "release": "turbo run build && node packages/dev/scripts/package-engine.mjs link --verify && changeset publish",
     "test:integration": "turbo run test:integration",
     "check:fixtures": "node packages/test-utils/scripts/check-fixtures.mjs"
   },

@@ -61,11 +61,11 @@ Pure logic with a deliberately controlled input (for example the comparison thre
    fix(ci): alias the deployer address inside footprint keys
    docs: explain why getLedgers reach is probed
    ```
-4. **Add a changeset for any user-facing change** to a published package (`core`, `invoke`, `cli`, `ci`, `mcp`):
+4. **Add a changeset for any user-facing change** to a published package (`core`, `invoke`, `cli`, `ci`, `mcp`, `dev`, `differential`):
    ```bash
    pnpm changeset
    ```
-   These five are versioned together.
+   These seven are versioned together.
 5. **Open a pull request** and fill out the template. Link issues with `Closes #N`.
 6. **Required checks:** the CI workflow (build, type check, lint, fixture provenance, unit tests). The live-network workflow is informative, not required, because it depends on public infrastructure.
 7. **Review.** One maintainer approval is required. See [GOVERNANCE.md](./GOVERNANCE.md).

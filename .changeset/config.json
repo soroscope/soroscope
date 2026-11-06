@@ -8,7 +8,9 @@
       "@soroscope/invoke",
       "@soroscope/cli",
       "@soroscope/ci",
-      "@soroscope/mcp"
+      "@soroscope/mcp",
+      "@soroscope/dev",
+      "@soroscope/differential"
     ]
   ],
   "linked": [],

@@ -2,7 +2,7 @@
   "name": "@soroscope/differential",
   "version": "0.1.0",
   "description": "Differential simulation across RPC providers.",
-  "private": true,
+  "private": false,
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

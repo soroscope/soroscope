@@ -2,7 +2,7 @@
   "name": "@soroscope/dev",
   "version": "0.1.0",
   "description": "Run Soroban contracts in-process inside soroban-env-host: rebuild and hot-swap on save, call by name from a prompt. No network, no Docker.",
-  "private": true,
+  "private": false,
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

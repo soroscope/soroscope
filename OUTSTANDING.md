@@ -47,7 +47,7 @@ live; they are just not installable.
 
 The steps, including the `soroscope` npm organisation and two blockers found while
 writing them (`@soroscope/cli` depends on two private packages; `release.yml` never
-runs the engine `link` step), are in [`RELEASING.md`](./RELEASING.md).
+runs the engine `link` step), are in [`RELEASING.md`](./RELEASING.md). Both blockers are fixed in the repository (2026-11-06): `dev` and `differential` are public and in the release group, and `pnpm release` links the engine packages and refuses to publish if any is missing from npm. What remains is the `NPM_TOKEN` secret and running _Engine binaries_ with `publish` on.
 
 **Closes when:** the `NPM_TOKEN` repository secret is set (publishing is the
 owner's call, not something a commit can do), a changeset covers core, invoke,

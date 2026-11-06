@@ -5,7 +5,7 @@ Run contract calls against **live network state** on the in-process engine, and 
 | Status | |
 |---|---|
 | Maturity | **preview**: calls are recorded against a live network and replayed offline; a past ledger and writing state back are not built |
-| Published | no (private until `@soroscope/dev` ships) |
+| Published | no (private; publishable once `@soroscope/dev` is on npm) |
 
 ## How it works
 

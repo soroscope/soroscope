@@ -5,7 +5,7 @@ Simulate one call on several RPC providers and report where they disagree.
 | Status | |
 |---|---|
 | Maturity | **preview**: tested on responses recorded from five real mainnet providers |
-| Published | no (private; `@soroscope/cli` uses it for `simulate --compare`) |
+| Published | not yet. Ready to publish with the release group; `@soroscope/cli` uses it for `simulate --compare` |
 
 ```sh
 soroscope simulate --network mainnet --contract CAG5LR… --fn router_get_amounts_out --args '{…}' --compare
