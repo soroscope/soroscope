@@ -1,8 +1,10 @@
 # ─────────────────────────────────────────────────────────────────────────────
 # Purpose:  Fallback manual publish. Provides a manual escape hatch if the
-#           automated Changesets release workflow fails: pushing a v* tag
-#           builds every publishable package and publishes it to npm.
-# Triggers: push of tags matching v*
+#           automated Changesets release workflow fails: pushing a full version
+#           tag (v1.2.3) builds every publishable package and publishes it to
+#           npm. The floating major tag (v1) that `uses: ...ci@v1` resolves to
+#           is not a release and does not trigger this.
+# Triggers: push of tags matching vMAJOR.MINOR.PATCH
 # Paths:    None — event-driven, no path filter
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -11,7 +13,7 @@ name: Publish
 on:
   push:
     tags:
-      - 'v*'
+      - 'v[0-9]+.[0-9]+.[0-9]+*'
 
 permissions:
   contents: read
@@ -50,6 +52,10 @@ jobs:
 
       - name: Build
         run: pnpm exec turbo run build --filter='!@soroscope/demo'
+
+      - name: Check the engine packages exist
+        # @soroscope/dev is useless without them; stop before publishing anything.
+        run: node packages/dev/scripts/package-engine.mjs link --verify
 
       - name: Publish to npm
         # Private packages (the scaffolds, test-utils, demo) are skipped by pnpm.
