@@ -34,9 +34,9 @@ Everything below is built on that knowledge.
 | [`@soroscope/invoke`](./packages/invoke) | Build contract calls from a contract's spec; deploy and call a WASM build on testnet. | implemented, tested live |
 | `@soroscope/gql` | GraphQL gateway generated from a contract spec. | frozen |
 | [`@soroscope/dev`](./packages/dev) | `soroscope dev`: run a contract in-process inside `soroban-env-host`, rebuild and hot-swap it on save with storage kept, call it by name. Costs match live testnet exactly (testnet on protocol 30, mainnet on 29: one host each). `soroscope gen` for TypeScript types (Orbital codegen). | preview, tested |
-| `@soroscope/testing` | Fork-testing harness for contracts. | scaffold |
+| [`@soroscope/testing`](./packages/testing) | Run calls against recorded live mainnet state on the engine, and check the engine against the network. | preview, tested |
 | `@soroscope/inspect` | SAC / SEP-41 token inspector and `stellar.toml` linter. | frozen |
-| `@soroscope/differential` | Simulate on several providers and report where they disagree. | scaffold |
+| [`@soroscope/differential`](./packages/differential) | Simulate on several providers and report where they disagree (`soroscope simulate --compare`). | preview, tested |
 | [`soroscope-vscode`](./packages/vscode) | Decoded events, auth trees and footprints in the editor. | frozen |
 
 A **scaffold** builds and exports its types and says so in its README. It has no implementation. A **frozen** package is a scaffold that is not planned. See the [roadmap](#roadmap).
@@ -140,7 +140,7 @@ soroscope/
 │   ├── invoke/        @soroscope/invoke
 │   ├── test-utils/    fixture recorders and the fixture contract (private)
 │   ├── dev/           @soroscope/dev       (in-process engine: dev/engine is a Rust crate)
-│   ├── testing differential   scaffolds
+│   ├── testing differential   preview
 │   ├── gql inspect vscode     frozen
 │   └── demo/          documentation site (Next.js)
 ├── docs/              generated from packages/demo/content
@@ -159,10 +159,9 @@ In progress:
 
 - **`soroscope dev`** (`@soroscope/dev`, preview): save a contract and call it a moment later, without a network. Contracts run in-process inside `soroban-env-host`; each save rebuilds and hot-swaps the code with storage kept; functions are called by name with arguments typed from the spec, and every call shows its events and cost, which equal live testnet `simulateTransaction`. `soroscope gen` writes TypeScript types from the spec using Orbital's codegen. Next: publish the prebuilt engine binaries (see [`OUTSTANDING.md`](./OUTSTANDING.md)).
 
-Next, not started:
+Next:
 
-- **Fork-testing** (`@soroscope/testing`): load live mainnet or testnet entries into the in-process engine and test against real state.
-- **Differential simulation** across providers (`@soroscope/differential`).
+- **Forking a past ledger** and carrying state between forked calls (`@soroscope/testing` runs recorded live state today).
 
 Frozen, not planned: the GraphQL gateway (`@soroscope/gql`), the token and `stellar.toml` inspector (`@soroscope/inspect`) and the VS Code extension. Their READMEs say why.
 

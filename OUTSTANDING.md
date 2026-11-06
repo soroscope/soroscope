@@ -1,6 +1,6 @@
 # Outstanding work
 
-Everything known to be unfinished, and what closes it. Written 2026-11-04.
+Everything known to be unfinished, and what closes it. Written 2026-11-04, updated 2026-11-06.
 
 Items are ordered by what blocks the most downstream work, not by effort. Each
 says what it costs to leave alone, because a tracker that only lists tasks gets
@@ -10,38 +10,29 @@ read once. "Closes when" is a check anyone can run.
 
 ## 1. Blocking the product
 
-### 1.1 Each protocol upgrade needs a new host, and the 29 evidence is not mainnet's
+### 1.1 Each protocol upgrade needs a new host
 
 The engine embeds one `soroban-env-host` per protocol (29.0.2 and 30.0.0, renamed
 in `Cargo.toml`, the same engine body instantiated once for each) and picks by
 the network's protocol. This was necessary, not a preference: the cost model gains
 entries at each protocol (`stellar-xdr` defines 86 `ContractCostType` variants
 through protocol 29 and 95 in 30), so a host cannot meter a configuration from a
-different protocol. With a single protocol-30 host, the first build against the
-protocol-29 fixture failed 15 of 24 engine tests with
-`Error(Context, InternalError)`.
+different protocol. Both hosts link into one `cdylib` (12 MB, 8-20 minute cold
+build); the isolation spike alone proved less than that, because LTO dropped the
+host code it did not call.
 
-Checked 2026-11-05: testnet is on 30 and mainnet on 29; both load into the
-matching host, deploy the fixture contract and run it. Two hosts do link into one
-`cdylib` (12 MB, 8-20 minute cold build); the isolation spike alone proved less
-than that, because LTO dropped the host code it did not call.
+The evidence is now on both live networks. Testnet (30) is covered by 9 recorded
+calls; **mainnet (29) is covered by 5 recorded calls to real contracts and real
+state**, compared with Stellar RPC's own simulation (`@soroscope/testing`, see 3.1).
 
 What is still open:
 
-- **The protocol-29 parity evidence is testnet's.** `engine-parity-protocol-29.json`
-  was recorded on 2026-10-31 while testnet ran 29. It proves the 29 host
-  reproduces a live `simulateTransaction` call for call. Mainnet's configuration
-  (fees, limits) differs from testnet's, and mainnet was only smoke-tested, not
-  compared to a live mainnet simulation, because that needs a contract deployed
-  to mainnet. It cannot be re-recorded: testnet has moved on.
-  **Closes when:** a read-only mainnet contract is simulated live and the engine,
-  given the same WASM and state, matches it. That needs fork-testing (3.1).
 - **Every upgrade is a build-and-record chore.** Add `hostNN`/`simNN` to
   `Cargo.toml`, one `mod vNN` in `src/lib.rs`, record a fixture from that network.
   `protocol-drift.yml` fails when a network gets ahead of every embedded host.
   Drop the oldest host once neither network runs it, or the binary and the build
   keep growing. **Closes when:** the old host is removed after mainnet reaches 30,
-  with the 29 fixture retired alongside it.
+  with the protocol-29 fixtures retired alongside it.
 
 ### 1.2 Nothing is published
 
@@ -60,80 +51,115 @@ cli, ci and mcp, the `Release` workflow publishes them, and `v1` is tagged so
 the Action reference resolves. Then, from an empty directory:
 `npx @soroscope/cli probe --network mainnet` prints a table.
 
-### 1.3 The engine's prebuilt binaries have only been built on linux-x64
+### 1.3 The engine's prebuilt binaries: built on three platforms, macOS to re-run
 
 `@soroscope/dev` needs a native engine. The pipeline exists:
 `packages/dev/engine/platforms.json` is the single platform list;
 `scripts/package-engine.mjs` packages one platform;
-`.github/workflows/engine-binaries.yml` builds each natively, runs the engine
-tests against the binary being published, and publishes only on an explicit
+`.github/workflows/engine-binaries.yml` builds each natively, runs the engine and
+fork tests against the binary being published, and publishes only on an explicit
 `publish` input. The loader (`src/platform.ts`, `src/engine.ts`) finds a local
 build first, then the installed platform package.
 
-Verified: the packaged linux-x64 `.node` loads and reports its protocol; the
-platform table and the workflow's matrix come from one file, with a unit test.
-**Not verified:** any other platform, and the workflow itself, which has never
-run. Windows is the likeliest to surprise (`process.dlopen` of a cdylib, MSVC).
+The first run on all five platforms (2026-11-06, publish off):
+
+| Platform | Result |
+|---|---|
+| linux-x64, linux-arm64, win32-x64 | built; every engine test passed |
+| darwin-arm64, darwin-x64 | built; parity and every other engine test passed; the watch-loop test failed |
+
+The macOS failure was a real bug, not a runner quirk: `resolveProject` compared
+the path it was given with the real path `cargo metadata` reports, and macOS's
+`/tmp` and `/var` are symlinks into `/private`. It would have rejected any
+contract crate reached through a symlink. Fixed with `realpath`, with a test that
+builds a symlink explicitly so it fails on Linux too (verified failing on the
+unfixed code). **Not yet confirmed on macOS CI** after the fix.
 
 Not supported, by choice: musl (Alpine) and Windows on ARM. The loader says so
 in its error rather than failing obscurely.
 
-**Closes when:** the workflow runs green on all five platforms, the packages are
-published, and `@soroscope/dev` is flipped from `private` with
-`package-engine.mjs link` run before its publish. A smoke test on each OS then
-runs `soroscope dev` against the fixture contract.
+**Closes when:** the workflow is re-run green on all five platforms, the packages
+are published, and `@soroscope/dev` is flipped from `private` with
+`package-engine.mjs link` run before its publish. Note that `@soroscope/cli`
+depends on `@soroscope/dev` and `@soroscope/differential`, both private today: a
+public package cannot depend on a private one, so both must be published before,
+or with, the CLI.
 
 ---
 
 ## 2. `@soroscope/dev` fidelity gaps
 
-Known, documented in the package README, and each one makes a local result differ
-from what the network would do.
+What was open on 2026-11-04 and is not any more, each with its test:
 
-- **A contract's own `extend_ttl` is not applied to the local ledger.**
-  `soroban-simulation`'s `InvokeHostFunctionSimulationResult` carries modified
-  entries but no TTL changes, so applying them means going below the simulation
-  API to the host's recording-mode result, which is the path whose numbers are
-  checked against the network. Do not do this at the cost of the parity.
-  **Closes when:** done without changing any recorded cost, or kept as a stated
-  limit.
+- A contract's own `extend_ttl` is applied to the local ledger (`capabilities.test.ts`,
+  with a real compiler: an unextended entry needs restoring once its default TTL
+  passes, an extended one does not).
+- The native asset contract exists at the live address (checked against the address
+  recorded from testnet, and against mainnet's `CAS3J7GY…` in the fork recording).
+- Several contracts in one session: `--with`, `session.addContract()`.
+- The parity evidence is no longer one contract: mainnet token reads, a USDC
+  transfer on two trustlines and a cross-contract DEX quote reproduce exactly.
+
+What remains, known and documented:
+
 - **Auth is recorded, not enforced**, as in RPC simulation. Intended.
-- **No native asset contract.** A contract that calls the XLM Stellar Asset
-  Contract fails locally. **Closes when:** the SAC is instantiated in the empty
-  ledger, or fork-testing (3.1) supplies the real one.
-- **The parity evidence is one contract.** Nine calls on the fixture contract
-  (`work`, `touch`, `emit`, `put`, `put_temp`, `balance`, `version`,
-  `fail_with`). That proves the cost path; it does not prove token transfers,
-  cross-contract calls or archived-entry restores. **Closes when:** a recorded
-  call set covers a token contract and a two-contract call.
-- **One contract per session**, so a contract that calls another cannot be run.
+- **Companions are not rebuilt on save**; only the contract under development is.
+- **A new kind of call is not known to match until it has been recorded and
+  compared.** The evidence is five mainnet calls, nine testnet calls and the
+  fixture contract. It is not a proof for every contract. **Closes when:** a
+  recorded set covers the contracts people actually run (a lending pool, an AMM
+  swap with writes, a call with an invoker-auth subtree).
+- **Extending a TTL runs the call twice.** `soroban-simulation`'s result carries no
+  TTL changes, so the recording-mode result is read in a second pass on the same
+  state and seed, before the writes land. It doubles the cost of a committed call
+  (still milliseconds) and relies on the call being deterministic, which Soroban
+  guarantees. **Closes when:** upstream exposes the TTL changes.
 
 ---
 
-## 3. Packages that are not built
+## 3. The two packages that were scaffolds
 
-### 3.1 Fork-testing (`@soroscope/testing`)
+### 3.1 Fork-testing (`@soroscope/testing`): preview
 
-A scaffold. The intent is to load live mainnet or testnet entries into the
-engine and test against real state.
+`recordFork` asks Stellar RPC to simulate a call (which tells it what the call
+touches), then reads exactly those ledger entries at the same ledger, retrying if
+a ledger closed in between. `replayFork` runs the call on the engine against them
+and compares with the network's own answer. **All five recorded mainnet calls
+reproduce exactly**, including a USDC `transfer` over two trustlines and a
+`router_get_amounts_out` that calls into a second contract.
 
-Design, **not yet verified**: the host reads state through a synchronous
-`SnapshotSource::get`, so an async RPC call cannot sit inside it. The workable
-shape is two-pass: simulate against RPC to get the footprint, fetch those keys,
-load them with a new `Engine::load_entries`, and run locally. Needs the engine
-to accept entries, which it does not yet (it seeds configuration only). Depends
-on 1.1 for the same reason as everything else: it must match the network's
-protocol.
+It found a real bug on the way: `getLedgerEntries` returns a sponsored entry's
+sponsorship in a separate `extXdr` field, the first version of the fork dropped
+it, and every sponsored account and trustline was 44 bytes smaller locally, so
+bytes read and the fee were wrong. A test strips `extXdr` and requires the
+comparison to fail.
 
-**Closes when:** a test forks a real testnet contract at a pinned ledger and
-its local result equals the recorded live one.
+What is not built:
 
-### 3.2 Differential simulation (`@soroscope/differential`)
+- **A past ledger.** A call is forked at the ledger it was recorded at. An archive
+  source would be needed. **Closes when:** a call is forked at a pinned older ledger
+  and matches a recorded answer from then.
+- **A call whose live simulation fails, or touches archived entries,** cannot be
+  recorded: there is no footprint. **Closes when:** the footprint comes from a
+  local first pass instead of RPC's.
+- **State is not carried from one forked call to the next.**
+- **Only the entry types the engine executes against** are loaded (account,
+  trustline, contract data and code, config settings).
 
-A scaffold. Simulate one call on several providers and report where they
-disagree. Independent of the engine; builds on `@soroscope/core`'s router.
-**Closes when:** two real providers are made to disagree on a recorded call,
-and the report names the field.
+### 3.2 Differential simulation (`@soroscope/differential`): preview
+
+`differentialSimulate` sends one transaction to each provider directly and groups
+them by the value they gave for every field. `soroscope simulate --compare` uses
+it (exit 0 agree, 1 disagree, 3 none answered); checked live on mainnet.
+
+**The five public mainnet providers agree** on all three recorded calls, including
+a DEX quote that moves with every trade. So on this sample there is no real
+disagreement to show, and none was fabricated: the grouping logic is tested on real
+responses to different calls paired under provider names, and the tests say so.
+**Closes when:** a real disagreement is recorded (a lagging or misconfigured
+provider, a protocol skew during an upgrade) and added to the fixtures. The
+original goal, "two real providers made to disagree on a recorded call", cannot be
+met honestly until one does.
 
 Frozen, not planned: `gql`, `inspect`, the VS Code extension. Their READMEs say
 why.
@@ -181,7 +207,11 @@ Context for whoever picks this up; not a to-do list.
   failed on day one with one real advisory and two unmaintained crates, which is
   why the exceptions above exist.
 - The prebuilt-binary pipeline in 1.3.
+- 2026-11-06: the engine gained the native asset contract, `extend_ttl`, live-entry loading,
+  a real source account and companion contracts; fork-testing and differential simulation were
+  built and checked against live mainnet; five-platform binary build run (3 of 5 green, macOS
+  symlink bug found and fixed).
 
 Verified at that point: `pnpm lint`, `pnpm typecheck` (14 packages), `pnpm test`
-(505 unit tests), `pnpm --filter @soroscope/dev test:engine` (48 tests) and
+(519 unit tests), `pnpm --filter @soroscope/dev test:engine` (60 tests) and `pnpm --filter @soroscope/testing test:engine` (9 tests) and
 `pnpm check:fixtures` all clean.

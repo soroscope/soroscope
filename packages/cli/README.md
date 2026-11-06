@@ -14,9 +14,9 @@ soroscope probe --network mainnet
 | `decode <type> <base64>` | Decode `ScVal`, `DiagnosticEvent`, `SorobanAuthorizationEntry`, `SorobanTransactionData`, `LedgerKey`, ... |
 | `explain <base64>` | One-line explanation of a transaction result. |
 | `spec <contractId\|file.wasm>` | Functions, errors, events and types. |
-| `simulate` | Simulate a call (nothing signed or sent); named contract errors. |
+| `simulate` | Simulate a call (nothing signed or sent); named contract errors. `--compare` runs it on every provider separately and reports where they disagree. |
 | `check` | The CI resource check, locally. |
-| `dev [dir]` | Run a contract crate in-process: rebuild and hot-swap on every save (storage kept), call functions by name from a prompt, see events and cost per call. Needs Rust; nothing is signed or sent. See [`@soroscope/dev`](../dev). |
+| `dev [dir]` | Run a contract crate in-process (`--with other.wasm` adds companion contracts): rebuild and hot-swap on every save (storage kept), call functions by name from a prompt, see events and cost per call. Needs Rust; nothing is signed or sent. See [`@soroscope/dev`](../dev). |
 | `gen <file.wasm\|dir>` | TypeScript types, Zod schemas and event guards from a contract's spec (Orbital codegen). `-o <file>`, `--hooks` for React hooks. |
 
 Exit codes: `0` ok, `1` the verdict is a failure, `2` usage, `3` network, `4` internal.

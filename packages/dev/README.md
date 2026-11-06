@@ -81,17 +81,39 @@ A `soroban-env-host` runs only the protocol it was released for, and meters call
 | Network protocol | Host | Evidence |
 |---|---|---|
 | 30 (testnet) | `soroban-env-host` 30.0.0 | costs equal a live `simulateTransaction` on 9 recorded calls (testnet, ledger 5561299) |
-| 29 (mainnet) | `soroban-env-host` 29.0.2 | costs equal a live `simulateTransaction` on 9 recorded calls, recorded from testnet while it ran 29; mainnet's own configuration loads and runs, but has not been compared to a live mainnet simulation |
+| 29 (mainnet) | `soroban-env-host` 29.0.2 | costs equal a live **mainnet** `simulateTransaction` on 5 recorded calls to real contracts and state (a USDC transfer, a cross-contract Soroswap quote; see [`@soroscope/testing`](../testing)), and on 9 calls recorded from testnet while it ran 29 |
 | anything else | none | refused with `UnsupportedProtocolError`, which names the protocols this build supports |
 
 Refusing is deliberate: padding or guessing would give numbers that look right and are not the network's. A configuration labelled with the wrong protocol is refused too (`cost model mismatch`). `supportedProtocols()` lists what a build embeds, and `.github/workflows/protocol-drift.yml` fails when a live network gets ahead of every embedded host. To add the next protocol, see [`OUTSTANDING.md`](../../OUTSTANDING.md) 1.1.
 
+## Companion contracts
+
+A contract that calls another can be developed together with it:
+
+```sh
+soroscope dev ./my-contract --with ./vault.wasm --with ./oracle.wasm
+✓ vault: CBX2…   (call as vault.fn)
+soroscope> vault.deposit amount=100        # a companion
+soroscope> ?swap amount=100                # the contract under development, which calls vault
+```
+
+Companions are deployed once and are not rebuilt on save. In code: `session.addContract(name, wasm, ctorArgs?)` and `session.call(fn, args, { contract: name })`.
+
+## The native asset, and TTLs
+
+The native (XLM) asset contract exists in every local ledger, at the same address it has on the live network (it depends only on the network passphrase), so `CAS3J7GY…` is there on mainnet's ledger and `CDLZFC3S…` on testnet's. `balance`, `transfer` and the rest work against the local account.
+
+A contract's own `extend_ttl` is applied to the local ledger, so an entry it extends outlives its default TTL, and one it does not extend needs restoring once that passes, which shows in the call's `archivedEntries` as it does in Stellar RPC.
+
+## Real state
+
+`LocalNetwork.loadEntries()` puts live ledger entries into the local ledger (keep each entry's `extXdr`: a sponsored account or trustline is 44 bytes larger, which changes the bytes read and the fee). [`@soroscope/testing`](../testing) builds on it to run calls against recorded live mainnet state.
+
 ## Limits
 
 - Auth is **recorded, not enforced**, as in RPC simulation: every `require_auth` passes and is reported.
-- New entries get the network's minimum TTL. A contract's own `extend_ttl` calls are not yet applied to the local ledger.
-- The ledger starts empty except for one funded local account: no native asset contract, no other contracts unless you deploy them. Fork-testing will load real ones.
-- One contract per session.
+- Companion contracts are not rebuilt on save, only the contract under development.
+- A call is checked against the network on the contracts and state recorded in [`@soroscope/testing`](../testing) and on the fixture contract. A new kind of call is not known to match until it has been recorded and compared.
 
 ## Building
 
@@ -104,6 +126,5 @@ pnpm --filter @soroscope/dev test:engine    # engine, session, parity and watch-
 
 ## Next
 
-1. Publish: prebuilt engine binaries exist as a pipeline; they need running on every platform, then publishing.
-2. Fork: load live mainnet or testnet entries into the local ledger on demand.
-3. Several contracts in one session (a contract that calls another).
+1. Publish: the prebuilt engine binaries build and pass on Linux, Windows and (once re-run) macOS; they need publishing.
+2. Fork a past ledger, and write state back to a fork.
