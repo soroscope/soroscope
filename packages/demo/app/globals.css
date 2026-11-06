@@ -330,3 +330,60 @@ body {
   border-left: 2px solid rgba(255, 255, 255, 0.2);
   color: rgba(255, 255, 255, 0.6);
 }
+
+/* Copy button on the assistant's code blocks */
+.ai-reply pre {
+  position: relative;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+}
+.ai-reply pre::-webkit-scrollbar {
+  height: 8px;
+}
+.ai-reply pre::-webkit-scrollbar-track {
+  background: transparent;
+}
+.ai-reply pre::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 4px;
+}
+.ai-reply pre::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+.ai-code {
+  position: relative;
+  margin: 0.6em 0;
+}
+.ai-code > pre {
+  margin: 0;
+  padding-right: 3.4rem;
+}
+.ai-copy {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.4rem;
+  padding: 0.1rem 0.45rem;
+  font-size: 0.68rem;
+  line-height: 1.4;
+  font-family: inherit;
+  color: rgba(255, 255, 255, 0.7);
+  background: #1a1a1a;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 5px;
+  cursor: pointer;
+  opacity: 0.85;
+  transition:
+    opacity 0.15s,
+    color 0.15s,
+    border-color 0.15s;
+}
+.ai-code:hover .ai-copy,
+.ai-copy:focus-visible {
+  opacity: 1;
+}
+.ai-copy:hover,
+.ai-copy:focus-visible {
+  color: #e8ff47;
+  border-color: rgba(232, 255, 71, 0.5);
+  outline: none;
+}

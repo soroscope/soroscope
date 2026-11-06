@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import AIReply from './AIReply';
 
 type Message = {
   id: string;
@@ -23,8 +24,19 @@ type Props = {
   onClose: () => void;
 };
 
+const DEFAULT_WIDTH = 320;
+const MIN_WIDTH = 300;
+const MAX_WIDTH = 760;
+const STORAGE_KEY = 'soroscope.ai-panel-width';
+
+const clampWidth = (w: number, viewport: number) =>
+  Math.round(Math.min(Math.max(w, MIN_WIDTH), Math.min(MAX_WIDTH, viewport || MAX_WIDTH)));
+
 export default function AIPanel({ open, onClose }: Props) {
   const [messages, setMessages] = useState<Message[]>([]);
+  const [width, setWidth] = useState(DEFAULT_WIDTH);
+  const [viewport, setViewport] = useState(0);
+  const [dragging, setDragging] = useState(false);
   const [input, setInput] = useState('');
   const [thinking, setThinking] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -35,6 +47,65 @@ export default function AIPanel({ open, onClose }: Props) {
       setTimeout(() => inputRef.current?.focus(), 200);
     }
   }, [open]);
+
+  // Remember the width the reader chose. Storage can be blocked (private windows), so it is optional.
+  useEffect(() => {
+    setViewport(window.innerWidth);
+    try {
+      const saved = Number(window.localStorage.getItem(STORAGE_KEY));
+      if (Number.isFinite(saved) && saved > 0) setWidth(clampWidth(saved, window.innerWidth));
+    } catch {
+      /* keep the default */
+    }
+    const onResize = () => setViewport(window.innerWidth);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  const saveWidth = useCallback((w: number) => {
+    try {
+      window.localStorage.setItem(STORAGE_KEY, String(w));
+    } catch {
+      /* not persisted */
+    }
+  }, []);
+
+  // The panel is anchored to the right edge, so its width is the distance from the pointer to it.
+  const onHandlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.currentTarget.setPointerCapture(e.pointerId);
+    setDragging(true);
+  };
+  const onHandlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragging) return;
+    setWidth(clampWidth(window.innerWidth - e.clientX, window.innerWidth));
+  };
+  const onHandlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragging) return;
+    e.currentTarget.releasePointerCapture(e.pointerId);
+    setDragging(false);
+    saveWidth(width);
+  };
+  const onHandleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    const step = e.shiftKey ? 80 : 24;
+    let next: number | null = null;
+    if (e.key === 'ArrowLeft')
+      next = width + step; // the panel grows leftwards
+    else if (e.key === 'ArrowRight') next = width - step;
+    else if (e.key === 'Home') next = MIN_WIDTH;
+    else if (e.key === 'End') next = MAX_WIDTH;
+    if (next === null) return;
+    e.preventDefault();
+    const w = clampWidth(next, window.innerWidth);
+    setWidth(w);
+    saveWidth(w);
+  };
+  const resetWidth = () => {
+    setWidth(DEFAULT_WIDTH);
+    saveWidth(DEFAULT_WIDTH);
+  };
+
+  const shownWidth = clampWidth(width, viewport);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -107,10 +178,38 @@ export default function AIPanel({ open, onClose }: Props) {
         aria-modal="true"
         aria-label="AI assistant"
         aria-hidden={!open}
-        className={`fixed top-[60px] right-0 bottom-0 z-[55] w-80 bg-[#0d0d0d] border-l border-white/[0.08] flex flex-col transition-transform duration-250 ease-in-out ${
-          open ? 'translate-x-0' : 'translate-x-full'
-        }`}
+        style={{ width: shownWidth }}
+        className={`fixed top-[60px] right-0 bottom-0 z-[55] max-w-full bg-[#0d0d0d] border-l border-white/[0.08] flex flex-col transition-transform duration-250 ease-in-out ${
+          dragging ? 'select-none' : ''
+        } ${open ? 'translate-x-0' : 'translate-x-full'}`}
       >
+        {/* Drag to resize; arrow keys too, Home/End for the limits, double-click to reset */}
+        <div
+          role="separator"
+          aria-orientation="vertical"
+          aria-label="Resize the assistant"
+          aria-valuemin={MIN_WIDTH}
+          aria-valuemax={MAX_WIDTH}
+          aria-valuenow={shownWidth}
+          tabIndex={open ? 0 : -1}
+          onPointerDown={onHandlePointerDown}
+          onPointerMove={onHandlePointerMove}
+          onPointerUp={onHandlePointerUp}
+          onPointerCancel={onHandlePointerUp}
+          onKeyDown={onHandleKeyDown}
+          onDoubleClick={resetWidth}
+          title="Drag to resize · double-click to reset"
+          className={`absolute left-0 top-0 bottom-0 w-2 -translate-x-1/2 z-10 cursor-col-resize touch-none flex items-center justify-center group outline-none`}
+        >
+          <span
+            className={`h-10 w-[3px] rounded-full transition-colors ${
+              dragging
+                ? 'bg-accent'
+                : 'bg-white/10 group-hover:bg-white/40 group-focus-visible:bg-accent'
+            }`}
+          />
+        </div>
+
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3.5 border-b border-white/[0.08] flex-shrink-0">
           <div className="flex items-center gap-2">
@@ -179,7 +278,7 @@ export default function AIPanel({ open, onClose }: Props) {
                   {msg.role === 'user' ? 'U' : <SparklesIcon />}
                 </div>
                 <div
-                  className={`min-w-0 max-w-[250px] rounded-xl px-3 py-2.5 text-sm leading-relaxed ${
+                  className={`min-w-0 max-w-[calc(100%-2.25rem)] rounded-xl px-3 py-2.5 text-sm leading-relaxed ${
                     msg.role === 'user'
                       ? 'bg-accent/10 text-accent rounded-tr-sm'
                       : msg.error
@@ -187,13 +286,7 @@ export default function AIPanel({ open, onClose }: Props) {
                         : 'bg-white/[0.05] text-white/80 rounded-tl-sm'
                   }`}
                 >
-                  {msg.html ? (
-                    // Server-rendered from the model's markdown and passed through a strict allowlist
-                    // (lib/ai-markdown.ts, tested against script, handler and javascript: payloads).
-                    <div className="ai-reply" dangerouslySetInnerHTML={{ __html: msg.html }} />
-                  ) : (
-                    msg.content
-                  )}
+                  {msg.html ? <AIReply html={msg.html} /> : msg.content}
                 </div>
               </div>
             ))

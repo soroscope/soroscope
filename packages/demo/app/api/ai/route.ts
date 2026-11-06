@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
 import path from 'path';
-import matter from 'gray-matter';
 import { allDocPages, docSections } from '@/lib/docroutes';
 import { renderReply } from '@/lib/ai-markdown';
+import { loadPages, rank, type DocPage } from '@/lib/ai-retrieval';
 
 /**
  * Docs assistant backed by the Groq chat-completions API.
@@ -72,50 +71,15 @@ function parseMessages(body: unknown): ChatMessage[] | null {
 
 const contentDir = path.join(process.cwd(), 'content');
 
-type ScoredPage = { title: string; href: string; body: string; score: number };
-
-/** Pick the doc pages most relevant to the question by keyword frequency. */
-function relevantPages(question: string): ScoredPage[] {
-  const terms = [
-    ...new Set(
-      question
-        .toLowerCase()
-        .split(/[^a-z0-9]+/)
-        .filter((w) => w.length > 2),
-    ),
-  ];
-
-  const pages: ScoredPage[] = [];
-  for (const item of allDocPages) {
-    const slug = item.href.replace('/docs/', '').split('/');
-    const filePath = path.join(contentDir, ...slug) + '.md';
-    if (!fs.existsSync(filePath)) continue;
-
-    const { data: fm, content } = matter(fs.readFileSync(filePath, 'utf-8'));
-    const title = ((fm.title as string) || item.title).toLowerCase();
-    const lower = content.toLowerCase();
-
-    let score = 0;
-    for (const term of terms) {
-      if (title.includes(term)) score += 5;
-      score += lower.split(term).length - 1;
-    }
-    pages.push({
-      title: (fm.title as string) || item.title,
-      href: item.href,
-      body: content,
-      score,
-    });
-  }
-
-  const matched = pages.filter((p) => p.score > 0).sort((a, b) => b.score - a.score);
-  const chosen =
-    matched.length > 0 ? matched : pages.filter((p) => p.href.includes('getting-started'));
-  return chosen.slice(0, MAX_CONTEXT_PAGES);
+// Parsed once per server instance, not once per question.
+let pages: DocPage[] | undefined;
+function relevantPages(question: string): DocPage[] {
+  pages ??= loadPages(contentDir, allDocPages);
+  return rank(pages, question, MAX_CONTEXT_PAGES);
 }
 
-function systemPrompt(pages: ScoredPage[]): string {
-  const context = pages
+function systemPrompt(context_pages: DocPage[]): string {
+  const context = context_pages
     .map((p) => `--- ${p.title} (${p.href}) ---\n${p.body.slice(0, MAX_PAGE_CHARS)}`)
     .join('\n\n');
 

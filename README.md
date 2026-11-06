@@ -181,6 +181,7 @@ Next, in order (the full list, with what closes each, is in [`OUTSTANDING.md`](.
 - Record more kinds of calls (a lending pool, an AMM swap that writes state, nested authorization) and compare them with the network, so the engine's evidence covers what people run.
 - **Forking a past ledger** and carrying state between forked calls; then publish `@soroscope/testing`.
 - A real provider disagreement for `--compare` to show, when one turns up.
+- **The docs assistant, second pass:** link every answer to the section it came from, measure retrieval on a real question set, stream replies, and cap its cost. Nine items with checks in [`OUTSTANDING.md`](./OUTSTANDING.md) section 5.
 
 Frozen, not planned: the GraphQL gateway (`@soroscope/gql`), the token and `stellar.toml` inspector (`@soroscope/inspect`) and the VS Code extension. Their READMEs say why.
 

@@ -185,6 +185,48 @@ why.
 
 ---
 
+## 5. Milestone: the docs assistant, second pass
+
+The assistant (`packages/demo/app/api/ai`) answers from the docs and now renders its replies
+(markdown, code blocks with a Copy button, a resizable panel), picks pages with a ranked search
+instead of raw word counts, and runs on a model Groq still serves. Its biggest gap is that a
+reader cannot see **where an answer came from**. Ordered by what it buys:
+
+1. **Source links to the exact section.** Each reply ends with the sections it drew on, linked to
+   the heading (`/docs/guides/cli#exit-codes`), so an answer can be checked in one click.
+   Needs section-level retrieval (split each page at its headings and rank the chunks, not whole
+   pages), the route returning `sources: [{ title, href }]` built from the chunks it actually
+   passed to the model, and the model told to cite chunks by number rather than write URLs.
+   **Closes when:** every answer to a fixed question set carries at least one source link, a
+   script resolves each link against the built site (page and `#anchor` both exist), and a question
+   the docs do not cover says so and links nothing.
+2. **A retrieval evaluation set.** Today's check is a handful of questions in
+   `tests/unit/ai-retrieval.test.ts`. Grow it to about 30 real questions, each with the section
+   that answers it, and report hit-at-3 in CI. **Closes when:** the set runs on every change to
+   `content/` or `lib/ai-retrieval.ts` and fails below 90% hit-at-3. Only then consider embeddings;
+   keyword ranking may already be enough for 180 pages.
+3. **Use the conversation when searching.** "And on mainnet?" retrieves nothing useful because only the last
+   message is searched. **Closes when:** a follow-up question is ranked with the previous turn's
+   topic, with a test.
+4. **Stream the reply** and let the reader stop it, so the first words appear in about a second
+   instead of after the whole answer. **Closes when:** time-to-first-token is under 1.5 s on the
+   live site and Stop works.
+5. **A cost and abuse limit that holds.** The rate limit is per warm serverless instance, so it
+   bounds nothing globally, and the Groq key has no spend cap. **Closes when:** the limit lives in a
+   shared store or a Vercel Firewall rate-limit rule, and a monthly cap is set on the key.
+6. **Survive a model retirement.** Groq retired the original default on 2026-08-16 and the assistant
+   was down until someone noticed. **Closes when:** a failed upstream call retries once on a second
+   configured model and a log line or alert names the status, so the next retirement is a notice.
+7. **Never name a page that does not exist.** The prompt lists the real titles, but nothing checks
+   the reply. **Closes when:** every link and every page title in a reply is validated against the
+   route table before it is shown, and an unknown one is dropped.
+8. **Know which answers fail.** A thumbs up/down on each reply, stored with the question and the
+   sources shown, so retrieval changes are driven by real misses. **Closes when:** the data exists
+   and the privacy note on the panel says what is kept.
+9. **Accessibility of the panel.** Focus moves into the panel when it opens and back when it closes,
+   and a new reply is announced to screen readers (`aria-live`). **Closes when:** both are tested
+   in a browser.
+
 ## Done in the pass that produced this file
 
 Context for whoever picks this up; not a to-do list.
@@ -208,6 +250,8 @@ Context for whoever picks this up; not a to-do list.
   built and checked against live mainnet; five-platform binary build run (3 of 5 green, macOS
   symlink bug found and fixed, then 5 of 5 green); the repository formatted so the
   Format check, red on every recent commit, passes.
+
+- 2026-11-06, after release: the docs site went live on Vercel; the assistant's model was found retired and replaced; its replies now render markdown; page retrieval was rewritten (the old scorer ranked three unrelated pages for "How do I install the CLI?"); code blocks got a Copy button and the panel became resizable (drag, arrow keys, double-click to reset, remembered).
 
 Verified at that point: `pnpm lint`, `pnpm typecheck` (14 packages), `pnpm test`
 (519 unit tests), `pnpm --filter @soroscope/dev test:engine` (60 tests) and `pnpm --filter @soroscope/testing test:engine` (9 tests) and
