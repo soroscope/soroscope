@@ -31,5 +31,6 @@ export const v1Wasm = Buffer.from(fixture.v1Wasm, 'base64');
 export const v2Wasm = Buffer.from(fixture.v2Wasm, 'base64');
 
 /** Seconds since the epoch at the time of recording: the local ledger starts there. */
-export const recordedAtOf = (f: ParityFixture): number => Math.floor(Date.parse(f.provenance.recordedAt) / 1000);
+export const recordedAtOf = (f: ParityFixture): number =>
+  Math.floor(Date.parse(f.provenance.recordedAt) / 1000);
 export const recordedAt = recordedAtOf(fixture);

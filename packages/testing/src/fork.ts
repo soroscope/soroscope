@@ -6,7 +6,13 @@ import {
   type SimulationDifference,
   type SimulationReport,
 } from '@soroscope/core';
-import { LocalNetwork, fetchNetworkConfig, type LiveLedgerEntry, type LocalCallResult, type NetworkConfigSnapshot } from '@soroscope/dev';
+import {
+  LocalNetwork,
+  fetchNetworkConfig,
+  type LiveLedgerEntry,
+  type LocalCallResult,
+  type NetworkConfigSnapshot,
+} from '@soroscope/dev';
 import { Account, Address, Operation, TransactionBuilder, xdr } from '@stellar/stellar-sdk';
 
 /** A call to make against forked state. */
@@ -81,19 +87,30 @@ function footprintKeys(transactionData: string): string[] {
 
 interface LedgerEntriesResponse {
   latestLedger: number;
-  entries?: { xdr: string; lastModifiedLedgerSeq: number; liveUntilLedgerSeq?: number; extXdr?: string }[];
+  entries?: {
+    xdr: string;
+    lastModifiedLedgerSeq: number;
+    liveUntilLedgerSeq?: number;
+    extXdr?: string;
+  }[];
 }
 
 async function recordCall(options: ForkOptions, call: ForkCall): Promise<ForkCallRecording> {
   const { rpc, networkPassphrase, source } = options;
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt += 1) {
-    const live = await rpc.call<RawSimulateResponse>('simulateTransaction', { transaction: envelope(call, source, networkPassphrase) });
+    const live = await rpc.call<RawSimulateResponse>('simulateTransaction', {
+      transaction: envelope(call, source, networkPassphrase),
+    });
     if (live.error !== undefined || live.transactionData === undefined) {
       // A failed simulation has no footprint to fetch: nothing to fork. Say why.
-      throw new Error(`The live simulation of ${call.fn} did not succeed, so there is no footprint to fork: ${live.error ?? 'no transactionData'}`);
+      throw new Error(
+        `The live simulation of ${call.fn} did not succeed, so there is no footprint to fork: ${live.error ?? 'no transactionData'}`,
+      );
     }
     if (live.restorePreamble !== undefined) {
-      throw new Error(`${call.fn} touches archived entries that need restoring first; fork a call on live state.`);
+      throw new Error(
+        `${call.fn} touches archived entries that need restoring first; fork a call on live state.`,
+      );
     }
     const keys = footprintKeys(live.transactionData);
     const fetched = await rpc.call<LedgerEntriesResponse>('getLedgerEntries', { keys });
@@ -109,7 +126,9 @@ async function recordCall(options: ForkOptions, call: ForkCall): Promise<ForkCal
         entries: (fetched.entries ?? []).map((e) => ({
           xdr: e.xdr,
           lastModifiedLedgerSeq: e.lastModifiedLedgerSeq,
-          ...(e.liveUntilLedgerSeq === undefined ? {} : { liveUntilLedgerSeq: e.liveUntilLedgerSeq }),
+          ...(e.liveUntilLedgerSeq === undefined
+            ? {}
+            : { liveUntilLedgerSeq: e.liveUntilLedgerSeq }),
           ...(e.extXdr === undefined ? {} : { extXdr: e.extXdr }),
         })),
         ledger: live.latestLedger,
@@ -117,7 +136,9 @@ async function recordCall(options: ForkOptions, call: ForkCall): Promise<ForkCal
       };
     }
   }
-  throw new Error(`Could not read ${call.fn}'s simulation and state at the same ledger after ${MAX_ATTEMPTS} attempts.`);
+  throw new Error(
+    `Could not read ${call.fn}'s simulation and state at the same ledger after ${MAX_ATTEMPTS} attempts.`,
+  );
 }
 
 /**
@@ -125,7 +146,10 @@ async function recordCall(options: ForkOptions, call: ForkCall): Promise<ForkCal
  * (which tells us what the call touches) and the live ledger entries it
  * touches, read at the same ledger. {@link replayFork} then runs them offline.
  */
-export async function recordFork(options: ForkOptions, calls: readonly ForkCall[]): Promise<ForkRecording> {
+export async function recordFork(
+  options: ForkOptions,
+  calls: readonly ForkCall[],
+): Promise<ForkRecording> {
   const config = await fetchNetworkConfig(options.rpc, options.networkPassphrase);
   const recorded: ForkCallRecording[] = [];
   for (const call of calls) recorded.push(await recordCall(options, call));
@@ -157,7 +181,12 @@ export function replayFork(recording: ForkRecording): ForkResult[] {
     net.loadEntries(c.entries);
     const local = net.invoke(c.contractId, c.fn, [...c.args], { commit: false });
     const live = decodeSimulationResponse(c.live);
-    return { call: { contractId: c.contractId, fn: c.fn, args: c.args }, live, local, differences: compareSimulations(live, local.report) };
+    return {
+      call: { contractId: c.contractId, fn: c.fn, args: c.args },
+      live,
+      local,
+      differences: compareSimulations(live, local.report),
+    };
   });
 }
 
@@ -166,6 +195,9 @@ export function replayFork(recording: ForkRecording): ForkResult[] {
  * record, then replay. For ad hoc checks; tests should record once and replay
  * the recording, so they do not depend on the network.
  */
-export async function forkAndCompare(options: ForkOptions, calls: readonly ForkCall[]): Promise<ForkResult[]> {
+export async function forkAndCompare(
+  options: ForkOptions,
+  calls: readonly ForkCall[],
+): Promise<ForkResult[]> {
   return replayFork(await recordFork(options, calls));
 }

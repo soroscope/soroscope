@@ -46,7 +46,12 @@ const DEFAULTS: Record<GatedMetric, { pct: number; level: 'fail' | 'warn' | 'ign
   resourceFee: { pct: 10, level: 'warn' },
 };
 
-const GATED: readonly GatedMetric[] = ['instructions', 'diskReadBytes', 'writeBytes', 'resourceFee'];
+const GATED: readonly GatedMetric[] = [
+  'instructions',
+  'diskReadBytes',
+  'writeBytes',
+  'resourceFee',
+];
 
 function pctChange(base: bigint, current: bigint): number | null {
   if (base === 0n) return null;
@@ -84,7 +89,13 @@ function compareMetric(
     };
   }
   if (delta < 0n && -delta > allowed) {
-    return { invocation: name, metric, level: 'info', message: `${metric} improved by ${-delta}`, ...shown };
+    return {
+      invocation: name,
+      metric,
+      level: 'info',
+      message: `${metric} improved by ${-delta}`,
+      ...shown,
+    };
   }
   return null;
 }
@@ -102,7 +113,9 @@ function compareFootprint(
   for (const key of current.readWrite) {
     if (baseRw.has(key)) continue;
     const promoted = baseRo.has(key);
-    const allowed = promoted ? rules?.allowReadOnlyToReadWrite === true : rules?.allowNewKeys === true;
+    const allowed = promoted
+      ? rules?.allowReadOnlyToReadWrite === true
+      : rules?.allowNewKeys === true;
     out.push({
       invocation: name,
       metric: 'footprint',
@@ -115,13 +128,25 @@ function compareFootprint(
   }
   for (const key of current.readOnly) {
     if (!baseRo.has(key) && !baseRw.has(key)) {
-      out.push({ invocation: name, metric: 'footprint', level: 'warn', message: `now reads a new ledger entry: ${key}`, current: key });
+      out.push({
+        invocation: name,
+        metric: 'footprint',
+        level: 'warn',
+        message: `now reads a new ledger entry: ${key}`,
+        current: key,
+      });
     }
   }
   const now = new Set([...current.readOnly, ...current.readWrite]);
   for (const key of [...base.readOnly, ...base.readWrite]) {
     if (!now.has(key)) {
-      out.push({ invocation: name, metric: 'footprint', level: 'info', message: `no longer touches ${key}`, baseline: key });
+      out.push({
+        invocation: name,
+        metric: 'footprint',
+        level: 'info',
+        message: `no longer touches ${key}`,
+        baseline: key,
+      });
     }
   }
   return out;
@@ -142,17 +167,23 @@ function checkBudgets(name: string, m: NumericMetrics, config: SoroscopeConfig):
       });
     }
   };
-  if (b.instructions !== undefined) over('instructions', BigInt(m.instructions), BigInt(b.instructions));
-  if (b.diskReadBytes !== undefined) over('diskReadBytes', BigInt(m.diskReadBytes), BigInt(b.diskReadBytes));
+  if (b.instructions !== undefined)
+    over('instructions', BigInt(m.instructions), BigInt(b.instructions));
+  if (b.diskReadBytes !== undefined)
+    over('diskReadBytes', BigInt(m.diskReadBytes), BigInt(b.diskReadBytes));
   if (b.writeBytes !== undefined) over('writeBytes', BigInt(m.writeBytes), BigInt(b.writeBytes));
-  if (b.resourceFee !== undefined) over('resourceFee', BigInt(m.resourceFee), BigInt(b.resourceFee));
-  if (b.readWriteKeys !== undefined) over('readWriteKeys', BigInt(m.readWriteKeys), BigInt(b.readWriteKeys));
+  if (b.resourceFee !== undefined)
+    over('resourceFee', BigInt(m.resourceFee), BigInt(b.resourceFee));
+  if (b.readWriteKeys !== undefined)
+    over('readWriteKeys', BigInt(m.readWriteKeys), BigInt(b.readWriteKeys));
   return out;
 }
 
 export interface CompareInput {
   config: SoroscopeConfig;
-  measurements: Readonly<Record<string, { function: string; measurement: Measurement; wasmSha256?: string }>>;
+  measurements: Readonly<
+    Record<string, { function: string; measurement: Measurement; wasmSha256?: string }>
+  >;
   baseline: Baseline | null;
   environment: BaselineEnvironment;
 }
@@ -191,7 +222,11 @@ export function compareAll(input: CompareInput): CheckReport {
           ? `expected the call to succeed but it failed${m.errorName === null ? '' : ` with ${m.errorName}`}`
           : 'expected the call to fail but it succeeded',
       });
-    } else if (!m.ok && inv.expect?.errorName !== undefined && m.errorName !== inv.expect.errorName) {
+    } else if (
+      !m.ok &&
+      inv.expect?.errorName !== undefined &&
+      m.errorName !== inv.expect.errorName
+    ) {
       findings.push({
         invocation: inv.name,
         metric: 'outcome',
@@ -206,7 +241,14 @@ export function compareAll(input: CompareInput): CheckReport {
       findings.push(...checkBudgets(inv.name, m.metrics, config));
       if (base !== null && base.ok && base.metrics !== null && base.footprint !== null) {
         for (const metric of GATED) {
-          const f = compareMetric(inv.name, metric, BigInt(base.metrics[metric]), BigInt(m.metrics[metric]), config, environmentChanged);
+          const f = compareMetric(
+            inv.name,
+            metric,
+            BigInt(base.metrics[metric]),
+            BigInt(m.metrics[metric]),
+            config,
+            environmentChanged,
+          );
           if (f !== null) findings.push(f);
         }
         findings.push(...compareFootprint(inv.name, base.footprint, m.footprint, config));
@@ -231,7 +273,9 @@ export function compareAll(input: CompareInput): CheckReport {
   }
 
   const known = new Set(config.invocations.map((i) => i.name));
-  const removed = Object.keys(baseline?.entries ?? {}).filter((n) => !known.has(n)).sort();
+  const removed = Object.keys(baseline?.entries ?? {})
+    .filter((n) => !known.has(n))
+    .sort();
   const counts = {
     fail: results.filter((r) => r.status === 'fail').length,
     warn: results.filter((r) => r.status === 'warn').length,

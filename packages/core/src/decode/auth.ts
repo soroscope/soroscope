@@ -81,7 +81,10 @@ function readFunction(reader: XdrReader): AuthorizedFunction {
 
 function readInvocation(reader: XdrReader, depth: number): AuthorizedInvocation {
   if (depth > MAX_DEPTH) {
-    throw new XdrDecodeError(`Invocation tree nesting exceeds ${MAX_DEPTH} levels`, reader.position);
+    throw new XdrDecodeError(
+      `Invocation tree nesting exceeds ${MAX_DEPTH} levels`,
+      reader.position,
+    );
   }
   const fn = readFunction(reader);
   const subInvocations = readArray(reader, () => readInvocation(reader, depth + 1));
@@ -116,7 +119,8 @@ function describeFunction(fn: AuthorizedFunction): string {
   if (fn.type === 'contractFn') {
     return `${fn.contract.address}.${fn.functionName}(${fn.args.map(formatScVal).join(', ')})`;
   }
-  const exe = fn.executable.type === 'wasm' ? `wasm ${fn.executable.wasmHash.slice(0, 8)}…` : 'stellarAsset';
+  const exe =
+    fn.executable.type === 'wasm' ? `wasm ${fn.executable.wasmHash.slice(0, 8)}…` : 'stellarAsset';
   return `create contract (${exe})`;
 }
 

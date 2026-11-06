@@ -53,7 +53,9 @@ export interface RunResult {
 /** Replace string values that are exactly `$name` with the variable's value, recursively. */
 export function substitute(value: unknown, vars: Readonly<Record<string, string>>): unknown {
   if (typeof value === 'string') {
-    return value.startsWith('$') && vars[value.slice(1)] !== undefined ? vars[value.slice(1)] : value;
+    return value.startsWith('$') && vars[value.slice(1)] !== undefined
+      ? vars[value.slice(1)]
+      : value;
   }
   if (Array.isArray(value)) return value.map((v) => substitute(v, vars));
   if (typeof value === 'object' && value !== null) {
@@ -67,7 +69,10 @@ function placeholderSource(): string {
   return StrKey.encodeEd25519PublicKey(Buffer.alloc(32));
 }
 
-async function protocolVersionOf(router: SoroscopeRouter | null, rpc: RpcCaller): Promise<number | null> {
+async function protocolVersionOf(
+  router: SoroscopeRouter | null,
+  rpc: RpcCaller,
+): Promise<number | null> {
   if (router !== null) {
     const versions = router.registry
       .list()
@@ -98,7 +103,9 @@ export async function runChecks(options: RunOptions): Promise<RunResult> {
   const passphrase = NETWORK_PASSPHRASES[config.network.name];
   const router =
     options.rpc === undefined
-      ? await SoroscopeRouter.create({ providers: config.network.rpc ?? publicProviderUrls(config.network.name) })
+      ? await SoroscopeRouter.create({
+          providers: config.network.rpc ?? publicProviderUrls(config.network.name),
+        })
       : null;
   const rpc: RpcCaller = options.rpc ?? router!;
 
@@ -115,7 +122,10 @@ export async function runChecks(options: RunOptions): Promise<RunResult> {
         'Deploying contracts from WASM is only done on testnet, with a throwaway key. Point invocations at a deployed contractId to measure on mainnet.',
       );
     }
-    const signer = options.deployerSecret === undefined ? Keypair.random() : Keypair.fromSecret(options.deployerSecret);
+    const signer =
+      options.deployerSecret === undefined
+        ? Keypair.random()
+        : Keypair.fromSecret(options.deployerSecret);
     if (options.deployerSecret === undefined) {
       log(`Funding a throwaway deployer ${signer.publicKey()} from friendbot`);
       await fundWithFriendbot(friendbotUrlFor(Networks.TESTNET)!, signer.publicKey());
@@ -140,18 +150,29 @@ export async function runChecks(options: RunOptions): Promise<RunResult> {
           rpc,
           signer,
           networkPassphrase: passphrase,
-          build: (b) => b.addOperation(new Contract(result.contractId).call(call.function, ...toScVals(call.function, args, spec))),
+          build: (b) =>
+            b.addOperation(
+              new Contract(result.contractId).call(
+                call.function,
+                ...toScVals(call.function, args, spec),
+              ),
+            ),
         });
       }
     }
   }
 
   const sim = new TransactionSimulator(rpc);
-  const measurements: Record<string, { function: string; measurement: Measurement; wasmSha256?: string }> = {};
+  const measurements: Record<
+    string,
+    { function: string; measurement: Measurement; wasmSha256?: string }
+  > = {};
   for (const inv of config.invocations) {
     const contractId = resolveContractId(inv, vars);
     if (!specs.has(contractId)) specs.set(contractId, (await loadSpec(rpc, contractId)).spec);
-    const source = String(substitute(inv.source ?? config.defaults.source ?? placeholderSource(), vars));
+    const source = String(
+      substitute(inv.source ?? config.defaults.source ?? placeholderSource(), vars),
+    );
     const args = substitute(inv.args, vars) as InvocationArgs | undefined;
     log(`Simulating ${inv.name}`);
     let xdr: string;
@@ -165,7 +186,9 @@ export async function runChecks(options: RunOptions): Promise<RunResult> {
         spec: specs.get(contractId) ?? null,
       });
     } catch (err) {
-      throw new Error(`Invocation "${inv.name}": ${err instanceof Error ? err.message : String(err)}`);
+      throw new Error(
+        `Invocation "${inv.name}": ${err instanceof Error ? err.message : String(err)}`,
+      );
     }
     const report = await sim.simulateAndExplain(xdr);
     measurements[inv.name] = {
@@ -187,7 +210,11 @@ export async function runChecks(options: RunOptions): Promise<RunResult> {
   if (options.updateBaseline === true) {
     const entries: Record<string, BaselineEntry> = {};
     for (const [name, m] of Object.entries(measurements)) {
-      entries[name] = { ...m.measurement, function: m.function, ...(m.wasmSha256 === undefined ? {} : { wasmSha256: m.wasmSha256 }) };
+      entries[name] = {
+        ...m.measurement,
+        function: m.function,
+        ...(m.wasmSha256 === undefined ? {} : { wasmSha256: m.wasmSha256 }),
+      };
     }
     const next: Baseline = {
       version: 1,
@@ -206,6 +233,9 @@ export async function runChecks(options: RunOptions): Promise<RunResult> {
 function resolveContractId(inv: InvocationConfig, vars: Readonly<Record<string, string>>): string {
   if (inv.contractId !== undefined) return inv.contractId;
   const id = vars[inv.contract!];
-  if (id === undefined) throw new Error(`Invocation "${inv.name}" refers to contract "${inv.contract}" which was not deployed`);
+  if (id === undefined)
+    throw new Error(
+      `Invocation "${inv.name}" refers to contract "${inv.contract}" which was not deployed`,
+    );
   return id;
 }

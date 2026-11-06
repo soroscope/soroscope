@@ -44,14 +44,23 @@ export class SubmissionError extends Error {
  * reports, and a fee that covers the resource fee.
  */
 export function assembleTransaction(unsigned: Transaction, raw: RawSimulateResponse): Transaction {
-  if (raw.error !== undefined || raw.transactionData === undefined || raw.minResourceFee === undefined) {
-    throw new SubmissionError(`Cannot assemble a failed simulation: ${raw.error ?? 'no transaction data'}`, null);
+  if (
+    raw.error !== undefined ||
+    raw.transactionData === undefined ||
+    raw.minResourceFee === undefined
+  ) {
+    throw new SubmissionError(
+      `Cannot assemble a failed simulation: ${raw.error ?? 'no transaction data'}`,
+      null,
+    );
   }
   const op = unsigned.operations[0];
   if (unsigned.operations.length !== 1 || op === undefined || op.type !== 'invokeHostFunction') {
     throw new TypeError('assembleTransaction only supports a single invokeHostFunction operation');
   }
-  const auth = (raw.results?.[0]?.auth ?? []).map((a) => xdr.SorobanAuthorizationEntry.fromXDR(a, 'base64'));
+  const auth = (raw.results?.[0]?.auth ?? []).map((a) =>
+    xdr.SorobanAuthorizationEntry.fromXDR(a, 'base64'),
+  );
   const fee = (BigInt(unsigned.fee) + BigInt(raw.minResourceFee)).toString();
   // TransactionBuilder increments the account's sequence number, so start one below the built value.
   const account = new Account(unsigned.source, (BigInt(unsigned.sequence) - 1n).toString());
@@ -78,13 +87,19 @@ export async function signAndSend(
   tx.sign(signer);
   const sent = await rpc.call<SendResponse>('sendTransaction', { transaction: tx.toXDR() });
   if (sent.status === 'ERROR' || sent.status === 'TRY_AGAIN_LATER') {
-    throw new SubmissionError(`Transaction rejected (${sent.status})`, sent.hash, sent.errorResultXdr ?? null);
+    throw new SubmissionError(
+      `Transaction rejected (${sent.status})`,
+      sent.hash,
+      sent.errorResultXdr ?? null,
+    );
   }
   const deadline = Date.now() + waitMs;
   while (Date.now() < deadline) {
     let res: (Record<string, unknown> & { status: string }) | undefined;
     try {
-      res = await rpc.call<Record<string, unknown> & { status: string }>('getTransaction', { hash: sent.hash });
+      res = await rpc.call<Record<string, unknown> & { status: string }>('getTransaction', {
+        hash: sent.hash,
+      });
     } catch {
       // The transaction is already submitted. A dropped poll says nothing about whether it landed:
       // keep waiting until the deadline instead of abandoning it.
@@ -99,13 +114,20 @@ export async function signAndSend(
         raw: res,
       };
       if (res.status === 'FAILED') {
-        throw new SubmissionError(`Transaction ${sent.hash} failed on chain`, sent.hash, out.resultXdr);
+        throw new SubmissionError(
+          `Transaction ${sent.hash} failed on chain`,
+          sent.hash,
+          out.resultXdr,
+        );
       }
       return out;
     }
     await new Promise((r) => setTimeout(r, POLL_INTERVAL_MS));
   }
-  throw new SubmissionError(`Transaction ${sent.hash} was not in a ledger after ${waitMs}ms`, sent.hash);
+  throw new SubmissionError(
+    `Transaction ${sent.hash} was not in a ledger after ${waitMs}ms`,
+    sent.hash,
+  );
 }
 
 /** Simulate a built transaction and return both the decoded report and the raw response. */
@@ -113,6 +135,8 @@ export async function simulateRaw(
   rpc: RpcCaller,
   transactionXdr: string,
 ): Promise<{ raw: RawSimulateResponse; report: SimulationReport }> {
-  const raw = await rpc.call<RawSimulateResponse>('simulateTransaction', { transaction: transactionXdr });
+  const raw = await rpc.call<RawSimulateResponse>('simulateTransaction', {
+    transaction: transactionXdr,
+  });
   return { raw, report: decodeSimulationResponse(raw) };
 }

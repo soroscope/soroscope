@@ -26,55 +26,65 @@ describe('fixture sanity', () => {
   });
 });
 
-describe.each(contracts.map((c) => [c.contractId.slice(0, 8), c] as const))('contract %s', (_n, c) => {
-  const wasm = Uint8Array.from(Buffer.from(c.wasmBase64, 'base64'));
-  const parsed = parseWasm(wasm);
+describe.each(contracts.map((c) => [c.contractId.slice(0, 8), c] as const))(
+  'contract %s',
+  (_n, c) => {
+    const wasm = Uint8Array.from(Buffer.from(c.wasmBase64, 'base64'));
+    const parsed = parseWasm(wasm);
 
-  it('spec matches the stellar CLI entry for entry', () => {
-    expect(parsed.spec.map(specEntryOracle)).toEqual(c.oracleSpec);
-  });
+    it('spec matches the stellar CLI entry for entry', () => {
+      expect(parsed.spec.map(specEntryOracle)).toEqual(c.oracleSpec);
+    });
 
-  it('metadata matches the stellar CLI', () => {
-    const expected = Object.fromEntries(c.oracleMeta!.map((m) => [m.sc_meta_v0.key, m.sc_meta_v0.val]));
-    expect(parsed.meta).toEqual(expected);
-  });
+    it('metadata matches the stellar CLI', () => {
+      const expected = Object.fromEntries(
+        c.oracleMeta!.map((m) => [m.sc_meta_v0.key, m.sc_meta_v0.val]),
+      );
+      expect(parsed.meta).toEqual(expected);
+    });
 
-  it('finds the contract sections', () => {
-    expect(parsed.customSections).toContain('contractspecv0');
-  });
+    it('finds the contract sections', () => {
+      expect(parsed.customSections).toContain('contractspecv0');
+    });
 
-  it('builds the same ledger keys the stellar CLI does', () => {
-    expect(contractInstanceKey(c.contractId)).toBe(c.instanceKey);
-    expect(contractCodeKey(c.wasmHash)).toBe(c.codeKey);
-  });
+    it('builds the same ledger keys the stellar CLI does', () => {
+      expect(contractInstanceKey(c.contractId)).toBe(c.instanceKey);
+      expect(contractCodeKey(c.wasmHash)).toBe(c.codeKey);
+    });
 
-  it('the on-ledger instance points at this WASM', () => {
-    const entry = decodeLedgerEntryData(c.instanceEntryXdr);
-    expect(entry.type).toBe('contractData');
-    if (entry.type !== 'contractData' || entry.val.type !== 'contractInstance') throw new Error('not an instance');
-    expect(entry.val.executable).toEqual({ type: 'wasm', wasmHash: c.wasmHash });
-  });
+    it('the on-ledger instance points at this WASM', () => {
+      const entry = decodeLedgerEntryData(c.instanceEntryXdr);
+      expect(entry.type).toBe('contractData');
+      if (entry.type !== 'contractData' || entry.val.type !== 'contractInstance')
+        throw new Error('not an instance');
+      expect(entry.val.executable).toEqual({ type: 'wasm', wasmHash: c.wasmHash });
+    });
 
-  it('the on-ledger code entry holds exactly this WASM', () => {
-    const entry = decodeLedgerEntryData(c.codeEntryXdr);
-    if (entry.type !== 'contractCode') throw new Error('not a code entry');
-    expect(Buffer.from(entry.code).equals(Buffer.from(wasm))).toBe(true);
-    expect(entry.hash).toBe(c.wasmHash);
-  });
+    it('the on-ledger code entry holds exactly this WASM', () => {
+      const entry = decodeLedgerEntryData(c.codeEntryXdr);
+      if (entry.type !== 'contractCode') throw new Error('not a code entry');
+      expect(Buffer.from(entry.code).equals(Buffer.from(wasm))).toBe(true);
+      expect(entry.hash).toBe(c.wasmHash);
+    });
 
-  it('round-trips the contract id through strkey decode/encode', () => {
-    expect(encodeContractId(decodeContractId(c.contractId))).toBe(c.contractId);
-  });
-});
+    it('round-trips the contract id through strkey decode/encode', () => {
+      expect(encodeContractId(decodeContractId(c.contractId))).toBe(c.contractId);
+    });
+  },
+);
 
 describe('ContractSpec', () => {
-  const withErrors = contracts.find((c) => parseWasm(Buffer.from(c.wasmBase64, 'base64')).spec.some((e) => e.kind === 'errorEnum'));
+  const withErrors = contracts.find((c) =>
+    parseWasm(Buffer.from(c.wasmBase64, 'base64')).spec.some((e) => e.kind === 'errorEnum'),
+  );
 
   it('resolves declared error codes to names', () => {
     expect(withErrors, 'no captured contract declares an error enum').toBeDefined();
     const parsed = parseWasm(Buffer.from(withErrors!.wasmBase64, 'base64'));
     const spec = new ContractSpec(parsed.spec, { kind: 'wasm', wasmHash: withErrors!.wasmHash });
-    const declared = parsed.spec.flatMap((e) => (e.kind === 'errorEnum' ? e.cases.map((c) => ({ ...c, enumName: e.name })) : []));
+    const declared = parsed.spec.flatMap((e) =>
+      e.kind === 'errorEnum' ? e.cases.map((c) => ({ ...c, enumName: e.name })) : [],
+    );
     expect(spec.errors).toHaveLength(declared.length);
     for (const d of declared) {
       const found = spec.lookupErrors(d.value);

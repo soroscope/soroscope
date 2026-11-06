@@ -24,9 +24,11 @@ describe('RpcClient against a live endpoint', () => {
   const client = new RpcClient({ url: SDF });
 
   it('reads getHealth with transport details', async () => {
-    const raw = await client.callRaw<{ status: string; latestLedger: number; oldestLedger: number }>(
-      'getHealth',
-    );
+    const raw = await client.callRaw<{
+      status: string;
+      latestLedger: number;
+      oldestLedger: number;
+    }>('getHealth');
     expect(raw.httpStatus).toBe(200);
     expect(raw.result.status).toBe('healthy');
     expect(raw.result.latestLedger).toBeGreaterThan(raw.result.oldestLedger);
@@ -64,7 +66,9 @@ describe('real failure modes', () => {
   });
 
   it('bad path -> RpcHttpError 404, classified as misconfigured', async () => {
-    const err = await new RpcClient({ url: `${SDF}/nope` }).call('getHealth').catch((e: unknown) => e);
+    const err = await new RpcClient({ url: `${SDF}/nope` })
+      .call('getHealth')
+      .catch((e: unknown) => e);
     expect(err).toBeInstanceOf(RpcHttpError);
     expect((err as RpcHttpError).status).toBe(404);
     expect(classifyFailure(err)).toBe('misconfigured');
@@ -152,7 +156,9 @@ describe('probeProviders against live providers', () => {
 
     const prom = toPrometheus(report, 'testnet');
     expect(prom).toMatch(/^# TYPE soroscope_provider_up gauge$/m);
-    expect(prom).toContain('soroscope_provider_up{provider="soroban-testnet.stellar.org",network="testnet"} 1');
+    expect(prom).toContain(
+      'soroscope_provider_up{provider="soroban-testnet.stellar.org",network="testnet"} 1',
+    );
     expect(prom).toContain('soroscope_provider_up{provider="127.0.0.1:1",network="testnet"} 0');
     // The dead provider has no latency, so no latency series is emitted for it.
     expect(prom).not.toMatch(/latency_p50_ms\{provider="127\.0\.0\.1:1"/);

@@ -5,9 +5,25 @@ import { XdrUnsupportedError, decodeWith, readArray } from '../decode/primitives
 export type SpecType =
   | {
       kind:
-        | 'val' | 'bool' | 'void' | 'error' | 'u32' | 'i32' | 'u64' | 'i64' | 'timepoint'
-        | 'duration' | 'u128' | 'i128' | 'u256' | 'i256' | 'bytes' | 'string' | 'symbol'
-        | 'address' | 'muxedAddress';
+        | 'val'
+        | 'bool'
+        | 'void'
+        | 'error'
+        | 'u32'
+        | 'i32'
+        | 'u64'
+        | 'i64'
+        | 'timepoint'
+        | 'duration'
+        | 'u128'
+        | 'i128'
+        | 'u256'
+        | 'i256'
+        | 'bytes'
+        | 'string'
+        | 'symbol'
+        | 'address'
+        | 'muxedAddress';
     }
   | { kind: 'option'; value: SpecType }
   | { kind: 'result'; ok: SpecType; error: SpecType }
@@ -94,7 +110,13 @@ export interface SpecEvent {
   dataFormat: 'singleValue' | 'vec' | 'map';
 }
 
-export type SpecEntry = SpecFunction | SpecStruct | SpecUnion | SpecEnum | SpecErrorEnum | SpecEvent;
+export type SpecEntry =
+  | SpecFunction
+  | SpecStruct
+  | SpecUnion
+  | SpecEnum
+  | SpecErrorEnum
+  | SpecEvent;
 
 const SIMPLE_TYPES: Record<number, SpecType> = {
   0: { kind: 'val' },
@@ -211,12 +233,14 @@ export function readSpecEntry(reader: XdrReader): SpecEntry {
         const pname = reader.readString();
         const type = readSpecType(reader);
         const loc = reader.readEnum();
-        if (loc !== 0 && loc !== 1) throw new XdrUnsupportedError(`SCSpecEventParamLocationV0(${loc})`, reader.position);
+        if (loc !== 0 && loc !== 1)
+          throw new XdrUnsupportedError(`SCSpecEventParamLocationV0(${loc})`, reader.position);
         return { doc: pdoc, name: pname, type, location: loc === 0 ? 'data' : 'topicList' };
       });
       const fmt = reader.readEnum();
       const dataFormat = (['singleValue', 'vec', 'map'] as const)[fmt];
-      if (dataFormat === undefined) throw new XdrUnsupportedError(`SCSpecEventDataFormat(${fmt})`, reader.position);
+      if (dataFormat === undefined)
+        throw new XdrUnsupportedError(`SCSpecEventDataFormat(${fmt})`, reader.position);
       return { kind: 'event', doc, lib, name, prefixTopics, params, dataFormat };
     }
     default:

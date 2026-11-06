@@ -1,6 +1,13 @@
 import { watch, type FSWatcher } from 'node:fs';
 import { relative, sep } from 'node:path';
-import { BuildError, buildContract, hasStellarCli, resolveProject, type Builder, type ContractProject } from './build';
+import {
+  BuildError,
+  buildContract,
+  hasStellarCli,
+  resolveProject,
+  type Builder,
+  type ContractProject,
+} from './build';
 import type { DevSession, ReloadResult } from './session';
 
 export type DevLoopEvent =

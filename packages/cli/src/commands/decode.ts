@@ -47,17 +47,27 @@ function readInput(arg: string): string {
 export function runDecode(type: string, input: string, opts: DecodeOptions, io: Io): ExitCodeValue {
   const decode = DECODERS[type];
   if (decode === undefined) {
-    throw new CliError(`Unknown type "${type}". Known types: ${Object.keys(DECODERS).join(', ')}.`, ExitCode.Usage);
+    throw new CliError(
+      `Unknown type "${type}". Known types: ${Object.keys(DECODERS).join(', ')}.`,
+      ExitCode.Usage,
+    );
   }
   const text = readInput(input);
-  if (text === '') throw new CliError('No XDR given. Pass base64, or - to read standard input.', ExitCode.Usage);
+  if (text === '')
+    throw new CliError('No XDR given. Pass base64, or - to read standard input.', ExitCode.Usage);
   let value: unknown;
   try {
     value = decode(text);
   } catch (err) {
-    throw new CliError(`Cannot decode as ${type}: ${err instanceof Error ? err.message : String(err)}`, ExitCode.Failure);
+    throw new CliError(
+      `Cannot decode as ${type}: ${err instanceof Error ? err.message : String(err)}`,
+      ExitCode.Failure,
+    );
   }
-  const shown = opts.plain === true && type === 'ScVal' ? scValToJs(value as Parameters<typeof scValToJs>[0]) : toJsonSafe(value);
+  const shown =
+    opts.plain === true && type === 'ScVal'
+      ? scValToJs(value as Parameters<typeof scValToJs>[0])
+      : toJsonSafe(value);
   io.out(JSON.stringify(shown, null, 2));
   return ExitCode.Ok;
 }
@@ -68,7 +78,10 @@ export function runExplain(input: string, io: Io): ExitCodeValue {
   try {
     io.out(explainTransactionError(text));
   } catch (err) {
-    throw new CliError(`Cannot explain: ${err instanceof Error ? err.message : String(err)}`, ExitCode.Failure);
+    throw new CliError(
+      `Cannot explain: ${err instanceof Error ? err.message : String(err)}`,
+      ExitCode.Failure,
+    );
   }
   return ExitCode.Ok;
 }

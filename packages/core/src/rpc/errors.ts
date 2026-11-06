@@ -121,7 +121,10 @@ export class AllProvidersFailedError extends Error {
  * the result to one hour so a hostile or buggy header cannot park a provider
  * forever.
  */
-export function parseRetryAfter(value: string | null | undefined, now: number = Date.now()): number | undefined {
+export function parseRetryAfter(
+  value: string | null | undefined,
+  now: number = Date.now(),
+): number | undefined {
   if (value === null || value === undefined) return undefined;
   const trimmed = value.trim();
   if (trimmed === '') return undefined;

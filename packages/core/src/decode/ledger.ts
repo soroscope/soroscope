@@ -93,14 +93,19 @@ export function readLedgerKey(reader: XdrReader): LedgerKey {
     case ENTRY.ACCOUNT:
       return { type: 'account', accountId: readAccountId(reader) };
     case ENTRY.TRUSTLINE:
-      return { type: 'trustline', accountId: readAccountId(reader), asset: readTrustLineAsset(reader) };
+      return {
+        type: 'trustline',
+        accountId: readAccountId(reader),
+        asset: readTrustLineAsset(reader),
+      };
     case ENTRY.OFFER:
       return { type: 'offer', sellerId: readAccountId(reader), offerId: reader.readInt64() };
     case ENTRY.DATA:
       return { type: 'data', accountId: readAccountId(reader), dataName: reader.readString() };
     case ENTRY.CLAIMABLE_BALANCE: {
       const idType = reader.readEnum();
-      if (idType !== 0) throw new XdrUnsupportedError(`ClaimableBalanceIDType(${idType})`, reader.position);
+      if (idType !== 0)
+        throw new XdrUnsupportedError(`ClaimableBalanceIDType(${idType})`, reader.position);
       return { type: 'claimableBalance', balanceId: toHex(reader.readFixedOpaque(32)) };
     }
     case ENTRY.LIQUIDITY_POOL:
@@ -143,7 +148,10 @@ function formatAsset(a: Asset): string {
  * safe to use for sorting, diffing footprints and baselines. `aliases` maps
  * contract ids to short names (for contracts whose id changes per run).
  */
-export function canonicalLedgerKey(key: LedgerKey, aliases: Readonly<Record<string, string>> = {}): string {
+export function canonicalLedgerKey(
+  key: LedgerKey,
+  aliases: Readonly<Record<string, string>> = {},
+): string {
   switch (key.type) {
     case 'account':
       return `account:${key.accountId}`;
@@ -279,5 +287,3 @@ export function readLedgerEntryData(reader: XdrReader): LedgerEntryData {
 export function decodeLedgerEntryData(input: string | Uint8Array): LedgerEntryData {
   return decodeWith('LedgerEntryData', input, readLedgerEntryData);
 }
-
-

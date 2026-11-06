@@ -19,7 +19,11 @@ async function soroscope(...args: string[]): Promise<Result> {
     return { code: 0, stdout, stderr };
   } catch (err) {
     const e = err as { code?: number; stdout?: string; stderr?: string };
-    return { code: typeof e.code === 'number' ? e.code : 1, stdout: e.stdout ?? '', stderr: e.stderr ?? '' };
+    return {
+      code: typeof e.code === 'number' ? e.code : 1,
+      stdout: e.stdout ?? '',
+      stderr: e.stderr ?? '',
+    };
   }
 }
 
@@ -32,7 +36,16 @@ describe('soroscope probe (built binary, live testnet)', () => {
   });
 
   it('emits parseable JSON with real ledger numbers', async () => {
-    const r = await soroscope('probe', '--network', 'testnet', '--samples', '2', '--no-reach', '--format', 'json');
+    const r = await soroscope(
+      'probe',
+      '--network',
+      'testnet',
+      '--samples',
+      '2',
+      '--no-reach',
+      '--format',
+      'json',
+    );
     expect(r.code).toBe(0);
     const report = JSON.parse(r.stdout) as {
       providers: { provider: string; ledger: { latest: number }; passphrase: string }[];
@@ -43,21 +56,44 @@ describe('soroscope probe (built binary, live testnet)', () => {
   });
 
   it('emits Prometheus exposition text', async () => {
-    const r = await soroscope('probe', '--network', 'testnet', '--samples', '2', '--no-reach', '--format', 'prometheus');
+    const r = await soroscope(
+      'probe',
+      '--network',
+      'testnet',
+      '--samples',
+      '2',
+      '--no-reach',
+      '--format',
+      'prometheus',
+    );
     expect(r.code).toBe(0);
     expect(r.stdout).toMatch(/^# TYPE soroscope_provider_up gauge$/m);
     expect(r.stdout).toMatch(/soroscope_provider_up\{provider="[^"]+",network="testnet"\} 1/);
   });
 
   it('exits 3 when no provider is reachable', async () => {
-    const r = await soroscope('probe', '--rpc', 'http://127.0.0.1:1', '--samples', '1', '--no-reach');
+    const r = await soroscope(
+      'probe',
+      '--rpc',
+      'http://127.0.0.1:1',
+      '--samples',
+      '1',
+      '--no-reach',
+    );
     expect(r.code).toBe(3);
   });
 
   it('exits 1 under --strict when any provider is unhealthy', async () => {
     const r = await soroscope(
-      'probe', '--rpc', 'https://soroban-testnet.stellar.org', '--rpc', 'http://127.0.0.1:1',
-      '--samples', '1', '--no-reach', '--strict',
+      'probe',
+      '--rpc',
+      'https://soroban-testnet.stellar.org',
+      '--rpc',
+      'http://127.0.0.1:1',
+      '--samples',
+      '1',
+      '--no-reach',
+      '--strict',
     );
     expect(r.code).toBe(1);
   });
@@ -79,10 +115,19 @@ describe('soroscope route-explain (built binary, live testnet)', () => {
   });
 
   it('exits 3 and says why when no provider retains the ledger', async () => {
-    const r = await soroscope('route-explain', 'getEvents', '--network', 'testnet', '--start-ledger', '1000');
+    const r = await soroscope(
+      'route-explain',
+      'getEvents',
+      '--network',
+      'testnet',
+      '--start-ledger',
+      '1000',
+    );
     expect(r.code).toBe(3);
     const plan = JSON.parse(r.stdout) as { chosen?: string; excluded: { reason: string }[] };
     expect(plan.chosen).toBeUndefined();
-    expect(plan.excluded.some((e) => /older than its oldest servable ledger/.test(e.reason))).toBe(true);
+    expect(plan.excluded.some((e) => /older than its oldest servable ledger/.test(e.reason))).toBe(
+      true,
+    );
   });
 });

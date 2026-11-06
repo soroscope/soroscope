@@ -36,7 +36,10 @@ function render(report: ProbeReport, format: string, network: string): string {
     case 'prometheus':
       return toPrometheus(report, network);
     default:
-      throw new CliError(`Unknown format "${format}". Use table, json or prometheus.`, ExitCode.Usage);
+      throw new CliError(
+        `Unknown format "${format}". Use table, json or prometheus.`,
+        ExitCode.Usage,
+      );
   }
 }
 
@@ -55,13 +58,28 @@ export async function runProbe(opts: ProbeCommandOptions, io: Io): Promise<ExitC
   const timeoutMs = positiveInt('--timeout', opts.timeout, 1) * 1000;
   const intervalMs = positiveInt('--interval', opts.interval, 1) * 1000;
   // Validate the format up front so a typo fails before the slow part.
-  render({ generatedAt: '', providers: [], summary: { healthy: 0, degraded: 0, unreachable: 0, misconfigured: 0, maxLatestLedger: null } }, opts.format, selection.network);
+  render(
+    {
+      generatedAt: '',
+      providers: [],
+      summary: { healthy: 0, degraded: 0, unreachable: 0, misconfigured: 0, maxLatestLedger: null },
+    },
+    opts.format,
+    selection.network,
+  );
 
   const probe = (): Promise<ProbeReport> =>
     probeProviders(selection.urls, { samples, burst, reach: opts.reach, timeoutMs });
 
   if (opts.serve !== undefined) {
-    return serve(opts, selection.network, probe, positiveInt('--serve', opts.serve, 1), intervalMs, io);
+    return serve(
+      opts,
+      selection.network,
+      probe,
+      positiveInt('--serve', opts.serve, 1),
+      intervalMs,
+      io,
+    );
   }
 
   if (opts.watch === true) {
@@ -104,8 +122,12 @@ function serve(
 
   const server = createServer((req, res) => {
     if (req.url === '/metrics') {
-      res.writeHead(latest === undefined ? 503 : 200, { 'content-type': 'text/plain; version=0.0.4' });
-      res.end(latest === undefined ? '# no probe has completed yet\n' : toPrometheus(latest, network));
+      res.writeHead(latest === undefined ? 503 : 200, {
+        'content-type': 'text/plain; version=0.0.4',
+      });
+      res.end(
+        latest === undefined ? '# no probe has completed yet\n' : toPrometheus(latest, network),
+      );
     } else if (req.url === '/probe') {
       res.writeHead(latest === undefined ? 503 : 200, { 'content-type': 'application/json' });
       res.end(latest === undefined ? '{"error":"no probe has completed yet"}' : toJson(latest));
@@ -120,7 +142,9 @@ function serve(
       reject(new CliError(`Cannot listen on port ${port}: ${err.message}`, ExitCode.Failure));
     });
     server.listen(port, () => {
-      io.err(`Serving http://localhost:${port}/metrics and /probe (re-probing every ${intervalMs / 1000}s). Ctrl+C to stop.`);
+      io.err(
+        `Serving http://localhost:${port}/metrics and /probe (re-probing every ${intervalMs / 1000}s). Ctrl+C to stop.`,
+      );
       void refresh();
       const timer = setInterval(() => void refresh(), intervalMs);
       const stop = (): void => {

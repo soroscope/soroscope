@@ -16,7 +16,9 @@ export async function loadAccount(rpc: RpcCaller, publicKey: string): Promise<Ac
   const res = await rpc.call<LedgerEntriesResponse>('getLedgerEntries', { keys: [key] });
   const entry = res.entries?.[0];
   if (entry === undefined) {
-    throw new Error(`Account ${publicKey} does not exist on this network. On a test network, fund it first.`);
+    throw new Error(
+      `Account ${publicKey} does not exist on this network. On a test network, fund it first.`,
+    );
   }
   const data = xdr.LedgerEntryData.fromXDR(entry.xdr, 'base64');
   if (data.type !== 'account') throw new Error(`Ledger entry for ${publicKey} is not an account`);

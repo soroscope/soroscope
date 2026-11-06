@@ -18,7 +18,9 @@ const i128 = (n: bigint): string => b64(nativeToScVal(n, { type: 'i128' }));
 describe('the native asset contract', () => {
   // Recorded from live testnet by packages/test-utils/scripts/record-soroban.mjs.
   const liveNative = (
-    JSON.parse(readFileSync(resolve(__dirname, '../../../core/tests/fixtures/soroban-xdr.json'), 'utf8')) as {
+    JSON.parse(
+      readFileSync(resolve(__dirname, '../../../core/tests/fixtures/soroban-xdr.json'), 'utf8'),
+    ) as {
       provenance: { nativeAssetContract: string };
     }
   ).provenance.nativeAssetContract;
@@ -31,7 +33,7 @@ describe('the native asset contract', () => {
     expect(net.nativeAssetContract).toBe(liveNative);
   });
 
-  it('answers calls: name, decimals and the local account\'s balance', () => {
+  it("answers calls: name, decimals and the local account's balance", () => {
     const net = LocalNetwork.create(fixture, { timestamp: recordedAt });
     const value = (fn: string, args: string[] = []): unknown => {
       const { report } = net.invoke(net.nativeAssetContract, fn, args, { commit: false });
@@ -41,7 +43,9 @@ describe('the native asset contract', () => {
     expect(value('name')).toBe('native');
     expect(value('decimals')).toBe(7);
     // The synthetic local account holds 1,000,000 XLM.
-    expect(value('balance', [b64(new Address(net.sourceAccount).toScVal())])).toBe('10000000000000');
+    expect(value('balance', [b64(new Address(net.sourceAccount).toScVal())])).toBe(
+      '10000000000000',
+    );
   });
 
   it('is there for a contract that deploys another to use it', () => {
@@ -57,12 +61,19 @@ describe('a contract extending its own TTL (real compiler)', () => {
   let wasm: Uint8Array;
 
   beforeAll(async () => {
-    for (const f of ['Cargo.toml', 'Cargo.lock', 'src']) cpSync(resolve(FIXTURE, f), resolve(dir, f), { recursive: true });
+    for (const f of ['Cargo.toml', 'Cargo.lock', 'src'])
+      cpSync(resolve(FIXTURE, f), resolve(dir, f), { recursive: true });
     // The build cache is shared with the watch-loop test, which runs at the same time and
     // builds the same crate. A different package name gives this one its own output file, so
     // the two cannot overwrite each other's WASM while still sharing the compiled dependencies.
     const manifest = resolve(dir, 'Cargo.toml');
-    writeFileSync(manifest, readFileSync(manifest, 'utf8').replace('name = "soroscope-fixture-contract"', 'name = "soroscope-ttl-contract"'));
+    writeFileSync(
+      manifest,
+      readFileSync(manifest, 'utf8').replace(
+        'name = "soroscope-fixture-contract"',
+        'name = "soroscope-ttl-contract"',
+      ),
+    );
     const lib = resolve(dir, 'src/lib.rs');
     const anchor = '    /// Read a persistent value.';
     const text = readFileSync(lib, 'utf8');
@@ -101,7 +112,9 @@ ${anchor}`,
     // `archivedEntries` index the read-write footprint only: an expired entry is restored,
     // which is a write, so the simulation moves it there.
     const rw = fp.readWrite.map((k) => canonicalLedgerKey(k));
-    return report.transactionData!.archivedEntries.some((i) => rw[i]!.startsWith('contractData:persistent:') && rw[i]!.includes('Item'));
+    return report.transactionData!.archivedEntries.some(
+      (i) => rw[i]!.startsWith('contractData:persistent:') && rw[i]!.includes('Item'),
+    );
   };
 
   it('control: without extend_ttl the entry needs restoring once its default TTL passes', () => {

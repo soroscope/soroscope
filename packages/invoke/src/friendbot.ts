@@ -34,7 +34,8 @@ export async function fundWithFriendbot(
       if (res.ok) return;
       const body = (await res.text()).slice(0, 200);
       // A refusal (bad request, already funded) will not change on retry; a server error might.
-      if (res.status < 500) throw new Error(`Friendbot refused to fund ${address}: HTTP ${res.status} ${body}`);
+      if (res.status < 500)
+        throw new Error(`Friendbot refused to fund ${address}: HTTP ${res.status} ${body}`);
       lastError = new Error(`Friendbot error: HTTP ${res.status} ${body}`);
     } catch (err) {
       if (err instanceof Error && err.message.startsWith('Friendbot refused')) throw err;

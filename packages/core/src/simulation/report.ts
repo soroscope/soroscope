@@ -36,7 +36,8 @@ export function decodeSimulationResponse(raw: RawSimulateResponse): SimulationRe
       raw.restorePreamble === undefined
         ? null
         : {
-            minResourceFee: toBigInt(raw.restorePreamble.minResourceFee, 'restorePreamble.minResourceFee') ?? 0n,
+            minResourceFee:
+              toBigInt(raw.restorePreamble.minResourceFee, 'restorePreamble.minResourceFee') ?? 0n,
             transactionData: decodeSorobanTransactionData(raw.restorePreamble.transactionData),
           },
     stateChanges: (raw.stateChanges ?? []).map((c) => ({
@@ -65,15 +66,22 @@ export function describeSimulation(report: SimulationReport): string {
       );
     }
     if (report.auth.length > 0) {
-      parts.push(`Needs ${report.auth.length} authorization${report.auth.length === 1 ? '' : 's'}.`);
+      parts.push(
+        `Needs ${report.auth.length} authorization${report.auth.length === 1 ? '' : 's'}.`,
+      );
     }
     return parts.join(' ');
   }
   const f = report.failure;
   if (f === null) return `Simulation failed: ${report.error ?? 'unknown error'}`;
   const who = f.contractId === null ? 'A contract' : `Contract ${f.contractId}`;
-  const named = f.errorName === null ? '' : ` (${f.errorEnum === null ? '' : `${f.errorEnum}::`}${f.errorName})`;
-  const code = f.error.isContractError ? `Error(Contract, #${f.error.contractCode})` : `${f.error.type}/${String(f.error.code)}`;
+  const named =
+    f.errorName === null
+      ? ''
+      : ` (${f.errorEnum === null ? '' : `${f.errorEnum}::`}${f.errorName})`;
+  const code = f.error.isContractError
+    ? `Error(Contract, #${f.error.contractCode})`
+    : `${f.error.type}/${String(f.error.code)}`;
   const msg = f.message === null ? '' : ` ${JSON.stringify(f.message)}`;
   return `Simulation failed: ${who} raised ${code}${named}.${msg}`;
 }

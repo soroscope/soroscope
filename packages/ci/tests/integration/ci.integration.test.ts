@@ -33,27 +33,33 @@ const deployed = (extra: Record<string, unknown>): Record<string, unknown> => ({
 });
 
 describe('Mode A: measure a deployed contract and catch a real regression', () => {
-  it('records a baseline, passes against itself, then fails when the work grows', { timeout: 120_000 }, async () => {
-    const before = writeConfig('regress.json', {
-      invocations: [{ name: 'work', ...deployed({ function: 'work', args: { n: 10 } }) }],
-    });
-    const recorded = await runChecks({ loaded: before, updateBaseline: true });
-    expect(recorded.baselineWritten).toBe(true);
-    expect(recorded.report.invocations[0]!.status).toBe('new');
+  it(
+    'records a baseline, passes against itself, then fails when the work grows',
+    { timeout: 120_000 },
+    async () => {
+      const before = writeConfig('regress.json', {
+        invocations: [{ name: 'work', ...deployed({ function: 'work', args: { n: 10 } }) }],
+      });
+      const recorded = await runChecks({ loaded: before, updateBaseline: true });
+      expect(recorded.baselineWritten).toBe(true);
+      expect(recorded.report.invocations[0]!.status).toBe('new');
 
-    const same = await runChecks({ loaded: before });
-    expect(same.report.result).toBe('pass');
+      const same = await runChecks({ loaded: before });
+      expect(same.report.result).toBe('pass');
 
-    // Same invocation name, a hundred times the work: a real difference, not an edited number.
-    const after = writeConfig('regress.json', {
-      invocations: [{ name: 'work', ...deployed({ function: 'work', args: { n: 5000 } }) }],
-    });
-    const grown = await runChecks({ loaded: after });
-    expect(grown.report.result).toBe('fail');
-    const finding = grown.report.invocations[0]!.findings.find((f) => f.metric === 'instructions')!;
-    expect(finding.level).toBe('fail');
-    expect(finding.deltaPct!).toBeGreaterThan(5);
-  });
+      // Same invocation name, a hundred times the work: a real difference, not an edited number.
+      const after = writeConfig('regress.json', {
+        invocations: [{ name: 'work', ...deployed({ function: 'work', args: { n: 5000 } }) }],
+      });
+      const grown = await runChecks({ loaded: after });
+      expect(grown.report.result).toBe('fail');
+      const finding = grown.report.invocations[0]!.findings.find(
+        (f) => f.metric === 'instructions',
+      )!;
+      expect(finding.level).toBe('fail');
+      expect(finding.deltaPct!).toBeGreaterThan(5);
+    },
+  );
 
   it('catches a growing ledger footprint', { timeout: 120_000 }, async () => {
     const one = writeConfig('footprint.json', {
@@ -65,15 +71,31 @@ describe('Mode A: measure a deployed contract and catch a real regression', () =
     });
     const r = await runChecks({ loaded: five });
     expect(r.report.result).toBe('fail');
-    const msgs = r.report.invocations[0]!.findings.filter((f) => f.metric === 'footprint').map((f) => f.message);
+    const msgs = r.report.invocations[0]!.findings.filter((f) => f.metric === 'footprint').map(
+      (f) => f.message,
+    );
     expect(msgs.some((m) => m.includes('new ledger entry'))).toBe(true);
   });
 
   it('checks expected failures by contract error name', { timeout: 120_000 }, async () => {
     const cfg = writeConfig('failures.json', {
       invocations: [
-        { name: 'insufficient', ...deployed({ function: 'fail_with', args: { code: 2 }, expect: { success: false, errorName: 'InsufficientFunds' } }) },
-        { name: 'wrong-name', ...deployed({ function: 'fail_with', args: { code: 2 }, expect: { success: false, errorName: 'NotFound' } }) },
+        {
+          name: 'insufficient',
+          ...deployed({
+            function: 'fail_with',
+            args: { code: 2 },
+            expect: { success: false, errorName: 'InsufficientFunds' },
+          }),
+        },
+        {
+          name: 'wrong-name',
+          ...deployed({
+            function: 'fail_with',
+            args: { code: 2 },
+            expect: { success: false, errorName: 'NotFound' },
+          }),
+        },
         { name: 'should-succeed', ...deployed({ function: 'fail_with', args: { code: 4 } }) },
       ],
     });
@@ -96,7 +118,9 @@ describe('Mode A: measure a deployed contract and catch a real regression', () =
           name: 'native.balance',
           contractId: 'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC',
           function: 'balance',
-          args: [{ type: 'address', value: 'GAIH3ULLFQ4DGSECF2AR555KZ4KNDGEKN4AFI4SU2M7B43MGK3QJZNSR' }],
+          args: [
+            { type: 'address', value: 'GAIH3ULLFQ4DGSECF2AR555KZ4KNDGEKN4AFI4SU2M7B43MGK3QJZNSR' },
+          ],
         },
       ],
     });
@@ -115,7 +139,13 @@ describe('Mode B: measure this build of the contract, deployed fresh', () => {
       invocations: [
         { name: 'work', contract: 'fixture', function: 'work', args: { n: 100 } },
         { name: 'touch', contract: 'fixture', function: 'touch', args: { n: 2 } },
-        { name: 'mint', contract: 'fixture', function: 'mint', args: { to: '$deployer', amount: 5 }, source: '$deployer' },
+        {
+          name: 'mint',
+          contract: 'fixture',
+          function: 'mint',
+          args: { to: '$deployer', amount: 5 },
+          source: '$deployer',
+        },
       ],
     };
     const cfg = writeConfig('modeb.json', config);
@@ -127,16 +157,26 @@ describe('Mode B: measure this build of the contract, deployed fresh', () => {
     expect(second.deployed['fixture']!.contractId).not.toBe(first.deployed['fixture']!.contractId);
     // Same code, same behaviour: instructions and footprints must match exactly, even though
     // every contract id and account differs.
-    expect(second.report.invocations.map((i) => ({ name: i.name, status: i.status, findings: i.findings.map((f) => f.message) }))).toEqual([
+    expect(
+      second.report.invocations.map((i) => ({
+        name: i.name,
+        status: i.status,
+        findings: i.findings.map((f) => f.message),
+      })),
+    ).toEqual([
       { name: 'work', status: 'pass', findings: [] },
       { name: 'touch', status: 'pass', findings: [] },
       { name: 'mint', status: 'pass', findings: [] },
     ]);
     const fp = second.report.invocations.find((i) => i.name === 'touch')!.measurement.footprint!;
-    expect(fp.readWrite.every((k) => !k.includes(second.deployed['fixture']!.contractId))).toBe(true);
+    expect(fp.readWrite.every((k) => !k.includes(second.deployed['fixture']!.contractId))).toBe(
+      true,
+    );
     expect(fp.readWrite.some((k) => k.includes('$fixture'))).toBe(true);
 
-    const baseline = JSON.parse(readFileSync(first.baselinePath, 'utf8')) as { entries: Record<string, { wasmSha256: string }> };
+    const baseline = JSON.parse(readFileSync(first.baselinePath, 'utf8')) as {
+      entries: Record<string, { wasmSha256: string }>;
+    };
     expect(baseline.entries['work']!.wasmSha256).toMatch(/^[0-9a-f]{64}$/);
   });
 

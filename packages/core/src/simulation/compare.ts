@@ -41,7 +41,8 @@ export function simulationFields(report: SimulationReport): Record<string, strin
   if (r === undefined) return out;
   out.diskReadBytes = text(r.diskReadBytes);
   out.writeBytes = text(r.writeBytes);
-  const keys = (ks: Parameters<typeof canonicalLedgerKey>[0][]): string[] => ks.map((k) => canonicalLedgerKey(k)).sort();
+  const keys = (ks: Parameters<typeof canonicalLedgerKey>[0][]): string[] =>
+    ks.map((k) => canonicalLedgerKey(k)).sort();
   out['footprint.readOnly'] = text(keys(r.footprint.readOnly));
   out['footprint.readWrite'] = text(keys(r.footprint.readWrite));
   return out;
@@ -55,7 +56,10 @@ export function simulationFields(report: SimulationReport): Record<string, strin
  * Two simulations that agree return an empty list. Used to check a local
  * engine against the network and to compare providers with each other.
  */
-export function compareSimulations(a: SimulationReport, b: SimulationReport): SimulationDifference[] {
+export function compareSimulations(
+  a: SimulationReport,
+  b: SimulationReport,
+): SimulationDifference[] {
   const [fa, fb] = [simulationFields(a), simulationFields(b)];
   if (fa.outcome !== fb.outcome) return [{ field: 'outcome', a: fa.outcome!, b: fb.outcome! }];
   const out: SimulationDifference[] = [];

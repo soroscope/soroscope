@@ -8,13 +8,7 @@ import {
 } from '../xdr/strkey';
 import type { XdrReader } from '../xdr/reader';
 import { readScError } from './scError';
-import {
-  MAX_DEPTH,
-  XdrUnsupportedError,
-  decodeWith,
-  readArray,
-  readOptional,
-} from './primitives';
+import { MAX_DEPTH, XdrUnsupportedError, decodeWith, readArray, readOptional } from './primitives';
 import type { DecodedScError } from './types';
 import { XdrDecodeError } from './types';
 
@@ -26,9 +20,7 @@ export interface ScAddress {
 }
 
 /** `ContractExecutable`: either WASM identified by hash, or the built-in Stellar Asset Contract. */
-export type ContractExecutable =
-  | { type: 'wasm'; wasmHash: string }
-  | { type: 'stellarAsset' };
+export type ContractExecutable = { type: 'wasm'; wasmHash: string } | { type: 'stellarAsset' };
 
 export interface ScMapEntry {
   key: ScVal;
@@ -104,8 +96,12 @@ export function readScAddress(reader: XdrReader): ScAddress {
     }
     case 3: {
       const idType = reader.readEnum();
-      if (idType !== 0) throw new XdrUnsupportedError(`ClaimableBalanceIDType(${idType})`, reader.position);
-      return { type: 'claimableBalance', address: encodeClaimableBalanceId(reader.readFixedOpaque(32)) };
+      if (idType !== 0)
+        throw new XdrUnsupportedError(`ClaimableBalanceIDType(${idType})`, reader.position);
+      return {
+        type: 'claimableBalance',
+        address: encodeClaimableBalanceId(reader.readFixedOpaque(32)),
+      };
     }
     case 4:
       return { type: 'liquidityPool', address: encodeLiquidityPoolId(reader.readFixedOpaque(32)) };
@@ -244,7 +240,11 @@ export function scValToJs(v: ScVal): unknown {
     case 'void':
       return null;
     case 'error':
-      return { error: v.error.isContractError ? `Contract(#${v.error.contractCode})` : `${v.error.type}:${String(v.error.code)}` };
+      return {
+        error: v.error.isContractError
+          ? `Contract(#${v.error.contractCode})`
+          : `${v.error.type}:${String(v.error.code)}`,
+      };
     case 'u64':
     case 'i64':
     case 'timepoint':
@@ -274,9 +274,7 @@ export function scValToJs(v: ScVal): unknown {
       return {
         executable: v.executable.type === 'wasm' ? { wasm: v.executable.wasmHash } : 'stellarAsset',
         storage:
-          v.storage === null
-            ? null
-            : v.storage.map((e) => [scValToJs(e.key), scValToJs(e.val)]),
+          v.storage === null ? null : v.storage.map((e) => [scValToJs(e.key), scValToJs(e.val)]),
       };
     case 'ledgerKeyContractInstance':
       return 'ledgerKeyContractInstance';

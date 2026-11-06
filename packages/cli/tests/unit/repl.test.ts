@@ -9,7 +9,12 @@ describe('soroscope dev: parseReplLine', () => {
       args: { to: 'me', amount: 1000 },
       commit: true,
     });
-    expect(parseReplLine('  put key=k val="42"  ')).toEqual({ kind: 'call', fn: 'put', args: { key: 'k', val: '42' }, commit: true });
+    expect(parseReplLine('  put key=k val="42"  ')).toEqual({
+      kind: 'call',
+      fn: 'put',
+      args: { key: 'k', val: '42' },
+      commit: true,
+    });
   });
 
   it('keeps quoted strings and bracketed JSON together', () => {
@@ -22,12 +27,25 @@ describe('soroscope dev: parseReplLine', () => {
   });
 
   it('treats a leading ? as simulate-only', () => {
-    expect(parseReplLine('?balance who=me')).toEqual({ kind: 'call', fn: 'balance', args: { who: 'me' }, commit: false });
+    expect(parseReplLine('?balance who=me')).toEqual({
+      kind: 'call',
+      fn: 'balance',
+      args: { who: 'me' },
+      commit: false,
+    });
   });
 
   it('parses dot commands and empty lines', () => {
-    expect(parseReplLine('.advance 10')).toEqual({ kind: 'command', name: 'advance', rest: ['10'] });
-    expect(parseReplLine('.gen out.ts')).toEqual({ kind: 'command', name: 'gen', rest: ['out.ts'] });
+    expect(parseReplLine('.advance 10')).toEqual({
+      kind: 'command',
+      name: 'advance',
+      rest: ['10'],
+    });
+    expect(parseReplLine('.gen out.ts')).toEqual({
+      kind: 'command',
+      name: 'gen',
+      rest: ['out.ts'],
+    });
     expect(parseReplLine('   ')).toEqual({ kind: 'empty' });
   });
 
@@ -40,9 +58,24 @@ describe('soroscope dev: parseReplLine', () => {
 
 describe('soroscope dev: companion contracts', () => {
   it('addresses a companion contract as name.fn, for calls and simulations', () => {
-    expect(parseReplLine('token.balance who=me')).toEqual({ kind: 'call', fn: 'balance', args: { who: 'me' }, commit: true, contract: 'token' });
-    expect(parseReplLine('?token.balance who=me')).toEqual({ kind: 'call', fn: 'balance', args: { who: 'me' }, commit: false, contract: 'token' });
-    expect(parseReplLine('my-token.mint to=me amount=5')).toMatchObject({ contract: 'my-token', fn: 'mint' });
+    expect(parseReplLine('token.balance who=me')).toEqual({
+      kind: 'call',
+      fn: 'balance',
+      args: { who: 'me' },
+      commit: true,
+      contract: 'token',
+    });
+    expect(parseReplLine('?token.balance who=me')).toEqual({
+      kind: 'call',
+      fn: 'balance',
+      args: { who: 'me' },
+      commit: false,
+      contract: 'token',
+    });
+    expect(parseReplLine('my-token.mint to=me amount=5')).toMatchObject({
+      contract: 'my-token',
+      fn: 'mint',
+    });
   });
 
   it('rejects a malformed name.fn', () => {

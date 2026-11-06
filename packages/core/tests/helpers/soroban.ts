@@ -34,7 +34,13 @@ export interface ContractSample {
 }
 
 export interface SorobanFixture {
-  provenance: { tool: string; recordedAt: string; stellarCli: string; nativeAssetContract: string; latestLedger: number };
+  provenance: {
+    tool: string;
+    recordedAt: string;
+    stellarCli: string;
+    nativeAssetContract: string;
+    latestLedger: number;
+  };
   simulations: SimulationSample[];
   contracts: ContractSample[];
   items: XdrItem[];

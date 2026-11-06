@@ -39,7 +39,8 @@ describe('DevLoop (real builds)', () => {
   };
 
   beforeAll(async () => {
-    for (const f of ['Cargo.toml', 'Cargo.lock', 'src']) cpSync(resolve(FIXTURE, f), resolve(dir, f), { recursive: true });
+    for (const f of ['Cargo.toml', 'Cargo.lock', 'src'])
+      cpSync(resolve(FIXTURE, f), resolve(dir, f), { recursive: true });
     await loop.start();
   }, 900_000);
 
@@ -57,7 +58,10 @@ describe('DevLoop (real builds)', () => {
 
   it('rebuilds on save and swaps the code in place, keeping storage', async () => {
     const swapped = next((e) => e.type === 'reloaded' || e.type === 'build-failed');
-    edit('    pub fn work(', '    pub fn hello(_env: Env) -> u32 {\n        7\n    }\n\n    pub fn work(');
+    edit(
+      '    pub fn work(',
+      '    pub fn hello(_env: Env) -> u32 {\n        7\n    }\n\n    pub fn work(',
+    );
     const e = await swapped;
     expect(e.type).toBe('reloaded');
     if (e.type !== 'reloaded') return;
@@ -78,7 +82,11 @@ describe('DevLoop (real builds)', () => {
     const fixed = next((x) => x.type === 'reloaded' || x.type === 'build-failed');
     edit('        7 +\n', '        8\n');
     const ok = await fixed;
-    expect(ok.type === 'reloaded' && ok.result.diff).toEqual({ added: [], removed: [], changed: [] });
+    expect(ok.type === 'reloaded' && ok.result.diff).toEqual({
+      added: [],
+      removed: [],
+      changed: [],
+    });
     expect(session.call('hello').value).toBe(8);
   }, 300_000);
 });

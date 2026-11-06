@@ -31,7 +31,8 @@ async function prepare(
     .setTimeout(300)
     .build();
   const { raw, report } = await simulateRaw(rpc, unsigned.toXDR());
-  if (!report.ok) throw new SubmissionError(`Simulation failed: ${report.error ?? 'unknown error'}`, null);
+  if (!report.ok)
+    throw new SubmissionError(`Simulation failed: ${report.error ?? 'unknown error'}`, null);
   return { tx: assembleTransaction(unsigned, raw), returnValue: report.returnValue };
 }
 
@@ -44,7 +45,12 @@ export async function deployWasm(options: DeployOptions): Promise<DeployedContra
   const wasm = Buffer.from(options.wasm);
   const wasmHash = createHash('sha256').update(wasm).digest();
 
-  const upload = await prepare(rpc, (b) => b.addOperation(Operation.uploadContractWasm({ wasm })), signer, networkPassphrase);
+  const upload = await prepare(
+    rpc,
+    (b) => b.addOperation(Operation.uploadContractWasm({ wasm })),
+    signer,
+    networkPassphrase,
+  );
   await signAndSend(rpc, upload.tx, signer);
 
   const create = await prepare(
@@ -77,7 +83,14 @@ export interface SendInvocationOptions {
 }
 
 /** Simulate, assemble, sign and submit one contract call. For test networks. */
-export async function sendInvocation(options: SendInvocationOptions): Promise<SubmittedTransaction> {
-  const { tx } = await prepare(options.rpc, options.build, options.signer, options.networkPassphrase);
+export async function sendInvocation(
+  options: SendInvocationOptions,
+): Promise<SubmittedTransaction> {
+  const { tx } = await prepare(
+    options.rpc,
+    options.build,
+    options.signer,
+    options.networkPassphrase,
+  );
   return signAndSend(options.rpc, tx, options.signer);
 }

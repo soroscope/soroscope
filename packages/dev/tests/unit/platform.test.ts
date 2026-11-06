@@ -12,12 +12,16 @@ interface PlatformEntry {
   runner: string;
   library: string;
 }
-const platforms = JSON.parse(readFileSync(resolve(__dirname, '../../engine/platforms.json'), 'utf8')) as PlatformEntry[];
+const platforms = JSON.parse(
+  readFileSync(resolve(__dirname, '../../engine/platforms.json'), 'utf8'),
+) as PlatformEntry[];
 
 describe('engine platforms', () => {
   it('maps every released platform to its package, and nothing else', () => {
     for (const p of platforms) {
-      expect(enginePackageFor({ platform: p.os, arch: p.cpu, libc: p.libc }), p.package).toBe(p.package);
+      expect(enginePackageFor({ platform: p.os, arch: p.cpu, libc: p.libc }), p.package).toBe(
+        p.package,
+      );
     }
     expect(Object.values(ENGINE_PACKAGES).sort()).toEqual(platforms.map((p) => p.package).sort());
   });
@@ -33,6 +37,8 @@ describe('engine platforms', () => {
   });
 
   it('assumes glibc on Linux when it cannot tell', () => {
-    expect(enginePackageFor({ platform: 'linux', arch: 'x64' })).toBe('@soroscope/dev-linux-x64-gnu');
+    expect(enginePackageFor({ platform: 'linux', arch: 'x64' })).toBe(
+      '@soroscope/dev-linux-x64-gnu',
+    );
   });
 });

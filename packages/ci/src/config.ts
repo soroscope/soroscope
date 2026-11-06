@@ -15,7 +15,9 @@ const threshold = z
   })
   .strict();
 
-const typedArg = z.object({ type: z.string(), value: z.union([z.string(), z.number(), z.boolean()]) }).strict();
+const typedArg = z
+  .object({ type: z.string(), value: z.union([z.string(), z.number(), z.boolean()]) })
+  .strict();
 
 /** Arguments: named (needs the contract spec) or an ordered list of typed values. */
 const args = z.union([z.record(z.string(), z.unknown()), z.array(typedArg)]);
@@ -141,7 +143,9 @@ export function parseConfig(input: unknown): SoroscopeConfig {
   const names = config.invocations.map((i) => i.name);
   const dup = names.find((n, i) => names.indexOf(n) !== i);
   if (dup !== undefined) {
-    throw new ConfigError('soroscope.config.json is invalid:', [`invocation name "${dup}" is used twice`]);
+    throw new ConfigError('soroscope.config.json is invalid:', [
+      `invocation name "${dup}" is used twice`,
+    ]);
   }
   return config;
 }
@@ -161,13 +165,17 @@ export function loadConfig(path: string): LoadedConfig {
   try {
     raw = readFileSync(abs, 'utf8');
   } catch (err) {
-    throw new ConfigError(`Cannot read ${abs}:`, [err instanceof Error ? err.message : String(err)]);
+    throw new ConfigError(`Cannot read ${abs}:`, [
+      err instanceof Error ? err.message : String(err),
+    ]);
   }
   let json: unknown;
   try {
     json = JSON.parse(raw);
   } catch (err) {
-    throw new ConfigError(`${abs} is not valid JSON:`, [err instanceof Error ? err.message : String(err)]);
+    throw new ConfigError(`${abs} is not valid JSON:`, [
+      err instanceof Error ? err.message : String(err),
+    ]);
   }
   return { config: parseConfig(json), path: abs, dir: dirname(abs) };
 }

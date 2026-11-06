@@ -3,8 +3,21 @@ import { Address, contract, nativeToScVal, xdr } from '@stellar/stellar-sdk';
 /** An argument with its Soroban type spelled out, for contracts that have no spec (the Stellar Asset Contract). */
 export interface TypedArg {
   type:
-    | 'bool' | 'u32' | 'i32' | 'u64' | 'i64' | 'u128' | 'i128' | 'u256' | 'i256'
-    | 'string' | 'symbol' | 'address' | 'bytes' | 'timepoint' | 'duration';
+    | 'bool'
+    | 'u32'
+    | 'i32'
+    | 'u64'
+    | 'i64'
+    | 'u128'
+    | 'i128'
+    | 'u256'
+    | 'i256'
+    | 'string'
+    | 'symbol'
+    | 'address'
+    | 'bytes'
+    | 'timepoint'
+    | 'duration';
   /** The value; integers wider than 32 bits are decimal strings, bytes are hex. */
   value: string | number | boolean;
 }

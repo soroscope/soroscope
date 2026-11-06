@@ -14,12 +14,24 @@ export {
   supportedProtocols,
   loadNativeEngine,
 } from './engine';
-export type { NetworkConfigSnapshot, LiveLedgerEntry, LocalCallResult, DeployedLocalContract, SwapResult } from './engine';
+export type {
+  NetworkConfigSnapshot,
+  LiveLedgerEntry,
+  LocalCallResult,
+  DeployedLocalContract,
+  SwapResult,
+} from './engine';
 
 export { DevSession } from './session';
 export type { ReloadResult, CallOutcome } from './session';
 
-export { ContractInterface, NoEmbeddedSpecError, diffInterfaces, signature, typeName } from './spec';
+export {
+  ContractInterface,
+  NoEmbeddedSpecError,
+  diffInterfaces,
+  signature,
+  typeName,
+} from './spec';
 export type { NamedEvent, InterfaceDiff } from './spec';
 
 export { DevLoop } from './loop';

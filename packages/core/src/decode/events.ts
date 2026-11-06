@@ -25,8 +25,11 @@ export function readContractEvent(reader: XdrReader): ContractEvent {
   if (extV !== 0) throw new XdrUnsupportedError(`ExtensionPoint(${extV})`, reader.position);
   const contractId = readOptional(reader, () => encodeContractId(reader.readFixedOpaque(32)));
   const typeNum = reader.readEnum();
-  const type: ContractEventType | undefined = (['system', 'contract', 'diagnostic'] as const)[typeNum];
-  if (type === undefined) throw new XdrUnsupportedError(`ContractEventType(${typeNum})`, reader.position);
+  const type: ContractEventType | undefined = (['system', 'contract', 'diagnostic'] as const)[
+    typeNum
+  ];
+  if (type === undefined)
+    throw new XdrUnsupportedError(`ContractEventType(${typeNum})`, reader.position);
   const bodyV = reader.readEnum();
   if (bodyV !== 0) throw new XdrUnsupportedError(`ContractEventBody(${bodyV})`, reader.position);
   const topics = readArray(reader, () => readScVal(reader));

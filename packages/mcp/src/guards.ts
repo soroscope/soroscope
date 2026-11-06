@@ -63,7 +63,13 @@ function ipIsPrivate(ip: string): boolean {
   const lower = ip.toLowerCase();
   const mapped = /^::ffff:(\d+\.\d+\.\d+\.\d+)$/.exec(lower);
   if (mapped?.[1] !== undefined) return ipv4IsPrivate(mapped[1]);
-  return lower === '::1' || lower === '::' || lower.startsWith('fc') || lower.startsWith('fd') || lower.startsWith('fe80');
+  return (
+    lower === '::1' ||
+    lower === '::' ||
+    lower.startsWith('fc') ||
+    lower.startsWith('fd') ||
+    lower.startsWith('fe80')
+  );
 }
 
 /**
@@ -79,12 +85,19 @@ export async function assertPublicHttpsUrl(raw: string): Promise<void> {
     throw new Error(`"${raw}" is not a valid URL.`);
   }
   if (url.protocol !== 'https:') throw new Error('Custom RPC URLs must use https.');
-  if (url.username !== '' || url.password !== '') throw new Error('Custom RPC URLs must not embed credentials.');
+  if (url.username !== '' || url.password !== '')
+    throw new Error('Custom RPC URLs must not embed credentials.');
   const host = url.hostname.replace(/^\[|\]$/g, '');
-  if (host === 'localhost' || host.endsWith('.localhost') || host.endsWith('.local') || host.endsWith('.internal')) {
+  if (
+    host === 'localhost' ||
+    host.endsWith('.localhost') ||
+    host.endsWith('.local') ||
+    host.endsWith('.internal')
+  ) {
     throw new Error('Custom RPC URLs must not point at a local or internal host.');
   }
-  const addresses = isIP(host) === 0 ? (await lookup(host, { all: true })).map((a) => a.address) : [host];
+  const addresses =
+    isIP(host) === 0 ? (await lookup(host, { all: true })).map((a) => a.address) : [host];
   if (addresses.length === 0 || addresses.some(ipIsPrivate)) {
     throw new Error('Custom RPC URLs must resolve only to public addresses.');
   }

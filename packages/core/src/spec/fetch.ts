@@ -76,7 +76,10 @@ export interface ContractCode {
  * gives the WASM hash, the hash gives the WASM.
  * @throws {ContractNotFoundError} If the instance or its code is not on the ledger.
  */
-export async function fetchContractCode(caller: RpcCaller, contractId: string): Promise<ContractCode> {
+export async function fetchContractCode(
+  caller: RpcCaller,
+  contractId: string,
+): Promise<ContractCode> {
   const instanceXdr = await readEntry(caller, contractInstanceKey(contractId));
   if (instanceXdr === null) throw new ContractNotFoundError(contractId, 'The contract instance');
   const instance = decodeLedgerEntryData(instanceXdr);
@@ -85,7 +88,10 @@ export async function fetchContractCode(caller: RpcCaller, contractId: string): 
   }
   const exe = instance.val.executable;
   if (exe.type === 'stellarAsset') return { source: { kind: 'stellarAsset' }, wasm: null };
-  return { source: { kind: 'wasm', wasmHash: exe.wasmHash }, wasm: await fetchWasm(caller, exe.wasmHash) };
+  return {
+    source: { kind: 'wasm', wasmHash: exe.wasmHash },
+    wasm: await fetchWasm(caller, exe.wasmHash),
+  };
 }
 
 /**
@@ -93,7 +99,10 @@ export async function fetchContractCode(caller: RpcCaller, contractId: string): 
  * no WASM and yield an empty spec.
  * @throws {ContractNotFoundError} If the instance or its code is not on the ledger.
  */
-export async function fetchContractSpec(caller: RpcCaller, contractId: string): Promise<ContractSpec> {
+export async function fetchContractSpec(
+  caller: RpcCaller,
+  contractId: string,
+): Promise<ContractSpec> {
   const { source, wasm } = await fetchContractCode(caller, contractId);
   if (wasm === null) return ContractSpec.empty(source);
   const parsed = parseWasm(wasm);

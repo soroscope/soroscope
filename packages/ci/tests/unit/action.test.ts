@@ -16,12 +16,24 @@ describe('Action inputs', () => {
   });
 
   it('read GitHub-style INPUT_ variables, dashes kept', () => {
-    const i = readInputs({ INPUT_CONFIG: 'x.json', 'INPUT_UPDATE-BASELINE': 'true', 'INPUT_FAIL-ON': 'warning', 'INPUT_GITHUB-TOKEN': ' t ' });
-    expect(i).toMatchObject({ config: 'x.json', updateBaseline: true, failOn: 'warning', githubToken: 't' });
+    const i = readInputs({
+      INPUT_CONFIG: 'x.json',
+      'INPUT_UPDATE-BASELINE': 'true',
+      'INPUT_FAIL-ON': 'warning',
+      'INPUT_GITHUB-TOKEN': ' t ',
+    });
+    expect(i).toMatchObject({
+      config: 'x.json',
+      updateBaseline: true,
+      failOn: 'warning',
+      githubToken: 't',
+    });
   });
 
   it('reject an unknown fail-on value', () => {
-    expect(() => readInputs({ 'INPUT_FAIL-ON': 'sometimes' })).toThrow(/regression, warning or never/);
+    expect(() => readInputs({ 'INPUT_FAIL-ON': 'sometimes' })).toThrow(
+      /regression, warning or never/,
+    );
   });
 });
 
@@ -30,10 +42,25 @@ describe('annotations', () => {
     const REAL = realMeasurement();
     const cfg = parseConfig({
       version: 1,
-      invocations: [{ name: 'multi\nline', contractId: 'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC', function: 'transfer' }],
+      invocations: [
+        {
+          name: 'multi\nline',
+          contractId: 'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC',
+          function: 'transfer',
+        },
+      ],
     });
-    const base = { version: 1 as const, generatedAt: '', tool: '', environment: { network: 'testnet', protocolVersion: 29 }, entries: { 'multi\nline': { ...REAL, function: 'transfer' } } };
-    const grown = withMetrics(REAL, { instructions: grow(REAL.metrics!.instructions, 50), resourceFee: grow(REAL.metrics!.resourceFee, 50) });
+    const base = {
+      version: 1 as const,
+      generatedAt: '',
+      tool: '',
+      environment: { network: 'testnet', protocolVersion: 29 },
+      entries: { 'multi\nline': { ...REAL, function: 'transfer' } },
+    };
+    const grown = withMetrics(REAL, {
+      instructions: grow(REAL.metrics!.instructions, 50),
+      resourceFee: grow(REAL.metrics!.resourceFee, 50),
+    });
     const report = compareAll({
       config: cfg,
       measurements: { 'multi\nline': { function: 'transfer', measurement: grown } },

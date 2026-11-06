@@ -24,13 +24,18 @@ export const ENGINE_BINARY = 'soroscope-engine.node';
 
 export function detectLibc(): 'glibc' | 'musl' | undefined {
   if (process.platform !== 'linux') return undefined;
-  const header = (process.report?.getReport() as { header?: { glibcVersionRuntime?: string } } | undefined)?.header;
+  const header = (
+    process.report?.getReport() as { header?: { glibcVersionRuntime?: string } } | undefined
+  )?.header;
   if (header === undefined) return undefined;
   return header.glibcVersionRuntime === undefined ? 'musl' : 'glibc';
 }
 
 /** The package that holds the engine for `info`, or `undefined` when none is published for it. */
 export function enginePackageFor(info: PlatformInfo): string | undefined {
-  const key = info.platform === 'linux' ? `linux-${info.arch}-${info.libc ?? 'glibc'}` : `${info.platform}-${info.arch}`;
+  const key =
+    info.platform === 'linux'
+      ? `linux-${info.arch}-${info.libc ?? 'glibc'}`
+      : `${info.platform}-${info.arch}`;
   return ENGINE_PACKAGES[key];
 }

@@ -38,11 +38,7 @@ export type {
   PerProviderResult,
   RouteExplanation,
 } from './routing/SoroscopeRouter';
-export {
-  PUBLIC_PROVIDERS,
-  NETWORK_PASSPHRASES,
-  publicProviderUrls,
-} from './routing/catalog';
+export { PUBLIC_PROVIDERS, NETWORK_PASSPHRASES, publicProviderUrls } from './routing/catalog';
 export type { NetworkId, CatalogEntry } from './routing/catalog';
 
 // Probing

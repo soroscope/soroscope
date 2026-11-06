@@ -47,11 +47,13 @@ function customSections(wasm: Uint8Array): { name: string; data: Uint8Array }[] 
     const size = readLeb128(wasm, pos + 1);
     const start = size.next;
     const end = start + size.value;
-    if (end > wasm.length) throw new XdrDecodeError('WASM section extends past the end of the file', pos);
+    if (end > wasm.length)
+      throw new XdrDecodeError('WASM section extends past the end of the file', pos);
     if (id === 0) {
       const nameLen = readLeb128(wasm, start);
       const nameEnd = nameLen.next + nameLen.value;
-      if (nameEnd > end) throw new XdrDecodeError('WASM custom section name overruns its section', start);
+      if (nameEnd > end)
+        throw new XdrDecodeError('WASM custom section name overruns its section', start);
       out.push({
         name: new TextDecoder().decode(wasm.subarray(nameLen.next, nameEnd)),
         data: wasm.subarray(nameEnd, end),

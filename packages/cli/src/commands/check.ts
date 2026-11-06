@@ -32,7 +32,10 @@ export async function runCheck(opts: CheckOptions, io: Io): Promise<ExitCodeValu
   if (opts.deployerSecretEnv !== undefined) {
     deployerSecret = process.env[opts.deployerSecretEnv];
     if (deployerSecret === undefined || deployerSecret === '') {
-      throw new CliError(`Environment variable ${opts.deployerSecretEnv} is not set.`, ExitCode.Usage);
+      throw new CliError(
+        `Environment variable ${opts.deployerSecretEnv} is not set.`,
+        ExitCode.Usage,
+      );
     }
   }
   const result = await runChecks({

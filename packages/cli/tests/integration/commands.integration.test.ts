@@ -30,13 +30,19 @@ async function soroscope(...args: string[]): Promise<Result> {
     return { code: 0, stdout, stderr };
   } catch (err) {
     const e = err as { code?: number; stdout?: string; stderr?: string };
-    return { code: typeof e.code === 'number' ? e.code : 1, stdout: e.stdout ?? '', stderr: e.stderr ?? '' };
+    return {
+      code: typeof e.code === 'number' ? e.code : 1,
+      stdout: e.stdout ?? '',
+      stderr: e.stderr ?? '',
+    };
   }
 }
 
 describe('soroscope decode (real XDR captured from testnet)', () => {
   it('decodes a real ScVal to the same value the stellar CLI reports', async () => {
-    const item = XDR.items.find((i) => i.type === 'ScVal' && JSON.stringify(i.oracle).startsWith('{"u32"'))!;
+    const item = XDR.items.find(
+      (i) => i.type === 'ScVal' && JSON.stringify(i.oracle).startsWith('{"u32"'),
+    )!;
     const r = await soroscope('decode', 'ScVal', item.b64);
     expect(r.code).toBe(0);
     const out = JSON.parse(r.stdout) as { type: string; value: number };
@@ -45,13 +51,19 @@ describe('soroscope decode (real XDR captured from testnet)', () => {
   });
 
   it('--plain prints ordinary JSON', async () => {
-    const item = XDR.items.find((i) => i.type === 'ScVal' && JSON.stringify(i.oracle).startsWith('{"string"'))!;
+    const item = XDR.items.find(
+      (i) => i.type === 'ScVal' && JSON.stringify(i.oracle).startsWith('{"string"'),
+    )!;
     const r = await soroscope('decode', 'ScVal', item.b64, '--plain');
     expect(JSON.parse(r.stdout)).toBe((item.oracle as { string: string }).string);
   });
 
   it('decodes a real diagnostic event, with contract ids as C... strings', async () => {
-    const item = XDR.items.find((i) => i.type === 'DiagnosticEvent' && (i.oracle as { event: { contract_id: string | null } }).event.contract_id !== null)!;
+    const item = XDR.items.find(
+      (i) =>
+        i.type === 'DiagnosticEvent' &&
+        (i.oracle as { event: { contract_id: string | null } }).event.contract_id !== null,
+    )!;
     const r = await soroscope('decode', 'DiagnosticEvent', item.b64);
     expect(r.code).toBe(0);
     expect((JSON.parse(r.stdout) as { event: { contractId: string } }).event.contractId).toBe(
@@ -67,7 +79,10 @@ describe('soroscope decode (real XDR captured from testnet)', () => {
   });
 
   it('explains a real failed transaction result', async () => {
-    const item = XDR.items.find((i) => i.type === 'TransactionResult' && 'tx_failed' in (i.oracle as { result: object }).result)!;
+    const item = XDR.items.find(
+      (i) =>
+        i.type === 'TransactionResult' && 'tx_failed' in (i.oracle as { result: object }).result,
+    )!;
     const r = await soroscope('explain', item.b64);
     expect(r.code).toBe(0);
     expect(r.stdout).toMatch(/^txFAILED/);
@@ -95,20 +110,44 @@ describe('soroscope spec', () => {
 
 describe('soroscope simulate', () => {
   it('succeeds and prints the return value', async () => {
-    const r = await soroscope('simulate', '--contract', FIXTURE.contractId, '--fn', 'work', '--args', '{"n":10}');
+    const r = await soroscope(
+      'simulate',
+      '--contract',
+      FIXTURE.contractId,
+      '--fn',
+      'work',
+      '--args',
+      '{"n":10}',
+    );
     expect(r.code).toBe(0);
     expect(r.stdout).toContain('Simulation succeeded');
     expect(r.stdout).toMatch(/return: u64\(/);
   });
 
   it('names a contract error from the spec and exits 1', async () => {
-    const r = await soroscope('simulate', '--contract', FIXTURE.contractId, '--fn', 'fail_with', '--args', '{"code":2}');
+    const r = await soroscope(
+      'simulate',
+      '--contract',
+      FIXTURE.contractId,
+      '--fn',
+      'fail_with',
+      '--args',
+      '{"code":2}',
+    );
     expect(r.code).toBe(1);
     expect(r.stdout).toContain('Error::InsufficientFunds');
   });
 
   it('exits 2 for an unknown function', async () => {
-    const r = await soroscope('simulate', '--contract', FIXTURE.contractId, '--fn', 'nope', '--args', '{}');
+    const r = await soroscope(
+      'simulate',
+      '--contract',
+      FIXTURE.contractId,
+      '--fn',
+      'nope',
+      '--args',
+      '{}',
+    );
     expect(r.code).toBe(2);
     expect(r.stderr).toContain('no function named');
   });
@@ -129,7 +168,9 @@ describe('soroscope check', () => {
       path,
       JSON.stringify({
         version: 1,
-        invocations: [{ name: 'work', contractId: FIXTURE.contractId, function: 'work', args: { n } }],
+        invocations: [
+          { name: 'work', contractId: FIXTURE.contractId, function: 'work', args: { n } },
+        ],
       }),
     );
     return path;

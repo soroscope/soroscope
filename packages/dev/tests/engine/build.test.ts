@@ -8,7 +8,8 @@ const FIXTURE = resolve(__dirname, '../../../test-utils/fixture-contract');
 
 describe('resolveProject', () => {
   const real = mkdtempSync(resolve(tmpdir(), 'soroscope-project-'));
-  for (const f of ['Cargo.toml', 'Cargo.lock', 'src']) cpSync(resolve(FIXTURE, f), resolve(real, f), { recursive: true });
+  for (const f of ['Cargo.toml', 'Cargo.lock', 'src'])
+    cpSync(resolve(FIXTURE, f), resolve(real, f), { recursive: true });
 
   it('finds the crate in a directory', async () => {
     const project = await resolveProject(real);

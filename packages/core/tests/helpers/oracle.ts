@@ -62,7 +62,10 @@ export function scValOracle(v: ScVal): Json {
     case 'contractInstance':
       return {
         contract_instance: {
-          executable: v.executable.type === 'stellarAsset' ? 'stellar_asset' : { wasm: v.executable.wasmHash },
+          executable:
+            v.executable.type === 'stellarAsset'
+              ? 'stellar_asset'
+              : { wasm: v.executable.wasmHash },
           storage:
             v.storage === null
               ? null
@@ -134,7 +137,10 @@ function fnOracle(f: AuthorizedFunction): Json {
 }
 
 function invocationOracle(i: AuthorizedInvocation): Json {
-  return { function: fnOracle(i.function), sub_invocations: i.subInvocations.map(invocationOracle) };
+  return {
+    function: fnOracle(i.function),
+    sub_invocations: i.subInvocations.map(invocationOracle),
+  };
 }
 
 export function authEntryOracle(a: AuthEntry): Json {
@@ -224,7 +230,11 @@ export function specEntryOracle(e: SpecEntry): Json {
         function_v0: {
           doc: cliEscape(e.doc),
           name: e.name,
-          inputs: e.inputs.map((i) => ({ doc: cliEscape(i.doc), name: i.name, type_: specTypeOracle(i.type) })),
+          inputs: e.inputs.map((i) => ({
+            doc: cliEscape(i.doc),
+            name: i.name,
+            type_: specTypeOracle(i.type),
+          })),
           outputs: e.outputs.map(specTypeOracle),
         },
       };
@@ -234,7 +244,11 @@ export function specEntryOracle(e: SpecEntry): Json {
           doc: cliEscape(e.doc),
           lib: e.lib,
           name: e.name,
-          fields: e.fields.map((f) => ({ doc: cliEscape(f.doc), name: f.name, type_: specTypeOracle(f.type) })),
+          fields: e.fields.map((f) => ({
+            doc: cliEscape(f.doc),
+            name: f.name,
+            type_: specTypeOracle(f.type),
+          })),
         },
       };
     case 'union':
@@ -246,7 +260,13 @@ export function specEntryOracle(e: SpecEntry): Json {
           cases: e.cases.map((c) =>
             c.types.length === 0
               ? { void_v0: { doc: cliEscape(c.doc), name: c.name } }
-              : { tuple_v0: { doc: cliEscape(c.doc), name: c.name, type_: c.types.map(specTypeOracle) } },
+              : {
+                  tuple_v0: {
+                    doc: cliEscape(c.doc),
+                    name: c.name,
+                    type_: c.types.map(specTypeOracle),
+                  },
+                },
           ),
         },
       };

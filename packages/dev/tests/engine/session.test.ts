@@ -9,7 +9,9 @@ describe('ContractInterface (Orbital spec parsing)', () => {
 
   it("reads the contract's functions with their parameter and return types", () => {
     const sigs = iface.functions.map(signature);
-    expect(sigs).toContain('move_funds(from: address, to: address, amount: i128) -> result<void, error>');
+    expect(sigs).toContain(
+      'move_funds(from: address, to: address, amount: i128) -> result<void, error>',
+    );
     expect(sigs).toContain('work(n: u32) -> u64');
     expect(sigs).toContain('boom()');
   });
@@ -21,20 +23,26 @@ describe('ContractInterface (Orbital spec parsing)', () => {
   it('encodes named arguments by the declared types and rejects ones that do not fit', () => {
     expect(iface.encodeArgs('put', { key: 'k', val: '42' })).toHaveLength(2);
     expect(() => iface.encodeArgs('put', { key: 'k' })).toThrow(/missing val/);
-    expect(() => iface.encodeArgs('put', { key: 'k', val: 1, extra: 2 })).toThrow(/no parameter named extra/);
+    expect(() => iface.encodeArgs('put', { key: 'k', val: 1, extra: 2 })).toThrow(
+      /no parameter named extra/,
+    );
     expect(() => iface.encodeArgs('nope', {})).toThrow(/has no function "nope"/);
   });
 
   it('generates TypeScript with Orbital codegen', () => {
     const a = iface.generateTypes('fixture');
-    expect(a.declarations).toMatch(/export interface MoveFundsParams \{\n\s+from: string;\n\s+to: string;\n\s+amount: string;/);
+    expect(a.declarations).toMatch(
+      /export interface MoveFundsParams \{\n\s+from: string;\n\s+to: string;\n\s+amount: string;/,
+    );
     expect(a.schemas).toContain('z.');
     expect(a.guards).toMatch(/Moved/);
   });
 
   it('refuses WASM with no embedded spec', () => {
     // The smallest valid WASM module: magic and version, no sections.
-    expect(() => ContractInterface.fromWasm(new Uint8Array([0, 0x61, 0x73, 0x6d, 1, 0, 0, 0]))).toThrow(NoEmbeddedSpecError);
+    expect(() =>
+      ContractInterface.fromWasm(new Uint8Array([0, 0x61, 0x73, 0x6d, 1, 0, 0, 0])),
+    ).toThrow(NoEmbeddedSpecError);
   });
 });
 
@@ -68,7 +76,9 @@ describe('DevSession', () => {
     s.call('mint', { to: 'me', amount: '500' });
     const r = s.call('move_funds', { from: 'me', to: OTHER, amount: '200' });
     expect(r.report.ok).toBe(true);
-    expect(r.events).toEqual([{ name: 'Moved', fields: { from: s.network.sourceAccount, to: OTHER, amount: '200' } }]);
+    expect(r.events).toEqual([
+      { name: 'Moved', fields: { from: s.network.sourceAccount, to: OTHER, amount: '200' } },
+    ]);
     expect(r.cpuInstructions).toBeGreaterThan(0);
     expect(r.report.minResourceFee).toBeGreaterThan(0n);
 
@@ -85,7 +95,11 @@ describe('DevSession', () => {
     expect(r.committed).toBe(false);
     expect(r.report.failure?.error.contractCode).toBe(3);
     expect(r.summary).toMatch(/Error\(Contract, #3\)/);
-    expect(r.errorCase).toEqual({ code: 3, name: 'Unauthorized', doc: 'The caller is not allowed to do that.' });
+    expect(r.errorCase).toEqual({
+      code: 3,
+      name: 'Unauthorized',
+      doc: 'The caller is not allowed to do that.',
+    });
   });
 
   it('needs a build before calls', () => {
@@ -121,7 +135,9 @@ describe('companion contracts (several contracts in one session)', () => {
     const s = make();
     s.addContract('other', v1Wasm);
     expect(() => s.addContract('other', v1Wasm)).toThrow(/already in this session/);
-    expect(() => s.call('get', { key: 'k' }, { contract: 'nope' })).toThrow(/No contract named "nope".*other/);
+    expect(() => s.call('get', { key: 'k' }, { contract: 'nope' })).toThrow(
+      /No contract named "nope".*other/,
+    );
   });
 
   it('keeps a companion through a hot swap of the contract under development', () => {

@@ -49,7 +49,9 @@ export function annotations(report: CheckReport): string[] {
   for (const inv of report.invocations) {
     for (const f of inv.findings) {
       if (f.level === 'info') continue;
-      out.push(`::${f.level === 'fail' ? 'error' : 'warning'} title=Soroscope ${escapeCommand(inv.name)}::${escapeCommand(f.message)}`);
+      out.push(
+        `::${f.level === 'fail' ? 'error' : 'warning'} title=Soroscope ${escapeCommand(inv.name)}::${escapeCommand(f.message)}`,
+      );
     }
   }
   return out;
@@ -69,7 +71,10 @@ export function githubContext(env: NodeJS.ProcessEnv): GitHubContext | null {
   const eventPath = env['GITHUB_EVENT_PATH'];
   if (eventPath !== undefined) {
     try {
-      const event = JSON.parse(readFileSync(eventPath, 'utf8')) as { pull_request?: { number?: number }; number?: number };
+      const event = JSON.parse(readFileSync(eventPath, 'utf8')) as {
+        pull_request?: { number?: number };
+        number?: number;
+      };
       pullRequest = event.pull_request?.number ?? null;
     } catch {
       pullRequest = null;
@@ -106,8 +111,16 @@ export async function upsertComment(
   const comments = (await list.json()) as { id: number; body?: string }[];
   const existing = comments.find((c) => c.body?.includes(COMMENT_MARKER) === true);
   const res = existing
-    ? await fetchImpl(`${base}/comments/${existing.id}`, { method: 'PATCH', headers, body: JSON.stringify({ body }) })
-    : await fetchImpl(`${base}/${ctx.pullRequest}/comments`, { method: 'POST', headers, body: JSON.stringify({ body }) });
+    ? await fetchImpl(`${base}/comments/${existing.id}`, {
+        method: 'PATCH',
+        headers,
+        body: JSON.stringify({ body }),
+      })
+    : await fetchImpl(`${base}/${ctx.pullRequest}/comments`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ body }),
+      });
   return res.ok;
 }
 
@@ -117,7 +130,9 @@ export async function main(env: NodeJS.ProcessEnv = process.env): Promise<number
   try {
     inputs = readInputs(env);
   } catch (err) {
-    process.stdout.write(`::error::${escapeCommand(err instanceof Error ? err.message : String(err))}\n`);
+    process.stdout.write(
+      `::error::${escapeCommand(err instanceof Error ? err.message : String(err))}\n`,
+    );
     return 1;
   }
   if (inputs.deployerSecret !== '') process.stdout.write(`::add-mask::${inputs.deployerSecret}\n`);
@@ -133,9 +148,13 @@ export async function main(env: NodeJS.ProcessEnv = process.env): Promise<number
     const { report } = result;
     const markdown = renderMarkdown(report);
 
-    const reportPath = join(env['RUNNER_TEMP'] ?? resolve(inputs.workingDirectory), 'soroscope-report.md');
+    const reportPath = join(
+      env['RUNNER_TEMP'] ?? resolve(inputs.workingDirectory),
+      'soroscope-report.md',
+    );
     writeFileSync(reportPath, markdown);
-    if (env['GITHUB_STEP_SUMMARY'] !== undefined) appendFileSync(env['GITHUB_STEP_SUMMARY'], markdown);
+    if (env['GITHUB_STEP_SUMMARY'] !== undefined)
+      appendFileSync(env['GITHUB_STEP_SUMMARY'], markdown);
     if (env['GITHUB_OUTPUT'] !== undefined) {
       appendFileSync(
         env['GITHUB_OUTPUT'],
@@ -148,10 +167,13 @@ export async function main(env: NodeJS.ProcessEnv = process.env): Promise<number
     if (inputs.comment && inputs.githubToken !== '' && ctx !== null) {
       const posted = await upsertComment(ctx, inputs.githubToken, markdown);
       if (!posted && ctx.pullRequest !== null) {
-        process.stdout.write('::notice::Could not write the PR comment (read-only token, for example on a fork). The report is in the job summary.\n');
+        process.stdout.write(
+          '::notice::Could not write the PR comment (read-only token, for example on a fork). The report is in the job summary.\n',
+        );
       }
     }
-    if (result.baselineWritten) process.stdout.write(`Baseline written to ${result.baselinePath}\n`);
+    if (result.baselineWritten)
+      process.stdout.write(`Baseline written to ${result.baselinePath}\n`);
 
     if (inputs.updateBaseline || inputs.failOn === 'never') return 0;
     if (report.result === 'fail') return 1;

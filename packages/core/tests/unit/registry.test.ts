@@ -22,7 +22,7 @@ let registry: ProviderRegistry;
 function health(url: string): Health {
   const s = samples.find((x) => x.url === url);
   if (s === undefined) throw new Error(`no captured health for ${url}`);
-  return (bodyOf(s)['result'] as Health);
+  return bodyOf(s)['result'] as Health;
 }
 
 const SDF_STYLE = 'https://rpc.lightsail.network'; // ~7 day window
@@ -187,8 +187,14 @@ describe('circuit breaker and rate limiting', () => {
 
   it('remembers unsupported methods and stops routing them there', () => {
     const id = idOf(SDF_STYLE);
-    registry.recordFailure(id, { method: 'getFeeStats', class: 'unsupported_method', message: 'method not found' });
-    expect(registry.eligible({ method: 'getFeeStats' }).eligible.map((r) => r.id)).not.toContain(id);
+    registry.recordFailure(id, {
+      method: 'getFeeStats',
+      class: 'unsupported_method',
+      message: 'method not found',
+    });
+    expect(registry.eligible({ method: 'getFeeStats' }).eligible.map((r) => r.id)).not.toContain(
+      id,
+    );
     expect(registry.eligible({ method: 'getHealth' }).eligible.map((r) => r.id)).toContain(id);
   });
 });
@@ -198,7 +204,8 @@ describe('ranking', () => {
     const fast = idOf(SDF_STYLE);
     registry.recordSuccess(fast, { method: 'getLatestLedger', latencyMs: 50 });
     for (const s of samples) {
-      if (idOf(s.url) !== fast) registry.recordSuccess(idOf(s.url), { method: 'getLatestLedger', latencyMs: 2_000 });
+      if (idOf(s.url) !== fast)
+        registry.recordSuccess(idOf(s.url), { method: 'getLatestLedger', latencyMs: 2_000 });
     }
     expect(registry.eligible({ method: 'getLatestLedger' }).eligible[0]?.id).toBe(fast);
   });

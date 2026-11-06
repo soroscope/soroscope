@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { compareAll, parseConfig, renderMarkdown, renderText, stableStringify, COMMENT_MARKER } from '../../src';
+import {
+  compareAll,
+  parseConfig,
+  renderMarkdown,
+  renderText,
+  stableStringify,
+  COMMENT_MARKER,
+} from '../../src';
 import type { Baseline, Measurement, SoroscopeConfig } from '../../src';
 import { grow, realMeasurement, withMetrics } from '../helpers';
 
@@ -9,7 +16,10 @@ const REAL = realMeasurement();
 const ENV = { network: 'testnet', protocolVersion: 29 };
 const CONTRACT = 'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC';
 
-const config = (extra: Record<string, unknown> = {}, invocation: Record<string, unknown> = {}): SoroscopeConfig =>
+const config = (
+  extra: Record<string, unknown> = {},
+  invocation: Record<string, unknown> = {},
+): SoroscopeConfig =>
   parseConfig({
     version: 1,
     invocations: [{ name: 'call', contractId: CONTRACT, function: 'transfer', ...invocation }],
@@ -25,7 +35,12 @@ const baselineOf = (m: Measurement, env = ENV): Baseline => ({
 });
 
 const run = (cfg: SoroscopeConfig, current: Measurement, base: Baseline | null, env = ENV) =>
-  compareAll({ config: cfg, measurements: { call: { function: 'transfer', measurement: current } }, baseline: base, environment: env });
+  compareAll({
+    config: cfg,
+    measurements: { call: { function: 'transfer', measurement: current } },
+    baseline: base,
+    environment: env,
+  });
 
 describe('the real measurement', () => {
   it('has resources and a footprint to compare', () => {
@@ -45,9 +60,17 @@ describe('thresholds', () => {
   });
 
   it('instructions up 4% pass, up 6% fail (default 5%)', () => {
-    const ok = run(config(), withMetrics(REAL, { instructions: grow(REAL.metrics!.instructions, 4) }), base);
+    const ok = run(
+      config(),
+      withMetrics(REAL, { instructions: grow(REAL.metrics!.instructions, 4) }),
+      base,
+    );
     expect(ok.result).toBe('pass');
-    const bad = run(config(), withMetrics(REAL, { instructions: grow(REAL.metrics!.instructions, 6) }), base);
+    const bad = run(
+      config(),
+      withMetrics(REAL, { instructions: grow(REAL.metrics!.instructions, 6) }),
+      base,
+    );
     expect(bad.result).toBe('fail');
     const f = bad.invocations[0]!.findings.find((x) => x.metric === 'instructions')!;
     expect(f.level).toBe('fail');
@@ -56,29 +79,45 @@ describe('thresholds', () => {
 
   it('a custom threshold widens the tolerance', () => {
     const cfg = config({ thresholds: { instructions: { maxIncreasePct: 20 } } });
-    expect(run(cfg, withMetrics(REAL, { instructions: grow(REAL.metrics!.instructions, 15) }), base).result).toBe('pass');
+    expect(
+      run(cfg, withMetrics(REAL, { instructions: grow(REAL.metrics!.instructions, 15) }), base)
+        .result,
+    ).toBe('pass');
   });
 
   it('an absolute allowance is added to the percentage', () => {
-    const cfg = config({ thresholds: { instructions: { maxIncreasePct: 0, maxIncreaseAbs: 1000 } } });
+    const cfg = config({
+      thresholds: { instructions: { maxIncreasePct: 0, maxIncreaseAbs: 1000 } },
+    });
     const plus = (n: number): string => (BigInt(REAL.metrics!.instructions) + BigInt(n)).toString();
     expect(run(cfg, withMetrics(REAL, { instructions: plus(1000) }), base).result).toBe('pass');
     expect(run(cfg, withMetrics(REAL, { instructions: plus(1001) }), base).result).toBe('fail');
   });
 
   it('resource fee growth only warns by default', () => {
-    const r = run(config(), withMetrics(REAL, { resourceFee: grow(REAL.metrics!.resourceFee, 30) }), base);
+    const r = run(
+      config(),
+      withMetrics(REAL, { resourceFee: grow(REAL.metrics!.resourceFee, 30) }),
+      base,
+    );
     expect(r.result).toBe('warn');
     expect(r.invocations[0]!.findings[0]!.level).toBe('warn');
   });
 
   it('a metric can be ignored entirely', () => {
     const cfg = config({ thresholds: { resourceFee: { level: 'ignore' } } });
-    expect(run(cfg, withMetrics(REAL, { resourceFee: grow(REAL.metrics!.resourceFee, 300) }), base).result).toBe('pass');
+    expect(
+      run(cfg, withMetrics(REAL, { resourceFee: grow(REAL.metrics!.resourceFee, 300) }), base)
+        .result,
+    ).toBe('pass');
   });
 
   it('a large improvement is reported as information, not a problem', () => {
-    const r = run(config(), withMetrics(REAL, { instructions: grow(REAL.metrics!.instructions, -30) }), base);
+    const r = run(
+      config(),
+      withMetrics(REAL, { instructions: grow(REAL.metrics!.instructions, -30) }),
+      base,
+    );
     expect(r.result).toBe('pass');
     expect(r.invocations[0]!.findings[0]).toMatchObject({ level: 'info', metric: 'instructions' });
   });
@@ -89,14 +128,22 @@ describe('footprint', () => {
   const extraKey = 'contractData:persistent:CEXTRA:[:Balance]';
 
   it('a new read-write ledger entry fails', () => {
-    const cur: Measurement = { ...REAL, footprint: { ...REAL.footprint!, readWrite: [...REAL.footprint!.readWrite, extraKey] } };
+    const cur: Measurement = {
+      ...REAL,
+      footprint: { ...REAL.footprint!, readWrite: [...REAL.footprint!.readWrite, extraKey] },
+    };
     const r = run(config(), cur, base);
     expect(r.result).toBe('fail');
-    expect(r.invocations[0]!.findings.find((f) => f.metric === 'footprint')!.message).toContain('new ledger entry');
+    expect(r.invocations[0]!.findings.find((f) => f.metric === 'footprint')!.message).toContain(
+      'new ledger entry',
+    );
   });
 
   it('...unless new keys are allowed', () => {
-    const cur: Measurement = { ...REAL, footprint: { ...REAL.footprint!, readWrite: [...REAL.footprint!.readWrite, extraKey] } };
+    const cur: Measurement = {
+      ...REAL,
+      footprint: { ...REAL.footprint!, readWrite: [...REAL.footprint!.readWrite, extraKey] },
+    };
     const r = run(config({ thresholds: { footprint: { allowNewKeys: true } } }), cur, base);
     expect(r.result).toBe('pass');
   });
@@ -105,21 +152,31 @@ describe('footprint', () => {
     const promoted = REAL.footprint!.readOnly[0]!;
     const cur: Measurement = {
       ...REAL,
-      footprint: { readOnly: REAL.footprint!.readOnly.slice(1), readWrite: [...REAL.footprint!.readWrite, promoted] },
+      footprint: {
+        readOnly: REAL.footprint!.readOnly.slice(1),
+        readWrite: [...REAL.footprint!.readWrite, promoted],
+      },
     };
     const r = run(config(), cur, base);
     expect(r.result).toBe('fail');
-    expect(r.invocations[0]!.findings.find((f) => f.metric === 'footprint')!.message).toContain('only read before');
+    expect(r.invocations[0]!.findings.find((f) => f.metric === 'footprint')!.message).toContain(
+      'only read before',
+    );
   });
 
   it('a new read-only entry only warns; a dropped entry is information', () => {
     const cur: Measurement = {
       ...REAL,
-      footprint: { readOnly: [...REAL.footprint!.readOnly, 'contractCode:abc'], readWrite: REAL.footprint!.readWrite.slice(1) },
+      footprint: {
+        readOnly: [...REAL.footprint!.readOnly, 'contractCode:abc'],
+        readWrite: REAL.footprint!.readWrite.slice(1),
+      },
     };
     const r = run(config(), cur, base);
     expect(r.result).toBe('warn');
-    expect(r.invocations[0]!.findings.map((f) => f.level)).toEqual(expect.arrayContaining(['warn', 'info']));
+    expect(r.invocations[0]!.findings.map((f) => f.level)).toEqual(
+      expect.arrayContaining(['warn', 'info']),
+    );
   });
 });
 
@@ -128,7 +185,9 @@ describe('budgets, outcomes and baselines', () => {
     const cfg = config({ budgets: { instructions: 1 } });
     const r = run(cfg, REAL, null);
     expect(r.result).toBe('fail');
-    expect(r.invocations[0]!.findings.some((f) => f.metric === 'instructions' && f.level === 'fail')).toBe(true);
+    expect(
+      r.invocations[0]!.findings.some((f) => f.metric === 'instructions' && f.level === 'fail'),
+    ).toBe(true);
   });
 
   it('with no baseline an invocation is "new" and only warns', () => {
@@ -143,20 +202,41 @@ describe('budgets, outcomes and baselines', () => {
   });
 
   it('an unexpected failure fails the check', () => {
-    const failed: Measurement = { ok: false, errorName: 'InsufficientFunds', metrics: null, footprint: null, returnValue: null, ledger: 1 };
+    const failed: Measurement = {
+      ok: false,
+      errorName: 'InsufficientFunds',
+      metrics: null,
+      footprint: null,
+      returnValue: null,
+      ledger: 1,
+    };
     const r = run(config(), failed, baselineOf(REAL));
     expect(r.result).toBe('fail');
     expect(r.invocations[0]!.findings[0]!.message).toContain('InsufficientFunds');
   });
 
   it('an expected failure with the right error name passes', () => {
-    const failed: Measurement = { ok: false, errorName: 'InsufficientFunds', metrics: null, footprint: null, returnValue: null, ledger: 1 };
+    const failed: Measurement = {
+      ok: false,
+      errorName: 'InsufficientFunds',
+      metrics: null,
+      footprint: null,
+      returnValue: null,
+      ledger: 1,
+    };
     const cfg = config({}, { expect: { success: false, errorName: 'InsufficientFunds' } });
     expect(run(cfg, failed, null).invocations[0]!.findings).toEqual([]);
   });
 
   it('an expected failure with the wrong error name fails', () => {
-    const failed: Measurement = { ok: false, errorName: 'Invalid', metrics: null, footprint: null, returnValue: null, ledger: 1 };
+    const failed: Measurement = {
+      ok: false,
+      errorName: 'Invalid',
+      metrics: null,
+      footprint: null,
+      returnValue: null,
+      ledger: 1,
+    };
     const cfg = config({}, { expect: { success: false, errorName: 'InsufficientFunds' } });
     expect(run(cfg, failed, null).result).toBe('fail');
   });
@@ -185,10 +265,28 @@ describe('budgets, outcomes and baselines', () => {
 describe('config validation', () => {
   it('rejects unknown fields, bad versions, duplicates and dangling aliases', () => {
     expect(() => parseConfig({ version: 2, invocations: [] })).toThrow();
-    expect(() => parseConfig({ version: 1, surprise: true, invocations: [{ name: 'a', contractId: CONTRACT, function: 'f' }] })).toThrow(/surprise|Unrecognized/);
-    expect(() => parseConfig({ version: 1, invocations: [{ name: 'a', contractId: CONTRACT, function: 'f' }, { name: 'a', contractId: CONTRACT, function: 'g' }] })).toThrow(/used twice/);
-    expect(() => parseConfig({ version: 1, invocations: [{ name: 'a', contract: 'missing', function: 'f' }] })).toThrow(/not defined under contracts/);
-    expect(() => parseConfig({ version: 1, invocations: [{ name: 'a', function: 'f' }] })).toThrow(/exactly one/);
+    expect(() =>
+      parseConfig({
+        version: 1,
+        surprise: true,
+        invocations: [{ name: 'a', contractId: CONTRACT, function: 'f' }],
+      }),
+    ).toThrow(/surprise|Unrecognized/);
+    expect(() =>
+      parseConfig({
+        version: 1,
+        invocations: [
+          { name: 'a', contractId: CONTRACT, function: 'f' },
+          { name: 'a', contractId: CONTRACT, function: 'g' },
+        ],
+      }),
+    ).toThrow(/used twice/);
+    expect(() =>
+      parseConfig({ version: 1, invocations: [{ name: 'a', contract: 'missing', function: 'f' }] }),
+    ).toThrow(/not defined under contracts/);
+    expect(() => parseConfig({ version: 1, invocations: [{ name: 'a', function: 'f' }] })).toThrow(
+      /exactly one/,
+    );
   });
 });
 
@@ -206,7 +304,9 @@ describe('reports', () => {
     const cfg = config({}, { name: 'evil | name <script>alert(1)</script>' });
     const r = compareAll({
       config: cfg,
-      measurements: { 'evil | name <script>alert(1)</script>': { function: 'f', measurement: REAL } },
+      measurements: {
+        'evil | name <script>alert(1)</script>': { function: 'f', measurement: REAL },
+      },
       baseline: null,
       environment: ENV,
     });

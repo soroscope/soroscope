@@ -135,10 +135,17 @@ export function toTable(report: ProbeReport): string {
     { key: 'protocol', title: 'PROTO' },
   ];
   const widths = cols.map((c) => Math.max(c.title.length, ...rows.map((r) => r[c.key].length)));
-  const line = (cells: string[]): string => cells.map((c, i) => c.padEnd(widths[i] ?? 0)).join('  ').trimEnd();
+  const line = (cells: string[]): string =>
+    cells
+      .map((c, i) => c.padEnd(widths[i] ?? 0))
+      .join('  ')
+      .trimEnd();
   const out = [line(cols.map((c) => c.title)), ...rows.map((r) => line(cols.map((c) => r[c.key])))];
   if (rows.some((r) => r.reach.includes('*'))) {
-    out.push('', '* getLedgers reaches beyond the advertised window (getTransactions/getEvents do not).');
+    out.push(
+      '',
+      '* getLedgers reaches beyond the advertised window (getTransactions/getEvents do not).',
+    );
   }
   if (rows.some((r) => r.reach.includes('?'))) {
     out.push('? inconsistent: the provider answered the same lookup differently on retry.');

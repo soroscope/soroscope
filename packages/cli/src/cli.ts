@@ -32,7 +32,9 @@ export function buildProgram(io: Io, onResult: (code: ExitCodeValue) => void): C
   const program = new Command();
   program
     .name('soroscope')
-    .description('Probe Stellar RPC providers, decode XDR, simulate Soroban calls and guard resource budgets.')
+    .description(
+      'Probe Stellar RPC providers, decode XDR, simulate Soroban calls and guard resource budgets.',
+    )
     .version(VERSION)
     .exitOverride()
     .configureOutput({
@@ -48,13 +50,20 @@ export function buildProgram(io: Io, onResult: (code: ExitCodeValue) => void): C
   network(
     program
       .command('probe')
-      .description('Measure latency, ledger lag, retention and real getLedgers reach for each RPC provider'),
+      .description(
+        'Measure latency, ledger lag, retention and real getLedgers reach for each RPC provider',
+      ),
   )
     .option('--samples <n>', 'getHealth samples per provider', '5')
     .option('--timeout <seconds>', 'per-request time budget', '15')
     .option('--burst <n>', 'also send n parallel requests to find the rate limit (0 = off)', '0')
     .option('--no-reach', 'skip the getLedgers reach measurement')
-    .option('--format <fmt>', 'table, json or prometheus', oneOf('table', 'json', 'prometheus'), 'table')
+    .option(
+      '--format <fmt>',
+      'table, json or prometheus',
+      oneOf('table', 'json', 'prometheus'),
+      'table',
+    )
     .option('--strict', 'exit 1 unless every provider is healthy')
     .option('--watch', 'probe repeatedly and print each report')
     .option('--interval <seconds>', 'seconds between probes for --watch / --serve', '30')
@@ -71,13 +80,21 @@ export function buildProgram(io: Io, onResult: (code: ExitCodeValue) => void): C
       .argument('[params]', 'JSON params, for example \'{"startLedger": 123}\''),
   )
     .option('--start-ledger <n>', 'oldest ledger the call needs')
-    .action(async (method: string, params: string | undefined, opts: Parameters<typeof runRouteExplain>[2]) => {
-      onResult(await runRouteExplain(method, params, opts, io));
-    });
+    .action(
+      async (
+        method: string,
+        params: string | undefined,
+        opts: Parameters<typeof runRouteExplain>[2],
+      ) => {
+        onResult(await runRouteExplain(method, params, opts, io));
+      },
+    );
 
   program
     .command('decode')
-    .description('Decode base64 XDR: ScVal, DiagnosticEvent, SorobanAuthorizationEntry, SorobanTransactionData, LedgerKey, ...')
+    .description(
+      'Decode base64 XDR: ScVal, DiagnosticEvent, SorobanAuthorizationEntry, SorobanTransactionData, LedgerKey, ...',
+    )
     .argument('<type>', 'XDR type, for example ScVal or DiagnosticEvent')
     .argument('<xdr>', 'base64 XDR, or - to read standard input')
     .option('--plain', 'for ScVal: print plain JSON instead of the tagged tree')
@@ -111,10 +128,16 @@ export function buildProgram(io: Io, onResult: (code: ExitCodeValue) => void): C
       .requiredOption('--contract <id>', 'contract id (C...)')
       .requiredOption('--fn <name>', 'function to call'),
   )
-    .option('--args <json>', 'arguments: {"name": value} (uses the contract spec) or [{"type","value"}]')
+    .option(
+      '--args <json>',
+      'arguments: {"name": value} (uses the contract spec) or [{"type","value"}]',
+    )
     .option('--source <address>', 'source account; need not exist')
     .option('--json', 'print the full report as JSON')
-    .option('--compare', 'simulate on every selected provider separately and report where they disagree (exit 1 if they do)')
+    .option(
+      '--compare',
+      'simulate on every selected provider separately and report where they disagree (exit 1 if they do)',
+    )
     .action(async (opts: Parameters<typeof runSimulate>[0]) => {
       onResult(await runSimulate(opts, io));
     });
@@ -125,8 +148,16 @@ export function buildProgram(io: Io, onResult: (code: ExitCodeValue) => void): C
     .option('--config <path>', 'config file', 'soroscope.config.json')
     .option('--update-baseline', 'record the current numbers as the new baseline')
     .option('--format <fmt>', 'text, markdown or json', oneOf('text', 'markdown', 'json'), 'text')
-    .option('--fail-on <level>', 'regression (default) or warning', oneOf('regression', 'warning'), 'regression')
-    .option('--deployer-secret-env <name>', 'env var holding a funded testnet secret key (default: a throwaway key)')
+    .option(
+      '--fail-on <level>',
+      'regression (default) or warning',
+      oneOf('regression', 'warning'),
+      'regression',
+    )
+    .option(
+      '--deployer-secret-env <name>',
+      'env var holding a funded testnet secret key (default: a throwaway key)',
+    )
     .option('--markdown-out <path>', 'also write the markdown report to this file')
     .action(async (opts: Parameters<typeof runCheck>[0]) => {
       onResult(await runCheck(opts, io));
@@ -135,23 +166,39 @@ export function buildProgram(io: Io, onResult: (code: ExitCodeValue) => void): C
   network(
     program
       .command('dev')
-      .description('Run a contract in-process: rebuild and hot-swap it on every save (storage kept), and call it from a prompt')
+      .description(
+        'Run a contract in-process: rebuild and hot-swap it on every save (storage kept), and call it from a prompt',
+      )
       .argument('[dir]', 'the contract crate (where its Cargo.toml is)', '.'),
   )
-    .option('--builder <tool>', 'stellar (default when installed) or cargo', oneOf('stellar', 'cargo'))
+    .option(
+      '--builder <tool>',
+      'stellar (default when installed) or cargo',
+      oneOf('stellar', 'cargo'),
+    )
     .option('--init <json>', 'named constructor arguments for the first deploy, as JSON')
-    .option('--with <wasm>', 'deploy another contract beside it, called as name.fn (repeatable)', (v: string, all: string[] = []) => [...all, v])
+    .option(
+      '--with <wasm>',
+      'deploy another contract beside it, called as name.fn (repeatable)',
+      (v: string, all: string[] = []) => [...all, v],
+    )
     .action(async (dir: string, opts: Parameters<typeof runDev>[1]) => {
       onResult(await runDev(dir, opts, io));
     });
 
   program
     .command('gen')
-    .description("Generate TypeScript types, Zod schemas and event guards from a contract's spec (Orbital codegen)")
+    .description(
+      "Generate TypeScript types, Zod schemas and event guards from a contract's spec (Orbital codegen)",
+    )
     .argument('<target>', 'a .wasm file, or a contract crate directory to build first')
     .option('-o, --out <file>', 'write to this file instead of standard output')
-    .option('--hooks', 'also generate React hooks for the contract\'s events')
-    .option('--builder <tool>', 'stellar or cargo, when building a crate', oneOf('stellar', 'cargo'))
+    .option('--hooks', "also generate React hooks for the contract's events")
+    .option(
+      '--builder <tool>',
+      'stellar or cargo, when building a crate',
+      oneOf('stellar', 'cargo'),
+    )
     .action(async (target: string, opts: Parameters<typeof runGen>[1]) => {
       onResult(await runGen(target, opts, io));
     });

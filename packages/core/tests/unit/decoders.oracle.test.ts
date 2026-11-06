@@ -76,7 +76,9 @@ describe.each(CASES)('%s decodes identically to the stellar CLI', (type, decode,
 
 describe('breadth of the real corpus', () => {
   it('exercises the ScVal variety the decoder claims to support', () => {
-    const kinds = new Set(itemsOf('ScVal').map((i) => Object.keys(i.oracle as object)[0] ?? String(i.oracle)));
+    const kinds = new Set(
+      itemsOf('ScVal').map((i) => Object.keys(i.oracle as object)[0] ?? String(i.oracle)),
+    );
     const events = itemsOf('DiagnosticEvent');
     for (const e of events) {
       const body = (e.oracle as { event: { body: { v0: { data: unknown } } } }).event.body.v0.data;

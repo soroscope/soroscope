@@ -85,7 +85,8 @@ export function parseReplLine(line: string): ReplInput {
   const dot = target.indexOf('.');
   const contract = dot === -1 ? undefined : target.slice(0, dot);
   const fn = dot === -1 ? target : target.slice(dot + 1);
-  if (contract !== undefined && !/^[A-Za-z_][A-Za-z0-9_-]*$/.test(contract)) throw new Error(`"${contract}" is not a contract name.`);
+  if (contract !== undefined && !/^[A-Za-z_][A-Za-z0-9_-]*$/.test(contract))
+    throw new Error(`"${contract}" is not a contract name.`);
   if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(fn)) throw new Error(`"${fn}" is not a function name.`);
   const args: Record<string, unknown> = {};
   for (const t of rest) {
@@ -93,7 +94,9 @@ export function parseReplLine(line: string): ReplInput {
     if (eq <= 0) throw new Error(`Arguments are name=value; got "${t}".`);
     args[t.slice(0, eq)] = parseValue(t.slice(eq + 1));
   }
-  return contract === undefined ? { kind: 'call', fn, args, commit } : { kind: 'call', fn, args, commit, contract };
+  return contract === undefined
+    ? { kind: 'call', fn, args, commit }
+    : { kind: 'call', fn, args, commit, contract };
 }
 
 const n = (x: number | bigint): string => x.toLocaleString('en-US');
@@ -104,7 +107,9 @@ function show(v: unknown): string {
   if (typeof v === 'string') return JSON.stringify(v);
   if (Array.isArray(v)) return `[${v.map(show).join(', ')}]`;
   if (v !== null && typeof v === 'object') {
-    return `{ ${Object.entries(v).map(([k, x]) => `${k}: ${show(x)}`).join(', ')} }`;
+    return `{ ${Object.entries(v)
+      .map(([k, x]) => `${k}: ${show(x)}`)
+      .join(', ')} }`;
   }
   return String(v);
 }
@@ -113,7 +118,9 @@ function show(v: unknown): string {
 export function formatOutcome(o: Dev.CallOutcome): string {
   const lines: string[] = [];
   if (o.report.ok) {
-    lines.push(`← ${o.value === null ? '()' : show(o.value)}${o.committed ? '' : '   (simulated, not applied)'}`);
+    lines.push(
+      `← ${o.value === null ? '()' : show(o.value)}${o.committed ? '' : '   (simulated, not applied)'}`,
+    );
   } else if (o.errorCase !== null) {
     const doc = o.errorCase.doc === '' ? '' : `: ${o.errorCase.doc}`;
     lines.push(`✗ Error #${o.errorCase.code} ${o.errorCase.name}${doc}`);
@@ -121,12 +128,18 @@ export function formatOutcome(o: Dev.CallOutcome): string {
     lines.push(`✗ ${o.summary.replace(/^Simulation failed: /, '')}`);
   }
   for (const e of o.events) {
-    lines.push(e.name === null ? `  event   ${show(e.topics)} ${show(e.data)}` : `  event   ${e.name} ${show(e.fields)}`);
+    lines.push(
+      e.name === null
+        ? `  event   ${show(e.topics)} ${show(e.data)}`
+        : `  event   ${e.name} ${show(e.fields)}`,
+    );
   }
   const td = o.report.transactionData;
   const parts = [`${n(o.cpuInstructions)} instructions`, `${n(o.memoryBytes)} bytes memory`];
   if (td !== null) {
-    parts.push(`${td.resources.footprint.readOnly.length + td.resources.footprint.readWrite.length} entries (${td.resources.footprint.readWrite.length} written)`);
+    parts.push(
+      `${td.resources.footprint.readOnly.length + td.resources.footprint.readWrite.length} entries (${td.resources.footprint.readWrite.length} written)`,
+    );
     parts.push(`fee ${n(o.report.minResourceFee ?? td.resourceFee)} stroops`);
   }
   if (o.report.auth.length > 0) parts.push(`${o.report.auth.length} auth`);
@@ -139,7 +152,10 @@ function formatLoopEvent(e: Dev.DevLoopEvent): string {
     case 'building':
       return `● building (${e.reason})…`;
     case 'build-failed': {
-      const errors = e.output.split('\n').filter((l) => /^error|^\s+-->|^\s+\|/.test(l)).slice(0, 12);
+      const errors = e.output
+        .split('\n')
+        .filter((l) => /^error|^\s+-->|^\s+\|/.test(l))
+        .slice(0, 12);
       return `✗ ${e.message}\n${(errors.length > 0 ? errors : e.output.split('\n').slice(-12)).map((l) => `  ${l}`).join('\n')}`;
     }
     case 'load-failed':
@@ -153,7 +169,10 @@ function formatLoopEvent(e: Dev.DevLoopEvent): string {
         ...r.diff.removed.map((f) => `-${f}`),
         ...r.diff.changed.map((f) => `~${f}`),
       ];
-      const what = r.kind === 'deployed' ? `deployed ${r.contractId}` : `swapped in place · ${short(r.contractId)} · storage kept`;
+      const what =
+        r.kind === 'deployed'
+          ? `deployed ${r.contractId}`
+          : `swapped in place · ${short(r.contractId)} · storage kept`;
       return `✓ ${what} (build ${secs}s)${r.kind === 'swapped' && diff.length > 0 ? `\n  ${diff.join('  ')}` : ''}`;
     }
   }
@@ -187,7 +206,10 @@ export async function runDev(
 
   const selection = resolveProviders(opts);
   if (selection.network === 'custom') {
-    throw new CliError('soroscope dev needs --network testnet or mainnet, to read that network\'s fee and cost settings.', ExitCode.Usage);
+    throw new CliError(
+      "soroscope dev needs --network testnet or mainnet, to read that network's fee and cost settings.",
+      ExitCode.Usage,
+    );
   }
   io.err(`reading ${selection.network} fee and cost settings…`);
   const router = await SoroscopeRouter.create({ providers: selection.urls });
@@ -218,11 +240,14 @@ export async function runDev(
   try {
     await loop.start();
   } catch (err) {
-    if (err instanceof dev.BuildError) throw new CliError(`${err.message}\n${err.output}`, ExitCode.Usage);
+    if (err instanceof dev.BuildError)
+      throw new CliError(`${err.message}\n${err.output}`, ExitCode.Usage);
     throw err;
   }
   for (const file of opts.with ?? []) {
-    const name = basename(file).replace(/\.wasm$/, '').replace(/[^A-Za-z0-9_-]/g, '_');
+    const name = basename(file)
+      .replace(/\.wasm$/, '')
+      .replace(/[^A-Za-z0-9_-]/g, '_');
     try {
       const { contractId } = session.addContract(name, new Uint8Array(readFileSync(file)));
       io.err(`✓ ${name}: ${contractId}   (call as ${name}.fn)`);
@@ -232,7 +257,12 @@ export async function runDev(
   }
   io.err(`local account ${session.network.sourceAccount}\n${HELP}`);
 
-  const rl = createInterface({ input, output, prompt: 'soroscope> ', terminal: input === process.stdin && process.stdin.isTTY });
+  const rl = createInterface({
+    input,
+    output,
+    prompt: 'soroscope> ',
+    terminal: input === process.stdin && process.stdin.isTTY,
+  });
   rl.prompt();
   for await (const line of rl) {
     let parsed: ReplInput;
@@ -266,7 +296,14 @@ function handle(
   if (input.kind === 'empty') return;
   const iface = session.interface;
   if (input.kind === 'call') {
-    io.out(formatOutcome(session.call(input.fn, input.args, { commit: input.commit, ...(input.contract === undefined ? {} : { contract: input.contract }) })));
+    io.out(
+      formatOutcome(
+        session.call(input.fn, input.args, {
+          commit: input.commit,
+          ...(input.contract === undefined ? {} : { contract: input.contract }),
+        }),
+      ),
+    );
     return;
   }
   switch (input.name) {
@@ -275,7 +312,14 @@ function handle(
       return;
     case 'fns':
       if (iface !== null) {
-        io.out(iface.functions.map((f) => `  ${signature(f)}${f.doc === undefined ? '' : `\n      ${f.doc.split('\n')[0]}`}`).join('\n'));
+        io.out(
+          iface.functions
+            .map(
+              (f) =>
+                `  ${signature(f)}${f.doc === undefined ? '' : `\n      ${f.doc.split('\n')[0]}`}`,
+            )
+            .join('\n'),
+        );
       }
       return;
     case 'events':
@@ -283,13 +327,19 @@ function handle(
         io.out(
           iface.events.length === 0
             ? '  (the spec declares no events)'
-            : iface.events.map((e) => `  ${e.name} { ${[...e.topics.slice(1), ...e.data].map((f) => f.name).join(', ')} }`).join('\n'),
+            : iface.events
+                .map(
+                  (e) =>
+                    `  ${e.name} { ${[...e.topics.slice(1), ...e.data].map((f) => f.name).join(', ')} }`,
+                )
+                .join('\n'),
         );
       }
       return;
     case 'advance': {
       const count = Number(input.rest[0] ?? '1');
-      if (!Number.isInteger(count) || count < 1) throw new Error('.advance takes a positive whole number of ledgers.');
+      if (!Number.isInteger(count) || count < 1)
+        throw new Error('.advance takes a positive whole number of ledgers.');
       session.network.advance(count);
       io.out(`  ledger ${session.network.sequence}`);
       return;
@@ -334,7 +384,10 @@ export async function runGen(target: string, opts: GenOptions, io: Io): Promise<
   try {
     isDir = statSync(target).isDirectory();
   } catch {
-    throw new CliError(`"${target}" is not a .wasm file or a contract crate directory.`, ExitCode.Usage);
+    throw new CliError(
+      `"${target}" is not a .wasm file or a contract crate directory.`,
+      ExitCode.Usage,
+    );
   }
   if (isDir) {
     const project = await dev.resolveProject(target);
@@ -350,7 +403,8 @@ export async function runGen(target: string, opts: GenOptions, io: Io): Promise<
   try {
     iface = dev.ContractInterface.fromWasm(wasm);
   } catch (err) {
-    if (err instanceof dev.NoEmbeddedSpecError) throw new CliError('That WASM has no embedded contract spec.', ExitCode.Failure);
+    if (err instanceof dev.NoEmbeddedSpecError)
+      throw new CliError('That WASM has no embedded contract spec.', ExitCode.Failure);
     throw err;
   }
   let code = generatedSource(iface, name);

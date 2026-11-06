@@ -30,7 +30,10 @@ async function load(target: string, opts: GlobalOptions): Promise<ContractSpec> 
   try {
     bytes = readFileSync(target);
   } catch {
-    throw new CliError(`"${target}" is neither a contract id (C...) nor a readable .wasm file.`, ExitCode.Usage);
+    throw new CliError(
+      `"${target}" is neither a contract id (C...) nor a readable .wasm file.`,
+      ExitCode.Usage,
+    );
   }
   const parsed = parseWasm(bytes);
   return new ContractSpec(parsed.spec, { kind: 'unknown' }, parsed.meta);
@@ -40,11 +43,19 @@ async function load(target: string, opts: GlobalOptions): Promise<ContractSpec> 
 export async function runSpec(target: string, opts: SpecOptions, io: Io): Promise<ExitCodeValue> {
   const spec = await load(target, opts);
   if (opts.json === true) {
-    io.out(JSON.stringify(toJsonSafe({ source: spec.source, meta: spec.meta, entries: spec.entries }), null, 2));
+    io.out(
+      JSON.stringify(
+        toJsonSafe({ source: spec.source, meta: spec.meta, entries: spec.entries }),
+        null,
+        2,
+      ),
+    );
     return ExitCode.Ok;
   }
   if (spec.source.kind === 'stellarAsset') {
-    io.out('This is a Stellar Asset Contract: it has no WASM spec. Its interface is the standard token interface (SEP-41).');
+    io.out(
+      'This is a Stellar Asset Contract: it has no WASM spec. Its interface is the standard token interface (SEP-41).',
+    );
     return ExitCode.Ok;
   }
   const lines: string[] = [];
@@ -58,13 +69,23 @@ export async function runSpec(target: string, opts: SpecOptions, io: Io): Promis
   }
   if (spec.errors.length > 0) {
     lines.push('', 'Errors');
-    for (const e of spec.errors) lines.push(`  #${e.code}  ${e.enumName}::${e.name}${e.doc === '' ? '' : `  ${e.doc.split('\n')[0]}`}`);
+    for (const e of spec.errors)
+      lines.push(
+        `  #${e.code}  ${e.enumName}::${e.name}${e.doc === '' ? '' : `  ${e.doc.split('\n')[0]}`}`,
+      );
   }
   if (spec.events.length > 0) {
     lines.push('', 'Events');
-    for (const e of spec.events) lines.push(`  ${e.name}(${e.params.map((p) => `${p.name}: ${formatSpecType(p.type)}`).join(', ')})`);
+    for (const e of spec.events)
+      lines.push(
+        `  ${e.name}(${e.params.map((p) => `${p.name}: ${formatSpecType(p.type)}`).join(', ')})`,
+      );
   }
-  const types = [...spec.structs.map((s) => `struct ${s.name}`), ...spec.unions.map((u) => `union ${u.name}`), ...spec.enums.map((e) => `enum ${e.name}`)];
+  const types = [
+    ...spec.structs.map((s) => `struct ${s.name}`),
+    ...spec.unions.map((u) => `union ${u.name}`),
+    ...spec.enums.map((e) => `enum ${e.name}`),
+  ];
   if (types.length > 0) lines.push('', 'Types', ...types.map((t) => `  ${t}`));
   io.out(lines.join('\n'));
   return ExitCode.Ok;

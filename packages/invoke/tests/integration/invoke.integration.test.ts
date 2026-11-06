@@ -44,7 +44,14 @@ beforeAll(async () => {
 
 const call = (fn: string, args?: Record<string, unknown>) =>
   sim.simulateAndExplain(
-    buildInvocationXdr({ contractId: FIXTURE.contractId, function: fn, args: args ?? {}, source: SOURCE, networkPassphrase: PASS, spec }),
+    buildInvocationXdr({
+      contractId: FIXTURE.contractId,
+      function: fn,
+      args: args ?? {},
+      source: SOURCE,
+      networkPassphrase: PASS,
+      spec,
+    }),
   );
 
 describe('reading the contract spec from the ledger', () => {
@@ -53,7 +60,12 @@ describe('reading the contract spec from the ledger', () => {
     expect(parsed.functions.map((f) => f.name)).toEqual(
       expect.arrayContaining(['init', 'mint', 'move_funds', 'work', 'touch', 'fail_with', 'boom']),
     );
-    expect(parsed.errors.map((e) => e.name).sort()).toEqual(['InsufficientFunds', 'Invalid', 'NotFound', 'Unauthorized']);
+    expect(parsed.errors.map((e) => e.name).sort()).toEqual([
+      'InsufficientFunds',
+      'Invalid',
+      'NotFound',
+      'Unauthorized',
+    ]);
     expect(parsed.source.kind).toBe('wasm');
   });
 
@@ -90,8 +102,26 @@ describe('named arguments', () => {
   });
 
   it('refuses a malformed source or contract id before touching the network', () => {
-    expect(() => buildInvocationXdr({ contractId: FIXTURE.contractId, function: 'work', args: { n: 1 }, source: 'nope', networkPassphrase: PASS, spec })).toThrow(/valid G/);
-    expect(() => buildInvocationXdr({ contractId: 'CNOPE', function: 'work', args: { n: 1 }, source: SOURCE, networkPassphrase: PASS, spec })).toThrow(/valid C/);
+    expect(() =>
+      buildInvocationXdr({
+        contractId: FIXTURE.contractId,
+        function: 'work',
+        args: { n: 1 },
+        source: 'nope',
+        networkPassphrase: PASS,
+        spec,
+      }),
+    ).toThrow(/valid G/);
+    expect(() =>
+      buildInvocationXdr({
+        contractId: 'CNOPE',
+        function: 'work',
+        args: { n: 1 },
+        source: SOURCE,
+        networkPassphrase: PASS,
+        spec,
+      }),
+    ).toThrow(/valid C/);
   });
 });
 
@@ -139,8 +169,10 @@ describe('resources scale with the work asked for', () => {
   });
 
   it('touch(n): more writes grow the read-write footprint', async () => {
-    const one = (await call('touch', { n: 1 })).transactionData!.resources.footprint.readWrite.length;
-    const five = (await call('touch', { n: 5 })).transactionData!.resources.footprint.readWrite.length;
+    const one = (await call('touch', { n: 1 })).transactionData!.resources.footprint.readWrite
+      .length;
+    const five = (await call('touch', { n: 5 })).transactionData!.resources.footprint.readWrite
+      .length;
     expect(five).toBeGreaterThan(one);
   });
 });
@@ -150,7 +182,14 @@ describe('authorization and events', () => {
     const to = Keypair.random().publicKey();
     const from = Keypair.random().publicKey();
     const report = await sim.simulate(
-      buildInvocationXdr({ contractId: FIXTURE.contractId, function: 'move_funds', args: { from, to, amount: 1n }, source: SOURCE, networkPassphrase: PASS, spec }),
+      buildInvocationXdr({
+        contractId: FIXTURE.contractId,
+        function: 'move_funds',
+        args: { from, to, amount: 1n },
+        source: SOURCE,
+        networkPassphrase: PASS,
+        spec,
+      }),
     );
     // The sender holds nothing, so the call fails; the failure is the contract's own.
     expect(report.ok).toBe(false);
@@ -160,39 +199,55 @@ describe('authorization and events', () => {
   it('emit(n) produces typed events', async () => {
     const report = await call('emit', { n: 3 });
     expect(report.ok).toBe(true);
-    const ticks = report.events.filter((e) => e.event.type === 'contract' && e.event.contractId === FIXTURE.contractId);
+    const ticks = report.events.filter(
+      (e) => e.event.type === 'contract' && e.event.contractId === FIXTURE.contractId,
+    );
     expect(ticks).toHaveLength(3);
   });
 });
 
 describe('Mode B: deploy the PR build and call it (throwaway key, real testnet)', () => {
-  it('uploads WASM, creates a contract, runs init and reads it back', { timeout: 240_000 }, async () => {
-    const signer = Keypair.random();
-    await fundWithFriendbot(friendbotUrlFor(PASS)!, signer.publicKey());
+  it(
+    'uploads WASM, creates a contract, runs init and reads it back',
+    { timeout: 240_000 },
+    async () => {
+      const signer = Keypair.random();
+      await fundWithFriendbot(friendbotUrlFor(PASS)!, signer.publicKey());
 
-    const wasm = readFileSync(WASM);
-    const deployed = await deployWasm({ rpc: router, wasm, signer, networkPassphrase: PASS });
-    expect(deployed.contractId).toMatch(/^C[A-Z2-7]{55}$/);
+      const wasm = readFileSync(WASM);
+      const deployed = await deployWasm({ rpc: router, wasm, signer, networkPassphrase: PASS });
+      expect(deployed.contractId).toMatch(/^C[A-Z2-7]{55}$/);
 
-    // The deployed code is retrievable and matches what we uploaded.
-    const loaded = await fetchContractSpec(router, deployed.contractId);
-    expect(loaded.source).toEqual({ kind: 'wasm', wasmHash: deployed.wasmHash });
-    const freshSpec = (await loadSpec(router, deployed.contractId)).spec!;
+      // The deployed code is retrievable and matches what we uploaded.
+      const loaded = await fetchContractSpec(router, deployed.contractId);
+      expect(loaded.source).toEqual({ kind: 'wasm', wasmHash: deployed.wasmHash });
+      const freshSpec = (await loadSpec(router, deployed.contractId)).spec!;
 
-    await sendInvocation({
-      rpc: router,
-      signer,
-      networkPassphrase: PASS,
-      build: (b) =>
-        b.addOperation(
-          new Contract(deployed.contractId).call('init', ...toScVals('init', { admin: signer.publicKey() }, freshSpec)),
-        ),
-    });
+      await sendInvocation({
+        rpc: router,
+        signer,
+        networkPassphrase: PASS,
+        build: (b) =>
+          b.addOperation(
+            new Contract(deployed.contractId).call(
+              'init',
+              ...toScVals('init', { admin: signer.publicKey() }, freshSpec),
+            ),
+          ),
+      });
 
-    // A second init is rejected by the contract: proof the first one really ran on chain.
-    const again = await sim.simulateAndExplain(
-      buildInvocationXdr({ contractId: deployed.contractId, function: 'init', args: { admin: signer.publicKey() }, source: signer.publicKey(), networkPassphrase: PASS, spec: freshSpec }),
-    );
-    expect(again.failure?.errorName).toBe('Invalid');
-  });
+      // A second init is rejected by the contract: proof the first one really ran on chain.
+      const again = await sim.simulateAndExplain(
+        buildInvocationXdr({
+          contractId: deployed.contractId,
+          function: 'init',
+          args: { admin: signer.publicKey() },
+          source: signer.publicKey(),
+          networkPassphrase: PASS,
+          spec: freshSpec,
+        }),
+      );
+      expect(again.failure?.errorName).toBe('Invalid');
+    },
+  );
 });

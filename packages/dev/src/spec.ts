@@ -1,5 +1,15 @@
-import { generateContractArtifacts, parseWasmSpec, NoEmbeddedSpecError } from '@orbital-stellar/abi-registry';
-import type { EventSpec, FunctionSpec, GeneratedContractArtifacts, ParsedWasmSpec, TypeSpec } from '@orbital-stellar/abi-registry';
+import {
+  generateContractArtifacts,
+  parseWasmSpec,
+  NoEmbeddedSpecError,
+} from '@orbital-stellar/abi-registry';
+import type {
+  EventSpec,
+  FunctionSpec,
+  GeneratedContractArtifacts,
+  ParsedWasmSpec,
+  TypeSpec,
+} from '@orbital-stellar/abi-registry';
 import { scValToJs, type DiagnosticEvent, type ScVal } from '@soroscope/core';
 import { contract } from '@stellar/stellar-sdk';
 
@@ -40,7 +50,9 @@ export class ContractInterface {
   encodeArgs(fn: string, args: Record<string, unknown>): string[] {
     const spec = this.function(fn);
     if (spec === undefined) {
-      throw new TypeError(`The contract has no function "${fn}". It has: ${this.parsed.functions.map((f) => f.name).join(', ')}.`);
+      throw new TypeError(
+        `The contract has no function "${fn}". It has: ${this.parsed.functions.map((f) => f.name).join(', ')}.`,
+      );
     }
     const missing = spec.params.filter((p) => !(p.name in args)).map((p) => p.name);
     if (missing.length > 0) {
@@ -53,7 +65,9 @@ export class ContractInterface {
     try {
       return this.sdkSpec.funcArgsToScVals(fn, args).map((v) => v.toXDR('base64'));
     } catch (err) {
-      throw new TypeError(`${signature(spec)}: ${err instanceof Error ? err.message : String(err)}`);
+      throw new TypeError(
+        `${signature(spec)}: ${err instanceof Error ? err.message : String(err)}`,
+      );
     }
   }
 
@@ -77,7 +91,11 @@ export class ContractInterface {
   errorCase(code: number): { name: string; doc: string } | null {
     // At runtime the SDK returns plain {doc, name, value} records here, not the
     // XDR class its typings declare, so read them as such.
-    const cases = this.sdkSpec.errorCases() as unknown as { doc: unknown; name: unknown; value: number }[];
+    const cases = this.sdkSpec.errorCases() as unknown as {
+      doc: unknown;
+      name: unknown;
+      value: number;
+    }[];
     const c = cases.find((e) => e.value === code);
     return c === undefined ? null : { name: String(c.name), doc: String(c.doc) };
   }
@@ -111,7 +129,10 @@ export interface InterfaceDiff {
   changed: string[];
 }
 
-export function diffInterfaces(before: ContractInterface | null, after: ContractInterface): InterfaceDiff {
+export function diffInterfaces(
+  before: ContractInterface | null,
+  after: ContractInterface,
+): InterfaceDiff {
   const old = new Map((before?.functions ?? []).map((f) => [f.name, signature(f)]));
   const now = new Map(after.functions.map((f) => [f.name, signature(f)]));
   return {
@@ -166,10 +187,12 @@ function dataFields(spec: EventSpec, data: ScVal): Record<string, unknown> {
   if (spec.data.length === 1) return { [spec.data[0]!.name]: scValToJs(data) };
   if (data.type === 'vec' && data.value !== null) {
     const items = data.value;
-    return Object.fromEntries(spec.data.map((f, i) => {
-      const item = items[i];
-      return [f.name, item === undefined ? null : scValToJs(item)];
-    }));
+    return Object.fromEntries(
+      spec.data.map((f, i) => {
+        const item = items[i];
+        return [f.name, item === undefined ? null : scValToJs(item)];
+      }),
+    );
   }
   return { data: scValToJs(data) };
 }

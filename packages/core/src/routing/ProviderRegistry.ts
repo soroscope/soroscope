@@ -208,7 +208,12 @@ export class ProviderRegistry {
   /** Record a successful call: latency, ledger bounds, and `getLedgers` reach evidence. */
   recordSuccess(
     id: string,
-    obs: { method: string; latencyMs: number; ledger?: LedgerObservation | undefined; startLedger?: number | undefined },
+    obs: {
+      method: string;
+      latencyMs: number;
+      ledger?: LedgerObservation | undefined;
+      startLedger?: number | undefined;
+    },
   ): void {
     const rec = this.require(id);
     const at = this.now();
@@ -288,7 +293,10 @@ export class ProviderRegistry {
 
     if (HARD_FAILURES.has(failure.class)) {
       rec.circuit.consecutiveFailures += 1;
-      if (rec.circuit.state === 'half-open' || rec.circuit.consecutiveFailures >= CIRCUIT_THRESHOLD) {
+      if (
+        rec.circuit.state === 'half-open' ||
+        rec.circuit.consecutiveFailures >= CIRCUIT_THRESHOLD
+      ) {
         rec.circuit.opens += 1;
         const open = Math.min(CIRCUIT_MAX_MS, CIRCUIT_BASE_MS * 2 ** (rec.circuit.opens - 1));
         rec.circuit.state = 'open';
@@ -322,9 +330,13 @@ export class ProviderRegistry {
   }
 
   /** Extrapolated ledger bounds for a provider, assuming ~5s ledger closes since it was observed. */
-  estimatedLedgers(id: string, at: number = this.now()): { latest: number | null; oldest: number | null } {
+  estimatedLedgers(
+    id: string,
+    at: number = this.now(),
+  ): { latest: number | null; oldest: number | null } {
     const rec = this.require(id);
-    if (rec.ledger.observedAt === 0) return { latest: rec.ledger.latest, oldest: rec.ledger.oldest };
+    if (rec.ledger.observedAt === 0)
+      return { latest: rec.ledger.latest, oldest: rec.ledger.oldest };
     const elapsed = Math.max(0, Math.floor((at - rec.ledger.observedAt) / LEDGER_CLOSE_MS));
     return {
       latest: rec.ledger.latest === null ? null : rec.ledger.latest + elapsed,
@@ -341,7 +353,12 @@ export class ProviderRegistry {
     let best = mine;
     for (const other of this.records.values()) {
       if (other.id === id) continue;
-      if (rec.chain.passphrase !== null && other.chain.passphrase !== null && other.chain.passphrase !== rec.chain.passphrase) continue;
+      if (
+        rec.chain.passphrase !== null &&
+        other.chain.passphrase !== null &&
+        other.chain.passphrase !== rec.chain.passphrase
+      )
+        continue;
       const theirs = this.estimatedLedgers(other.id, at).latest;
       if (theirs !== null && theirs > best) best = theirs;
     }
@@ -393,7 +410,9 @@ export class ProviderRegistry {
         continue;
       }
       if (rec.circuit.state === 'open') {
-        skip(`circuit open for another ${Math.max(0, Math.ceil(((rec.circuit.openUntil ?? at) - at) / 1000))}s`);
+        skip(
+          `circuit open for another ${Math.max(0, Math.ceil(((rec.circuit.openUntil ?? at) - at) / 1000))}s`,
+        );
         continue;
       }
       if (rec.rateLimit.limitedUntil !== null && rec.rateLimit.limitedUntil > at) {
@@ -437,7 +456,11 @@ export class ProviderRegistry {
   }
 
   /** Order providers best-first for a request. Deterministic: ties break on id. */
-  rank(records: ProviderRecord[], req: RoutingRequirements, at: number = this.now()): ProviderRecord[] {
+  rank(
+    records: ProviderRecord[],
+    req: RoutingRequirements,
+    at: number = this.now(),
+  ): ProviderRecord[] {
     const klass = profileOf(req.method).weight;
     const score = (rec: ProviderRecord): number => {
       const stat = rec.latency[klass];
@@ -469,7 +492,8 @@ export class ProviderRegistry {
 
   static restore(snapshot: RegistrySnapshot, config: RegistryConfig = {}): ProviderRegistry {
     const registry = new ProviderRegistry(config);
-    for (const record of structuredClone(snapshot.providers)) registry.records.set(record.id, record);
+    for (const record of structuredClone(snapshot.providers))
+      registry.records.set(record.id, record);
     return registry;
   }
 
@@ -494,14 +518,20 @@ export class ProviderRegistry {
   }
 
   private refreshStatus(rec: ProviderRecord, at: number): void {
-    if (rec.circuit.state === 'open' && rec.circuit.openUntil !== null && at >= rec.circuit.openUntil) {
+    if (
+      rec.circuit.state === 'open' &&
+      rec.circuit.openUntil !== null &&
+      at >= rec.circuit.openUntil
+    ) {
       rec.circuit.state = 'half-open';
     }
     if (rec.misconfigured) rec.status = 'misconfigured';
     else if (rec.circuit.state === 'open') rec.status = 'unreachable';
-    else if (rec.rateLimit.limitedUntil !== null && rec.rateLimit.limitedUntil > at) rec.status = 'limited';
+    else if (rec.rateLimit.limitedUntil !== null && rec.rateLimit.limitedUntil > at)
+      rec.status = 'limited';
     else if (rec.counters.requests === 0) rec.status = 'unknown';
-    else if (rec.circuit.consecutiveFailures > 0 || (this.lagOf(rec.id, at) ?? 0) > this.maxLag) rec.status = 'degraded';
+    else if (rec.circuit.consecutiveFailures > 0 || (this.lagOf(rec.id, at) ?? 0) > this.maxLag)
+      rec.status = 'degraded';
     else rec.status = 'healthy';
   }
 }

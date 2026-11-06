@@ -12,13 +12,7 @@ export type {
 } from './types';
 
 export { XdrUnsupportedError } from './primitives';
-export {
-  decodeScVal,
-  readScVal,
-  scValToJs,
-  formatScVal,
-  readScAddress,
-} from './scval';
+export { decodeScVal, readScVal, scValToJs, formatScVal, readScAddress } from './scval';
 export type { ScVal, ScAddress, ScMapEntry, ContractExecutable } from './scval';
 export {
   decodeLedgerKey,
@@ -34,17 +28,9 @@ export type {
   ContractDataDurability,
   ContractCodeCostInputs,
 } from './ledger';
-export {
-  decodeContractEvent,
-  decodeDiagnosticEvent,
-  eventName,
-} from './events';
+export { decodeContractEvent, decodeDiagnosticEvent, eventName } from './events';
 export type { ContractEvent, DiagnosticEvent, ContractEventType } from './events';
-export {
-  decodeAuthEntry,
-  describeInvocationTree,
-  authorizer,
-} from './auth';
+export { decodeAuthEntry, describeInvocationTree, authorizer } from './auth';
 export type {
   AuthEntry,
   AuthCredentials,

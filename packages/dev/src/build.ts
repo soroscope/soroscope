@@ -51,7 +51,10 @@ export async function resolveProject(dir: string): Promise<ContractProject> {
   const abs = await realpath(resolve(dir)).catch(() => resolve(dir));
   let meta: CargoMetadata;
   try {
-    const { stdout } = await run('cargo', ['metadata', '--format-version', '1', '--no-deps'], { cwd: abs, maxBuffer: 64 * 1024 * 1024 });
+    const { stdout } = await run('cargo', ['metadata', '--format-version', '1', '--no-deps'], {
+      cwd: abs,
+      maxBuffer: 64 * 1024 * 1024,
+    });
     meta = JSON.parse(stdout) as CargoMetadata;
   } catch (err) {
     throw new BuildError(`${abs} is not a Rust crate (cargo metadata failed)`, errorOutput(err));
@@ -59,11 +62,17 @@ export async function resolveProject(dir: string): Promise<ContractProject> {
   const pkg = meta.packages.find((p) => dirname(p.manifest_path) === abs);
   if (pkg === undefined) {
     const members = meta.packages.map((p) => `${p.name} (${dirname(p.manifest_path)})`).join(', ');
-    throw new BuildError(`No crate has its Cargo.toml in ${abs}. Point at one contract crate: ${members}`, '');
+    throw new BuildError(
+      `No crate has its Cargo.toml in ${abs}. Point at one contract crate: ${members}`,
+      '',
+    );
   }
   const lib = pkg.targets.find((t) => t.kind.includes('cdylib'));
   if (lib === undefined) {
-    throw new BuildError(`${pkg.name} has no cdylib target. Soroban contracts need crate-type = ["cdylib"] in [lib].`, '');
+    throw new BuildError(
+      `${pkg.name} has no cdylib target. Soroban contracts need crate-type = ["cdylib"] in [lib].`,
+      '',
+    );
   }
   const libName = lib.name.replace(/-/g, '_');
   return {
@@ -90,12 +99,18 @@ export async function hasStellarCli(): Promise<boolean> {
  * (it embeds build metadata, as a real deploy would); otherwise plain cargo.
  * @throws {BuildError} With the compiler output when the build fails.
  */
-export async function buildContract(project: ContractProject, builder: Builder): Promise<BuildResult> {
+export async function buildContract(
+  project: ContractProject,
+  builder: Builder,
+): Promise<BuildResult> {
   const started = performance.now();
   const [cmd, args] =
     builder === 'stellar'
       ? ['stellar', ['contract', 'build', '--package', project.packageName]]
-      : ['cargo', ['build', '--release', '--target', 'wasm32v1-none', '--package', project.packageName]];
+      : [
+          'cargo',
+          ['build', '--release', '--target', 'wasm32v1-none', '--package', project.packageName],
+        ];
   try {
     await run(cmd, args, { cwd: project.dir, maxBuffer: 64 * 1024 * 1024 });
   } catch (err) {
@@ -107,5 +122,8 @@ export async function buildContract(project: ContractProject, builder: Builder):
 
 function errorOutput(err: unknown): string {
   const e = err as { stderr?: string; stdout?: string; message?: string };
-  return [e.stderr, e.stdout].filter((s) => typeof s === 'string' && s.length > 0).join('\n') || String(e.message ?? err);
+  return (
+    [e.stderr, e.stdout].filter((s) => typeof s === 'string' && s.length > 0).join('\n') ||
+    String(e.message ?? err)
+  );
 }

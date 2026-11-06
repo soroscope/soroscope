@@ -172,7 +172,9 @@ async function measureGetLedgersReach(
   let good = health.oldestLedger + 2;
   if (!(await probe(good))) return { oldest: null, lookups, consistent };
 
-  const steps = [14, 30, 90, 180, 365, 730].map((days) => health.latestLedger - days * LEDGERS_PER_DAY);
+  const steps = [14, 30, 90, 180, 365, 730].map(
+    (days) => health.latestLedger - days * LEDGERS_PER_DAY,
+  );
   let bad: number | null = null;
   for (const candidate of steps) {
     if (candidate >= good) continue;
@@ -228,7 +230,10 @@ async function runBurst(client: RpcClient, n: number, timeoutMs: number): Promis
   return result;
 }
 
-async function probeOne(input: ProviderInput, opts: Required<ProbeOptions>): Promise<ProviderProbe> {
+async function probeOne(
+  input: ProviderInput,
+  opts: Required<ProbeOptions>,
+): Promise<ProviderProbe> {
   const id = input.id ?? providerIdOf(input.url);
   const client = new RpcClient({
     url: input.url,
@@ -285,7 +290,10 @@ async function probeOne(input: ProviderInput, opts: Required<ProbeOptions>): Pro
   };
 
   if (health === null) {
-    probe.status = failure?.class === 'auth' || failure?.class === 'misconfigured' ? 'misconfigured' : 'unreachable';
+    probe.status =
+      failure?.class === 'auth' || failure?.class === 'misconfigured'
+        ? 'misconfigured'
+        : 'unreachable';
     return probe;
   }
 
@@ -360,7 +368,9 @@ export async function probeProviders(
 
   const rank = (r: ProviderProbe): number =>
     r.status === 'healthy' ? 0 : r.status === 'degraded' ? 1 : 2;
-  results.sort((a, b) => rank(a) - rank(b) || (a.latency.p50Ms ?? Infinity) - (b.latency.p50Ms ?? Infinity));
+  results.sort(
+    (a, b) => rank(a) - rank(b) || (a.latency.p50Ms ?? Infinity) - (b.latency.p50Ms ?? Infinity),
+  );
 
   return {
     generatedAt: new Date().toISOString(),

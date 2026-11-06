@@ -52,7 +52,10 @@ describe('successful read-only simulation', () => {
 
 describe('typed return values', () => {
   it('u32', () => {
-    expect(decodeSimulationResponse(sim('decimals')).returnValue).toEqual({ type: 'u32', value: 7 });
+    expect(decodeSimulationResponse(sim('decimals')).returnValue).toEqual({
+      type: 'u32',
+      value: 7,
+    });
   });
 
   it('i128 comes back as a bigint', () => {
@@ -114,7 +117,10 @@ describe('failing simulation', () => {
   });
 
   it('the native asset contract has no WASM spec, so the code stays unnamed', () => {
-    const resolved = resolveContractError(report.failure!, ContractSpec.empty({ kind: 'stellarAsset' }));
+    const resolved = resolveContractError(
+      report.failure!,
+      ContractSpec.empty({ kind: 'stellarAsset' }),
+    );
     expect(resolved.errorName).toBeNull();
     expect(resolved.message).toBe('resulting balance is not within the allowed range');
   });
@@ -161,7 +167,12 @@ describe('compareSimulations', () => {
   const report = (name: string) => decodeSimulationResponse(sim(name));
 
   it('finds no difference between a simulation and itself', () => {
-    for (const n of ['name', 'symbol', 'balance of a funded account', 'transfer exceeding the balance']) {
+    for (const n of [
+      'name',
+      'symbol',
+      'balance of a funded account',
+      'transfer exceeding the balance',
+    ]) {
       expect(compareSimulations(report(n), report(n)), n).toEqual([]);
     }
   });
@@ -169,8 +180,14 @@ describe('compareSimulations', () => {
   it('names the return value when two successful calls return different things', () => {
     // (name() and symbol() both return "native" for the native asset: they cost differently but agree on the value.)
     const diffs = compareSimulations(report('name'), report('decimals'));
-    expect(diffs.find((d) => d.field === 'returnValue')).toEqual({ field: 'returnValue', a: '"native"', b: '7' });
-    expect(compareSimulations(report('name'), report('symbol')).map((d) => d.field)).not.toContain('returnValue');
+    expect(diffs.find((d) => d.field === 'returnValue')).toEqual({
+      field: 'returnValue',
+      a: '"native"',
+      b: '7',
+    });
+    expect(compareSimulations(report('name'), report('symbol')).map((d) => d.field)).not.toContain(
+      'returnValue',
+    );
   });
 
   it('reports only the outcome when one call succeeds and the other fails', () => {
@@ -181,6 +198,8 @@ describe('compareSimulations', () => {
   it('names a differing footprint', () => {
     // A balance read touches a trustline or account entry that a name() read does not.
     const diffs = compareSimulations(report('balance of a funded account'), report('name'));
-    expect(diffs.map((d) => d.field)).toEqual(expect.arrayContaining(['returnValue', 'footprint.readOnly']));
+    expect(diffs.map((d) => d.field)).toEqual(
+      expect.arrayContaining(['returnValue', 'footprint.readOnly']),
+    );
   });
 });

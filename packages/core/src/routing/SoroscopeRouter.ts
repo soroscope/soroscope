@@ -1,10 +1,6 @@
 import { classifyFailure } from '../rpc/classify';
 import type { FailureClass } from '../rpc/classify';
-import {
-  AllProvidersFailedError,
-  NoEligibleProviderError,
-  RpcHttpError,
-} from '../rpc/errors';
+import { AllProvidersFailedError, NoEligibleProviderError, RpcHttpError } from '../rpc/errors';
 import type { Attempt } from '../rpc/errors';
 import { RpcClient } from '../rpc/RpcClient';
 import { ledgerObservationOf, startLedgerOf } from '../rpc/methods';
@@ -270,7 +266,8 @@ export class SoroscopeRouter implements RpcCaller {
         // Bad input fails the same way everywhere; retrying elsewhere only burns quota.
         if (failure === 'invalid_request') throw err;
         // A signed transaction may already have reached the node: only retry when it provably did not.
-        if (method === 'sendTransaction' && failure !== 'network' && failure !== 'timeout') throw err;
+        if (method === 'sendTransaction' && failure !== 'network' && failure !== 'timeout')
+          throw err;
       }
     }
     throw new AllProvidersFailedError(method, attempts);
@@ -390,4 +387,3 @@ export class SoroscopeRouter implements RpcCaller {
     return failure;
   }
 }
-

@@ -29,7 +29,9 @@ export class TransactionSimulator {
    */
   async simulate(transactionXdr: string, options: SimulateOptions = {}): Promise<SimulationReport> {
     if (typeof transactionXdr !== 'string' || transactionXdr === '') {
-      throw new TypeError('TransactionSimulator.simulate: transactionXdr must be a non-empty string');
+      throw new TypeError(
+        'TransactionSimulator.simulate: transactionXdr must be a non-empty string',
+      );
     }
     const params: SimulateTransactionParams = { transaction: transactionXdr };
     if (options.instructionLeeway !== undefined) {

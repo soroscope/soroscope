@@ -43,7 +43,10 @@ export function resolveProviders(
   const fromEnv =
     env['SOROSCOPE_RPC_URLS'] === undefined || env['SOROSCOPE_RPC_URLS'] === ''
       ? undefined
-      : env['SOROSCOPE_RPC_URLS'].split(',').map((s) => s.trim()).filter(Boolean);
+      : env['SOROSCOPE_RPC_URLS']
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean);
   const urls = explicit ?? fromEnv;
 
   if (urls !== undefined) {

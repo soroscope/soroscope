@@ -31,7 +31,10 @@ export interface Measurement {
 
 /** Replace every occurrence of a known per-run address with its stable alias. */
 function aliasText(text: string, aliases: Readonly<Record<string, string>>): string {
-  return Object.entries(aliases).reduce((acc, [address, alias]) => acc.split(address).join(alias), text);
+  return Object.entries(aliases).reduce(
+    (acc, [address, alias]) => acc.split(address).join(alias),
+    text,
+  );
 }
 
 /**
@@ -40,7 +43,10 @@ function aliasText(text: string, aliases: Readonly<Record<string, string>>): str
  * of a freshly deployed contract, and the throwaway deployer, differ on every run
  * (and appear inside ledger keys such as a balance entry).
  */
-export function measure(report: SimulationReport, aliases: Readonly<Record<string, string>> = {}): Measurement {
+export function measure(
+  report: SimulationReport,
+  aliases: Readonly<Record<string, string>> = {},
+): Measurement {
   const data = report.transactionData;
   if (!report.ok || data === null) {
     return {
@@ -70,7 +76,8 @@ export function measure(report: SimulationReport, aliases: Readonly<Record<strin
       events: report.events.length,
     },
     footprint: { readOnly, readWrite },
-    returnValue: report.returnValue === null ? null : aliasText(formatScVal(report.returnValue), aliases),
+    returnValue:
+      report.returnValue === null ? null : aliasText(formatScVal(report.returnValue), aliases),
     ledger: report.latestLedger,
   };
 }

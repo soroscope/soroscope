@@ -36,10 +36,14 @@ export async function runSimulate(opts: SimulateCommandOptions, io: Io): Promise
     try {
       args = JSON.parse(opts.args) as InvocationArgs;
     } catch {
-      throw new CliError('--args must be JSON: an object of named arguments, or a list of {"type","value"}.', ExitCode.Usage);
+      throw new CliError(
+        '--args must be JSON: an object of named arguments, or a list of {"type","value"}.',
+        ExitCode.Usage,
+      );
     }
   }
-  const passphrase = selection.network === 'custom' ? Networks.TESTNET : NETWORK_PASSPHRASES[selection.network];
+  const passphrase =
+    selection.network === 'custom' ? Networks.TESTNET : NETWORK_PASSPHRASES[selection.network];
   const router = await SoroscopeRouter.create({ providers: selection.urls });
   try {
     const { spec } = await loadSpec(router, opts.contract);
@@ -52,8 +56,13 @@ export async function runSimulate(opts: SimulateCommandOptions, io: Io): Promise
       spec,
     });
     if (opts.compare === true) {
-      if (selection.urls.length < 2) throw new CliError('--compare needs at least two providers (--network mainnet or testnet, or several --rpc).', ExitCode.Usage);
-      const { differentialSimulate, describeDifferential } = await import('@soroscope/differential');
+      if (selection.urls.length < 2)
+        throw new CliError(
+          '--compare needs at least two providers (--network mainnet or testnet, or several --rpc).',
+          ExitCode.Usage,
+        );
+      const { differentialSimulate, describeDifferential } =
+        await import('@soroscope/differential');
       const result = await differentialSimulate(xdr, { providers: selection.urls });
       io.out(describeDifferential(result));
       if (result.compared === 0) return ExitCode.Network;
@@ -66,7 +75,9 @@ export async function runSimulate(opts: SimulateCommandOptions, io: Io): Promise
       io.out(describeSimulation(report));
       if (report.returnValue !== null) io.out(`return: ${formatScVal(report.returnValue)}`);
       for (const e of report.auth) {
-        io.out(`auth: ${e.credentials.type === 'address' ? e.credentials.address.address : 'transaction source'} must authorize ${e.rootInvocation.function.type === 'contractFn' ? e.rootInvocation.function.functionName : 'contract creation'}`);
+        io.out(
+          `auth: ${e.credentials.type === 'address' ? e.credentials.address.address : 'transaction source'} must authorize ${e.rootInvocation.function.type === 'contractFn' ? e.rootInvocation.function.functionName : 'contract creation'}`,
+        );
       }
     }
     return report.ok ? ExitCode.Ok : ExitCode.Failure;

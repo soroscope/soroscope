@@ -26,7 +26,10 @@ export async function runRouteExplain(
     try {
       params = JSON.parse(paramsJson);
     } catch {
-      throw new CliError('params must be valid JSON, for example \'{"startLedger": 123}\'.', ExitCode.Usage);
+      throw new CliError(
+        'params must be valid JSON, for example \'{"startLedger": 123}\'.',
+        ExitCode.Usage,
+      );
     }
   }
   const startLedger = opts.startLedger === undefined ? undefined : Number(opts.startLedger);

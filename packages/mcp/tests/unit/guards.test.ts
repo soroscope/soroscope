@@ -1,6 +1,11 @@
 import { Keypair } from '@stellar/stellar-sdk';
 import { describe, expect, it } from 'vitest';
-import { assertPublicHttpsUrl, containsSecretSeed, rejectSecrets, SecretInInputError } from '../../src';
+import {
+  assertPublicHttpsUrl,
+  containsSecretSeed,
+  rejectSecrets,
+  SecretInInputError,
+} from '../../src';
 
 describe('secret seed detection', () => {
   const seed = Keypair.random().secret();
@@ -13,7 +18,9 @@ describe('secret seed detection', () => {
 
   it('ignores public keys, contract ids and look-alikes with a bad checksum', () => {
     expect(containsSecretSeed(pub)).toBe(false);
-    expect(containsSecretSeed('CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC')).toBe(false);
+    expect(containsSecretSeed('CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC')).toBe(
+      false,
+    );
     expect(containsSecretSeed(`S${'A'.repeat(55)}`)).toBe(false);
   });
 
@@ -41,7 +48,13 @@ describe('custom RPC URL policy', () => {
     await expect(assertPublicHttpsUrl(url)).rejects.toThrow();
   });
 
-  it('accepts a real public https endpoint (resolved through real DNS)', { timeout: 30_000 }, async () => {
-    await expect(assertPublicHttpsUrl('https://soroban-testnet.stellar.org')).resolves.toBeUndefined();
-  });
+  it(
+    'accepts a real public https endpoint (resolved through real DNS)',
+    { timeout: 30_000 },
+    async () => {
+      await expect(
+        assertPublicHttpsUrl('https://soroban-testnet.stellar.org'),
+      ).resolves.toBeUndefined();
+    },
+  );
 });

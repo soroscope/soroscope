@@ -126,7 +126,11 @@ export class RpcClient implements RpcCaller {
       throw new RpcProtocolError(`Response from ${this.url} is not JSON`, this.url, snippet);
     }
     if (!isRecord(parsed) || parsed['jsonrpc'] !== '2.0') {
-      throw new RpcProtocolError(`Response from ${this.url} is not JSON-RPC 2.0`, this.url, snippet);
+      throw new RpcProtocolError(
+        `Response from ${this.url} is not JSON-RPC 2.0`,
+        this.url,
+        snippet,
+      );
     }
 
     const error = parsed['error'];

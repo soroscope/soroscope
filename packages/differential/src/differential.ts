@@ -59,7 +59,9 @@ const OUTCOME = 'outcome';
  * are compared among them.
  */
 export function compareProviders(answers: readonly ProviderAnswer[]): DifferentialReport {
-  const answered = answers.filter((a): a is ProviderAnswer & { report: SimulationReport } => a.report !== undefined);
+  const answered = answers.filter(
+    (a): a is ProviderAnswer & { report: SimulationReport } => a.report !== undefined,
+  );
   const fields = answered.map((a) => ({ answer: a, fields: simulationFields(a.report) }));
   const names = [...new Set(fields.flatMap((f) => Object.keys(f.fields)))];
   const ledgers = new Set(answered.map((a) => a.latestLedger));
@@ -75,13 +77,19 @@ export function compareProviders(answers: readonly ProviderAnswer[]): Differenti
       byValue.set(v, [...(byValue.get(v) ?? []), h.answer.provider]);
     }
     if (byValue.size > 1) {
-      const groups = [...byValue].map(([value, providers]) => ({ value, providers })).sort((a, b) => b.providers.length - a.providers.length);
+      const groups = [...byValue]
+        .map(([value, providers]) => ({ value, providers }))
+        .sort((a, b) => b.providers.length - a.providers.length);
       disagreements.push({ field, groups, ledgerSkew });
     }
   }
   // When outcomes differ, the other fields describe different things: keep only the outcome.
   const outcome = disagreements.find((d) => d.field === OUTCOME);
-  return { answers: [...answers], compared: answered.length, disagreements: outcome === undefined ? disagreements : [outcome] };
+  return {
+    answers: [...answers],
+    compared: answered.length,
+    disagreements: outcome === undefined ? disagreements : [outcome],
+  };
 }
 
 export interface DifferentialOptions {
@@ -96,16 +104,28 @@ export interface DifferentialOptions {
  * separately and report where they disagree. Each provider is asked directly,
  * not through a router: the point is to see them side by side.
  */
-export async function differentialSimulate(transaction: string, options: DifferentialOptions): Promise<DifferentialReport> {
+export async function differentialSimulate(
+  transaction: string,
+  options: DifferentialOptions,
+): Promise<DifferentialReport> {
   const answers = await Promise.all(
     options.providers.map(async (provider): Promise<ProviderAnswer> => {
       const started = performance.now();
       try {
         const client = new RpcClient({ url: provider, timeoutMs: options.timeoutMs ?? 30_000 });
         const raw = await client.call<RawSimulateResponse>('simulateTransaction', { transaction });
-        return { provider, latencyMs: Math.round(performance.now() - started), latestLedger: raw.latestLedger, report: decodeSimulationResponse(raw) };
+        return {
+          provider,
+          latencyMs: Math.round(performance.now() - started),
+          latestLedger: raw.latestLedger,
+          report: decodeSimulationResponse(raw),
+        };
       } catch (e) {
-        return { provider, latencyMs: Math.round(performance.now() - started), failure: e instanceof Error ? e.message : String(e) };
+        return {
+          provider,
+          latencyMs: Math.round(performance.now() - started),
+          failure: e instanceof Error ? e.message : String(e),
+        };
       }
     }),
   );
@@ -129,11 +149,16 @@ export function describeDifferential(report: DifferentialReport): string {
   if (report.compared < 2) {
     lines.push('Fewer than two providers answered, so there is nothing to compare.');
   } else if (report.disagreements.length === 0) {
-    lines.push('No disagreement: every provider that answered gave the same result, resources and footprint.');
+    lines.push(
+      'No disagreement: every provider that answered gave the same result, resources and footprint.',
+    );
   } else {
     for (const d of report.disagreements) {
-      lines.push(`DISAGREE on ${d.field}${d.ledgerSkew ? '  (providers answered at different ledgers)' : ''}`);
-      for (const g of d.groups) lines.push(`    ${clip(g.value)}  ←  ${g.providers.map(short).join(', ')}`);
+      lines.push(
+        `DISAGREE on ${d.field}${d.ledgerSkew ? '  (providers answered at different ledgers)' : ''}`,
+      );
+      for (const g of d.groups)
+        lines.push(`    ${clip(g.value)}  ←  ${g.providers.map(short).join(', ')}`);
     }
   }
   return lines.join('\n');

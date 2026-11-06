@@ -21,7 +21,9 @@ afterAll(() => {
   rmSync(dir, { recursive: true, force: true });
 });
 
-async function runAction(inputs: Record<string, string>): Promise<{ code: number; stdout: string; summary: string; outputs: string }> {
+async function runAction(
+  inputs: Record<string, string>,
+): Promise<{ code: number; stdout: string; summary: string; outputs: string }> {
   const summaryPath = join(dir, `summary-${Math.random()}.md`);
   const outputPath = join(dir, `output-${Math.random()}.txt`);
   writeFileSync(summaryPath, '');
@@ -36,10 +38,20 @@ async function runAction(inputs: Record<string, string>): Promise<{ code: number
   };
   try {
     const { stdout } = await run(process.execPath, [BUNDLE], { env, cwd: dir, timeout: 200_000 });
-    return { code: 0, stdout, summary: readFileSync(summaryPath, 'utf8'), outputs: readFileSync(outputPath, 'utf8') };
+    return {
+      code: 0,
+      stdout,
+      summary: readFileSync(summaryPath, 'utf8'),
+      outputs: readFileSync(outputPath, 'utf8'),
+    };
   } catch (err) {
     const e = err as { code?: number; stdout?: string };
-    return { code: typeof e.code === 'number' ? e.code : 1, stdout: e.stdout ?? '', summary: readFileSync(summaryPath, 'utf8'), outputs: readFileSync(outputPath, 'utf8') };
+    return {
+      code: typeof e.code === 'number' ? e.code : 1,
+      stdout: e.stdout ?? '',
+      summary: readFileSync(summaryPath, 'utf8'),
+      outputs: readFileSync(outputPath, 'utf8'),
+    };
   }
 }
 
@@ -48,7 +60,9 @@ function config(n: number): void {
     join(dir, 'soroscope.config.json'),
     JSON.stringify({
       version: 1,
-      invocations: [{ name: 'work', contractId: FIXTURE.contractId, function: 'work', args: { n } }],
+      invocations: [
+        { name: 'work', contractId: FIXTURE.contractId, function: 'work', args: { n } },
+      ],
     }),
   );
 }
@@ -61,31 +75,43 @@ describe('the bundled GitHub Action, run as GitHub runs it (live testnet)', () =
     expect(r.stdout).toContain('Baseline written');
   });
 
-  it('passes against that baseline and reports through outputs and the job summary', { timeout: 200_000 }, async () => {
-    config(10);
-    const r = await runAction({});
-    expect(r.code).toBe(0);
-    expect(r.outputs).toContain('result=pass');
-    expect(r.outputs).toContain('regressions=0');
-    expect(r.summary.startsWith(COMMENT_MARKER)).toBe(true);
-  });
+  it(
+    'passes against that baseline and reports through outputs and the job summary',
+    { timeout: 200_000 },
+    async () => {
+      config(10);
+      const r = await runAction({});
+      expect(r.code).toBe(0);
+      expect(r.outputs).toContain('result=pass');
+      expect(r.outputs).toContain('regressions=0');
+      expect(r.summary.startsWith(COMMENT_MARKER)).toBe(true);
+    },
+  );
 
-  it('fails the job, annotates the regression and writes it to the summary', { timeout: 200_000 }, async () => {
-    config(5000);
-    const r = await runAction({});
-    expect(r.code).toBe(1);
-    expect(r.outputs).toContain('result=fail');
-    expect(r.outputs).toContain('regressions=1');
-    expect(r.stdout).toMatch(/::error title=Soroscope work::instructions grew/);
-    expect(r.summary).toContain('FAIL');
-  });
+  it(
+    'fails the job, annotates the regression and writes it to the summary',
+    { timeout: 200_000 },
+    async () => {
+      config(5000);
+      const r = await runAction({});
+      expect(r.code).toBe(1);
+      expect(r.outputs).toContain('result=fail');
+      expect(r.outputs).toContain('regressions=1');
+      expect(r.stdout).toMatch(/::error title=Soroscope work::instructions grew/);
+      expect(r.summary).toContain('FAIL');
+    },
+  );
 
-  it('fail-on: never reports the regression but does not fail the job', { timeout: 200_000 }, async () => {
-    config(5000);
-    const r = await runAction({ 'fail-on': 'never' });
-    expect(r.code).toBe(0);
-    expect(r.outputs).toContain('result=fail');
-  });
+  it(
+    'fail-on: never reports the regression but does not fail the job',
+    { timeout: 200_000 },
+    async () => {
+      config(5000);
+      const r = await runAction({ 'fail-on': 'never' });
+      expect(r.code).toBe(0);
+      expect(r.outputs).toContain('result=fail');
+    },
+  );
 
   it('reports a bad config as a clear error, exit 1', { timeout: 60_000 }, async () => {
     writeFileSync(join(dir, 'broken.json'), '{ nope');

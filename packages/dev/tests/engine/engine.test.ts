@@ -61,12 +61,18 @@ describe('LocalNetwork (fixture contract, in-process)', () => {
     const r = net.invoke(id, 'put', [sym('k'), i128(42n)], { commit: false });
     expect(r.report.ok).toBe(true);
     expect(r.committed).toBe(false);
-    expect(net.invoke(id, 'get', [sym('k')], { commit: false }).report.failure?.error.contractCode).toBe(1);
+    expect(
+      net.invoke(id, 'get', [sym('k')], { commit: false }).report.failure?.error.contractCode,
+    ).toBe(1);
   });
 
   it('meters work: more iterations cost more instructions', () => {
-    const small = net.invoke(id, 'work', [b64(nativeToScVal(10, { type: 'u32' }))], { commit: false });
-    const big = net.invoke(id, 'work', [b64(nativeToScVal(5000, { type: 'u32' }))], { commit: false });
+    const small = net.invoke(id, 'work', [b64(nativeToScVal(10, { type: 'u32' }))], {
+      commit: false,
+    });
+    const big = net.invoke(id, 'work', [b64(nativeToScVal(5000, { type: 'u32' }))], {
+      commit: false,
+    });
     expect(big.cpuInstructions).toBeGreaterThan(small.cpuInstructions + 100_000);
     expect(big.report.minResourceFee!).toBeGreaterThan(small.report.minResourceFee!);
   });
@@ -103,7 +109,9 @@ describe('LocalNetwork (fixture contract, in-process)', () => {
   });
 
   it('rejects an unknown contract and malformed input with clear errors', () => {
-    expect(() => net.swapWasm(OTHER.replace(/^G/, 'C'), v2Wasm)).toThrow(/invalid contract id|no contract/);
+    expect(() => net.swapWasm(OTHER.replace(/^G/, 'C'), v2Wasm)).toThrow(
+      /invalid contract id|no contract/,
+    );
     expect(() => net.invoke(id, 'put', ['not xdr'])).toThrow(/invalid argument ScVal XDR/);
     expect(() => net.deploy(Buffer.from('not wasm'))).toThrow(/upload failed/);
   });

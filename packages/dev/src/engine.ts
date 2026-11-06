@@ -3,7 +3,12 @@ import { createRequire } from 'node:module';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ENGINE_BINARY, detectLibc, enginePackageFor } from './platform';
-import { decodeSimulationResponse, type RpcCaller, type RawSimulateResponse, type SimulationReport } from '@soroscope/core';
+import {
+  decodeSimulationResponse,
+  type RpcCaller,
+  type RawSimulateResponse,
+  type SimulationReport,
+} from '@soroscope/core';
 
 /**
  * A network's Soroban configuration: every CONFIG_SETTING ledger entry (fee
@@ -62,7 +67,14 @@ interface NativeEngine {
   readonly protocol: number;
   readonly entryCount: number;
   readonly nativeAssetContract: string;
-  loadEntries(entries: { xdr: string; lastModifiedLedgerSeq: number; liveUntilLedgerSeq?: number; extXdr?: string }[]): number;
+  loadEntries(
+    entries: {
+      xdr: string;
+      lastModifiedLedgerSeq: number;
+      liveUntilLedgerSeq?: number;
+      extXdr?: string;
+    }[],
+  ): number;
   advance(ledgers: number, secondsPerLedger?: number): void;
   uploadWasm(wasm: Buffer): string;
   deploy(wasm: Buffer, constructorArgs?: string[]): DeployedLocalContract;
@@ -100,7 +112,11 @@ function nativeFileName(): string {
  * optional dependency was not installed (for example `--no-optional`).
  */
 function installedEnginePath(): string | undefined {
-  const pkg = enginePackageFor({ platform: process.platform, arch: process.arch, libc: detectLibc() });
+  const pkg = enginePackageFor({
+    platform: process.platform,
+    arch: process.arch,
+    libc: detectLibc(),
+  });
   if (pkg === undefined) return undefined;
   try {
     return createRequire(import.meta.url).resolve(`${pkg}/${ENGINE_BINARY}`);
@@ -130,7 +146,9 @@ export class UnsupportedProtocolError extends Error {
   ) {
     super(
       `The network runs protocol ${networkProtocol}, but this build of @soroscope/dev embeds a soroban-env-host only for protocol${supportedProtocols.length === 1 ? '' : 's'} ${supportedProtocols.join(' and ')}. ${
-        networkProtocol > Math.max(...supportedProtocols) ? 'Update @soroscope/dev.' : 'Use a network on a supported protocol.'
+        networkProtocol > Math.max(...supportedProtocols)
+          ? 'Update @soroscope/dev.'
+          : 'Use a network on a supported protocol.'
       }`,
     );
     this.name = 'UnsupportedProtocolError';
@@ -155,8 +173,14 @@ function loadNativeModule(): NativeModule {
   const mod: { exports: Partial<NativeModule> } = { exports: {} };
   process.dlopen(mod, found);
   const { Engine, supportedProtocols, hostProtocolVersion } = mod.exports;
-  if (Engine === undefined || supportedProtocols === undefined || hostProtocolVersion === undefined) {
-    throw new Error(`${found} is not the current Soroscope engine (missing Engine, supportedProtocols or hostProtocolVersion export)`);
+  if (
+    Engine === undefined ||
+    supportedProtocols === undefined ||
+    hostProtocolVersion === undefined
+  ) {
+    throw new Error(
+      `${found} is not the current Soroscope engine (missing Engine, supportedProtocols or hostProtocolVersion export)`,
+    );
   }
   cachedModule = { Engine, supportedProtocols, hostProtocolVersion };
   return cachedModule;
@@ -202,7 +226,8 @@ export class LocalNetwork {
   ): LocalNetwork {
     const { Engine, supportedProtocols: supported } = loadNativeModule();
     const protocols = supported();
-    if (!protocols.includes(config.protocolVersion)) throw new UnsupportedProtocolError(config.protocolVersion, protocols);
+    if (!protocols.includes(config.protocolVersion))
+      throw new UnsupportedProtocolError(config.protocolVersion, protocols);
     return new LocalNetwork(
       new Engine({
         networkPassphrase: config.networkPassphrase,
@@ -269,14 +294,26 @@ export class LocalNetwork {
    * Call `fn` with `args` (base64 `ScVal`s). By default a successful call's
    * writes are applied; pass `{ commit: false }` to only simulate.
    */
-  invoke(contractId: string, fn: string, args: string[] = [], options: { commit?: boolean } = {}): LocalCallResult {
+  invoke(
+    contractId: string,
+    fn: string,
+    args: string[] = [],
+    options: { commit?: boolean } = {},
+  ): LocalCallResult {
     const commit = options.commit ?? true;
-    const raw = JSON.parse(this.native.invoke(contractId, fn, args, commit)) as RawSimulateResponse & {
+    const raw = JSON.parse(
+      this.native.invoke(contractId, fn, args, commit),
+    ) as RawSimulateResponse & {
       cpuInstructions: number;
       memoryBytes: number;
     };
     const report = decodeSimulationResponse(raw);
-    return { report, cpuInstructions: raw.cpuInstructions, memoryBytes: raw.memoryBytes, committed: commit && report.ok };
+    return {
+      report,
+      cpuInstructions: raw.cpuInstructions,
+      memoryBytes: raw.memoryBytes,
+      committed: commit && report.ok,
+    };
   }
 
   /**
@@ -292,7 +329,10 @@ export class LocalNetwork {
  * Read a live network's configuration, to start a {@link LocalNetwork} that
  * prices calls like it. One `getLedgerEntries` and one `getLatestLedger` call.
  */
-export async function fetchNetworkConfig(rpc: RpcCaller, networkPassphrase: string): Promise<NetworkConfigSnapshot> {
+export async function fetchNetworkConfig(
+  rpc: RpcCaller,
+  networkPassphrase: string,
+): Promise<NetworkConfigSnapshot> {
   // LedgerKey::ConfigSetting: LedgerEntryType CONFIG_SETTING (8), then the
   // ConfigSettingId, both big-endian int32. Ids 0..16 cover protocol 29.
   const keys = Array.from({ length: 17 }, (_, id) => {
@@ -301,15 +341,18 @@ export async function fetchNetworkConfig(rpc: RpcCaller, networkPassphrase: stri
     b.writeInt32BE(id, 4);
     return b.toString('base64');
   });
-  const entries = await rpc.call<{ latestLedger: number; entries?: { xdr: string; lastModifiedLedgerSeq: number }[] }>(
-    'getLedgerEntries',
-    { keys },
-  );
+  const entries = await rpc.call<{
+    latestLedger: number;
+    entries?: { xdr: string; lastModifiedLedgerSeq: number }[];
+  }>('getLedgerEntries', { keys });
   const latest = await rpc.call<{ protocolVersion: number }>('getLatestLedger');
   return {
     networkPassphrase,
     protocolVersion: latest.protocolVersion,
     latestLedger: entries.latestLedger,
-    configEntries: (entries.entries ?? []).map((e) => ({ xdr: e.xdr, lastModifiedLedgerSeq: e.lastModifiedLedgerSeq })),
+    configEntries: (entries.entries ?? []).map((e) => ({
+      xdr: e.xdr,
+      lastModifiedLedgerSeq: e.lastModifiedLedgerSeq,
+    })),
   };
 }

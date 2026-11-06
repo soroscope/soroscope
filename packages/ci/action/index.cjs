@@ -73036,7 +73036,9 @@ function parseConfig(input3) {
   const names = config2.invocations.map((i) => i.name);
   const dup = names.find((n, i) => names.indexOf(n) !== i);
   if (dup !== void 0) {
-    throw new ConfigError("soroscope.config.json is invalid:", [`invocation name "${dup}" is used twice`]);
+    throw new ConfigError("soroscope.config.json is invalid:", [
+      `invocation name "${dup}" is used twice`
+    ]);
   }
   return config2;
 }
@@ -73046,20 +73048,30 @@ function loadConfig(path) {
   try {
     raw = (0, import_node_fs.readFileSync)(abs, "utf8");
   } catch (err) {
-    throw new ConfigError(`Cannot read ${abs}:`, [err instanceof Error ? err.message : String(err)]);
+    throw new ConfigError(`Cannot read ${abs}:`, [
+      err instanceof Error ? err.message : String(err)
+    ]);
   }
   let json2;
   try {
     json2 = JSON.parse(raw);
   } catch (err) {
-    throw new ConfigError(`${abs} is not valid JSON:`, [err instanceof Error ? err.message : String(err)]);
+    throw new ConfigError(`${abs} is not valid JSON:`, [
+      err instanceof Error ? err.message : String(err)
+    ]);
   }
   return { config: parseConfig(json2), path: abs, dir: (0, import_node_path.dirname)(abs) };
 }
 
 // src/render.ts
 var COMMENT_MARKER = "<!-- soroscope-ci -->";
-var WORD = { pass: "PASS", warn: "WARN", fail: "FAIL", new: "NEW", info: "INFO" };
+var WORD = {
+  pass: "PASS",
+  warn: "WARN",
+  fail: "FAIL",
+  new: "NEW",
+  info: "INFO"
+};
 function cell(text) {
   return text.replace(/\\/g, "\\\\").replace(/\|/g, "\\|").replace(/[\r\n]+/g, " ").replace(/</g, "&lt;").slice(0, 300);
 }
@@ -73077,7 +73089,10 @@ function renderMarkdown(report) {
     `Network ${report.environment.network}${report.environment.protocolVersion === null ? "" : `, protocol ${report.environment.protocolVersion}`}. ${report.invocations.length} invocation${report.invocations.length === 1 ? "" : "s"} checked.`
   );
   if (report.environmentChanged) {
-    lines.push("", "The protocol version differs from the baseline, so fee changes are reported as warnings, not failures.");
+    lines.push(
+      "",
+      "The protocol version differs from the baseline, so fee changes are reported as warnings, not failures."
+    );
   }
   const rows = report.invocations.flatMap(
     (inv) => inv.findings.filter((f) => f.level !== "info").map((f) => row(inv, f))
@@ -73092,8 +73107,18 @@ function renderMarkdown(report) {
   } else {
     lines.push("", "No regressions.");
   }
-  const info = report.invocations.flatMap((inv) => inv.findings.filter((f) => f.level === "info").map((f) => `- ${cell(inv.name)}: ${cell(f.message)}`));
-  if (info.length > 0) lines.push("", "<details><summary>Improvements and notes</summary>", "", ...info, "", "</details>");
+  const info = report.invocations.flatMap(
+    (inv) => inv.findings.filter((f) => f.level === "info").map((f) => `- ${cell(inv.name)}: ${cell(f.message)}`)
+  );
+  if (info.length > 0)
+    lines.push(
+      "",
+      "<details><summary>Improvements and notes</summary>",
+      "",
+      ...info,
+      "",
+      "</details>"
+    );
   const summary = report.invocations.filter((i) => i.measurement.ok && i.measurement.metrics !== null).map((i) => {
     const m = i.measurement.metrics;
     return `| ${cell(i.name)} | ${WORD[i.status]} | ${num(m.instructions)} | ${num(m.diskReadBytes)} | ${num(m.writeBytes)} | ${num(m.resourceFee)} | ${m.readOnlyKeys}/${m.readWriteKeys} |`;
@@ -73111,9 +73136,15 @@ function renderMarkdown(report) {
     );
   }
   if (report.removed.length > 0) {
-    lines.push("", `Baseline entries with no matching invocation: ${report.removed.map(cell).join(", ")}`);
+    lines.push(
+      "",
+      `Baseline entries with no matching invocation: ${report.removed.map(cell).join(", ")}`
+    );
   }
-  lines.push("", "Measured with `simulateTransaction`; run `soroscope check --update-baseline` to accept the current numbers.");
+  lines.push(
+    "",
+    "Measured with `simulateTransaction`; run `soroscope check --update-baseline` to accept the current numbers."
+  );
   return `${lines.join("\n")}
 `;
 }
@@ -73364,7 +73395,11 @@ var RpcClient = class {
       throw new RpcProtocolError(`Response from ${this.url} is not JSON`, this.url, snippet);
     }
     if (!isRecord(parsed) || parsed["jsonrpc"] !== "2.0") {
-      throw new RpcProtocolError(`Response from ${this.url} is not JSON-RPC 2.0`, this.url, snippet);
+      throw new RpcProtocolError(
+        `Response from ${this.url} is not JSON-RPC 2.0`,
+        this.url,
+        snippet
+      );
     }
     const error62 = parsed["error"];
     if (isRecord(error62)) {
@@ -73651,7 +73686,8 @@ var ProviderRegistry = class _ProviderRegistry {
   /** Extrapolated ledger bounds for a provider, assuming ~5s ledger closes since it was observed. */
   estimatedLedgers(id, at = this.now()) {
     const rec = this.require(id);
-    if (rec.ledger.observedAt === 0) return { latest: rec.ledger.latest, oldest: rec.ledger.oldest };
+    if (rec.ledger.observedAt === 0)
+      return { latest: rec.ledger.latest, oldest: rec.ledger.oldest };
     const elapsed = Math.max(0, Math.floor((at - rec.ledger.observedAt) / LEDGER_CLOSE_MS));
     return {
       latest: rec.ledger.latest === null ? null : rec.ledger.latest + elapsed,
@@ -73667,7 +73703,8 @@ var ProviderRegistry = class _ProviderRegistry {
     let best = mine;
     for (const other of this.records.values()) {
       if (other.id === id) continue;
-      if (rec.chain.passphrase !== null && other.chain.passphrase !== null && other.chain.passphrase !== rec.chain.passphrase) continue;
+      if (rec.chain.passphrase !== null && other.chain.passphrase !== null && other.chain.passphrase !== rec.chain.passphrase)
+        continue;
       const theirs = this.estimatedLedgers(other.id, at).latest;
       if (theirs !== null && theirs > best) best = theirs;
     }
@@ -73711,7 +73748,9 @@ var ProviderRegistry = class _ProviderRegistry {
         continue;
       }
       if (rec.circuit.state === "open") {
-        skip(`circuit open for another ${Math.max(0, Math.ceil(((rec.circuit.openUntil ?? at) - at) / 1e3))}s`);
+        skip(
+          `circuit open for another ${Math.max(0, Math.ceil(((rec.circuit.openUntil ?? at) - at) / 1e3))}s`
+        );
         continue;
       }
       if (rec.rateLimit.limitedUntil !== null && rec.rateLimit.limitedUntil > at) {
@@ -73779,7 +73818,8 @@ var ProviderRegistry = class _ProviderRegistry {
   }
   static restore(snapshot, config2 = {}) {
     const registry2 = new _ProviderRegistry(config2);
-    for (const record2 of structuredClone(snapshot.providers)) registry2.records.set(record2.id, record2);
+    for (const record2 of structuredClone(snapshot.providers))
+      registry2.records.set(record2.id, record2);
     return registry2;
   }
   /** Deep `getLedgers` reach, or null when unknown or older than the reach TTL (ten minutes). */
@@ -73803,9 +73843,11 @@ var ProviderRegistry = class _ProviderRegistry {
     }
     if (rec.misconfigured) rec.status = "misconfigured";
     else if (rec.circuit.state === "open") rec.status = "unreachable";
-    else if (rec.rateLimit.limitedUntil !== null && rec.rateLimit.limitedUntil > at) rec.status = "limited";
+    else if (rec.rateLimit.limitedUntil !== null && rec.rateLimit.limitedUntil > at)
+      rec.status = "limited";
     else if (rec.counters.requests === 0) rec.status = "unknown";
-    else if (rec.circuit.consecutiveFailures > 0 || (this.lagOf(rec.id, at) ?? 0) > this.maxLag) rec.status = "degraded";
+    else if (rec.circuit.consecutiveFailures > 0 || (this.lagOf(rec.id, at) ?? 0) > this.maxLag)
+      rec.status = "degraded";
     else rec.status = "healthy";
   }
 };
@@ -73983,7 +74025,8 @@ var SoroscopeRouter = class _SoroscopeRouter {
           message: messageOf(err)
         });
         if (failure2 === "invalid_request") throw err;
-        if (method === "sendTransaction" && failure2 !== "network" && failure2 !== "timeout") throw err;
+        if (method === "sendTransaction" && failure2 !== "network" && failure2 !== "timeout")
+          throw err;
       }
     }
     throw new AllProvidersFailedError(method, attempts);
@@ -74628,8 +74671,12 @@ function readScAddress(reader) {
     }
     case 3: {
       const idType = reader.readEnum();
-      if (idType !== 0) throw new XdrUnsupportedError(`ClaimableBalanceIDType(${idType})`, reader.position);
-      return { type: "claimableBalance", address: encodeClaimableBalanceId(reader.readFixedOpaque(32)) };
+      if (idType !== 0)
+        throw new XdrUnsupportedError(`ClaimableBalanceIDType(${idType})`, reader.position);
+      return {
+        type: "claimableBalance",
+        address: encodeClaimableBalanceId(reader.readFixedOpaque(32))
+      };
     }
     case 4:
       return { type: "liquidityPool", address: encodeLiquidityPoolId(reader.readFixedOpaque(32)) };
@@ -74840,14 +74887,19 @@ function readLedgerKey(reader) {
     case ENTRY.ACCOUNT:
       return { type: "account", accountId: readAccountId(reader) };
     case ENTRY.TRUSTLINE:
-      return { type: "trustline", accountId: readAccountId(reader), asset: readTrustLineAsset(reader) };
+      return {
+        type: "trustline",
+        accountId: readAccountId(reader),
+        asset: readTrustLineAsset(reader)
+      };
     case ENTRY.OFFER:
       return { type: "offer", sellerId: readAccountId(reader), offerId: reader.readInt64() };
     case ENTRY.DATA:
       return { type: "data", accountId: readAccountId(reader), dataName: reader.readString() };
     case ENTRY.CLAIMABLE_BALANCE: {
       const idType = reader.readEnum();
-      if (idType !== 0) throw new XdrUnsupportedError(`ClaimableBalanceIDType(${idType})`, reader.position);
+      if (idType !== 0)
+        throw new XdrUnsupportedError(`ClaimableBalanceIDType(${idType})`, reader.position);
       return { type: "claimableBalance", balanceId: toHex(reader.readFixedOpaque(32)) };
     }
     case ENTRY.LIQUIDITY_POOL:
@@ -74981,7 +75033,8 @@ function readContractEvent(reader) {
   const contractId = readOptional(reader, () => encodeContractId(reader.readFixedOpaque(32)));
   const typeNum = reader.readEnum();
   const type = ["system", "contract", "diagnostic"][typeNum];
-  if (type === void 0) throw new XdrUnsupportedError(`ContractEventType(${typeNum})`, reader.position);
+  if (type === void 0)
+    throw new XdrUnsupportedError(`ContractEventType(${typeNum})`, reader.position);
   const bodyV = reader.readEnum();
   if (bodyV !== 0) throw new XdrUnsupportedError(`ContractEventBody(${bodyV})`, reader.position);
   const topics = readArray2(reader, () => readScVal(reader));
@@ -75030,7 +75083,10 @@ function readFunction(reader) {
 }
 function readInvocation(reader, depth) {
   if (depth > MAX_DEPTH) {
-    throw new XdrDecodeError(`Invocation tree nesting exceeds ${MAX_DEPTH} levels`, reader.position);
+    throw new XdrDecodeError(
+      `Invocation tree nesting exceeds ${MAX_DEPTH} levels`,
+      reader.position
+    );
   }
   const fn = readFunction(reader);
   const subInvocations = readArray2(reader, () => readInvocation(reader, depth + 1));
@@ -75191,12 +75247,14 @@ function readSpecEntry(reader) {
         const pname = reader.readString();
         const type = readSpecType(reader);
         const loc = reader.readEnum();
-        if (loc !== 0 && loc !== 1) throw new XdrUnsupportedError(`SCSpecEventParamLocationV0(${loc})`, reader.position);
+        if (loc !== 0 && loc !== 1)
+          throw new XdrUnsupportedError(`SCSpecEventParamLocationV0(${loc})`, reader.position);
         return { doc: pdoc, name: pname, type, location: loc === 0 ? "data" : "topicList" };
       });
       const fmt = reader.readEnum();
       const dataFormat = ["singleValue", "vec", "map"][fmt];
-      if (dataFormat === void 0) throw new XdrUnsupportedError(`SCSpecEventDataFormat(${fmt})`, reader.position);
+      if (dataFormat === void 0)
+        throw new XdrUnsupportedError(`SCSpecEventDataFormat(${fmt})`, reader.position);
       return { kind: "event", doc, lib, name, prefixTopics, params, dataFormat };
     }
     default:
@@ -75237,11 +75295,13 @@ function customSections(wasm) {
     const size = readLeb128(wasm, pos + 1);
     const start = size.next;
     const end = start + size.value;
-    if (end > wasm.length) throw new XdrDecodeError("WASM section extends past the end of the file", pos);
+    if (end > wasm.length)
+      throw new XdrDecodeError("WASM section extends past the end of the file", pos);
     if (id === 0) {
       const nameLen = readLeb128(wasm, start);
       const nameEnd = nameLen.next + nameLen.value;
-      if (nameEnd > end) throw new XdrDecodeError("WASM custom section name overruns its section", start);
+      if (nameEnd > end)
+        throw new XdrDecodeError("WASM custom section name overruns its section", start);
       out.push({
         name: new TextDecoder().decode(wasm.subarray(nameLen.next, nameEnd)),
         data: wasm.subarray(nameEnd, end)
@@ -75420,7 +75480,10 @@ async function fetchContractCode(caller, contractId) {
   }
   const exe = instance.val.executable;
   if (exe.type === "stellarAsset") return { source: { kind: "stellarAsset" }, wasm: null };
-  return { source: { kind: "wasm", wasmHash: exe.wasmHash }, wasm: await fetchWasm(caller, exe.wasmHash) };
+  return {
+    source: { kind: "wasm", wasmHash: exe.wasmHash },
+    wasm: await fetchWasm(caller, exe.wasmHash)
+  };
 }
 async function fetchContractSpec(caller, contractId) {
   const { source, wasm } = await fetchContractCode(caller, contractId);
@@ -75517,7 +75580,9 @@ var TransactionSimulator = class {
    */
   async simulate(transactionXdr, options = {}) {
     if (typeof transactionXdr !== "string" || transactionXdr === "") {
-      throw new TypeError("TransactionSimulator.simulate: transactionXdr must be a non-empty string");
+      throw new TypeError(
+        "TransactionSimulator.simulate: transactionXdr must be a non-empty string"
+      );
     }
     const params = { transaction: transactionXdr };
     if (options.instructionLeeway !== void 0) {
@@ -75629,7 +75694,9 @@ async function loadAccount(rpc, publicKey) {
   const res = await rpc.call("getLedgerEntries", { keys: [key] });
   const entry = res.entries?.[0];
   if (entry === void 0) {
-    throw new Error(`Account ${publicKey} does not exist on this network. On a test network, fund it first.`);
+    throw new Error(
+      `Account ${publicKey} does not exist on this network. On a test network, fund it first.`
+    );
   }
   const data = xdr_exports.LedgerEntryData.fromXDR(entry.xdr, "base64");
   if (data.type !== "account") throw new Error(`Ledger entry for ${publicKey} is not an account`);
@@ -75651,7 +75718,8 @@ async function fundWithFriendbot(friendbotUrl, address, attempts = 4) {
       const res = await fetch(url2, { signal: AbortSignal.timeout(45e3) });
       if (res.ok) return;
       const body = (await res.text()).slice(0, 200);
-      if (res.status < 500) throw new Error(`Friendbot refused to fund ${address}: HTTP ${res.status} ${body}`);
+      if (res.status < 500)
+        throw new Error(`Friendbot refused to fund ${address}: HTTP ${res.status} ${body}`);
       lastError = new Error(`Friendbot error: HTTP ${res.status} ${body}`);
     } catch (err) {
       if (err instanceof Error && err.message.startsWith("Friendbot refused")) throw err;
@@ -75677,13 +75745,18 @@ var SubmissionError = class extends Error {
 };
 function assembleTransaction2(unsigned, raw) {
   if (raw.error !== void 0 || raw.transactionData === void 0 || raw.minResourceFee === void 0) {
-    throw new SubmissionError(`Cannot assemble a failed simulation: ${raw.error ?? "no transaction data"}`, null);
+    throw new SubmissionError(
+      `Cannot assemble a failed simulation: ${raw.error ?? "no transaction data"}`,
+      null
+    );
   }
   const op = unsigned.operations[0];
   if (unsigned.operations.length !== 1 || op === void 0 || op.type !== "invokeHostFunction") {
     throw new TypeError("assembleTransaction only supports a single invokeHostFunction operation");
   }
-  const auth = (raw.results?.[0]?.auth ?? []).map((a) => xdr_exports.SorobanAuthorizationEntry.fromXDR(a, "base64"));
+  const auth = (raw.results?.[0]?.auth ?? []).map(
+    (a) => xdr_exports.SorobanAuthorizationEntry.fromXDR(a, "base64")
+  );
   const fee = (BigInt(unsigned.fee) + BigInt(raw.minResourceFee)).toString();
   const account = new Account(unsigned.source, (BigInt(unsigned.sequence) - 1n).toString());
   return new TransactionBuilder(account, {
@@ -75696,13 +75769,19 @@ async function signAndSend(rpc, tx, signer, waitMs = DEFAULT_WAIT_MS) {
   tx.sign(signer);
   const sent = await rpc.call("sendTransaction", { transaction: tx.toXDR() });
   if (sent.status === "ERROR" || sent.status === "TRY_AGAIN_LATER") {
-    throw new SubmissionError(`Transaction rejected (${sent.status})`, sent.hash, sent.errorResultXdr ?? null);
+    throw new SubmissionError(
+      `Transaction rejected (${sent.status})`,
+      sent.hash,
+      sent.errorResultXdr ?? null
+    );
   }
   const deadline = Date.now() + waitMs;
   while (Date.now() < deadline) {
     let res;
     try {
-      res = await rpc.call("getTransaction", { hash: sent.hash });
+      res = await rpc.call("getTransaction", {
+        hash: sent.hash
+      });
     } catch {
     }
     if (res !== void 0 && (res.status === "SUCCESS" || res.status === "FAILED")) {
@@ -75715,30 +75794,45 @@ async function signAndSend(rpc, tx, signer, waitMs = DEFAULT_WAIT_MS) {
         raw: res
       };
       if (res.status === "FAILED") {
-        throw new SubmissionError(`Transaction ${sent.hash} failed on chain`, sent.hash, out.resultXdr);
+        throw new SubmissionError(
+          `Transaction ${sent.hash} failed on chain`,
+          sent.hash,
+          out.resultXdr
+        );
       }
       return out;
     }
     await new Promise((r) => setTimeout(r, POLL_INTERVAL_MS));
   }
-  throw new SubmissionError(`Transaction ${sent.hash} was not in a ledger after ${waitMs}ms`, sent.hash);
+  throw new SubmissionError(
+    `Transaction ${sent.hash} was not in a ledger after ${waitMs}ms`,
+    sent.hash
+  );
 }
 async function simulateRaw(rpc, transactionXdr) {
-  const raw = await rpc.call("simulateTransaction", { transaction: transactionXdr });
+  const raw = await rpc.call("simulateTransaction", {
+    transaction: transactionXdr
+  });
   return { raw, report: decodeSimulationResponse(raw) };
 }
 async function prepare(rpc, build, signer, networkPassphrase) {
   const account = await loadAccount(rpc, signer.publicKey());
   const unsigned = build(new TransactionBuilder(account, { fee: BASE_FEE, networkPassphrase })).setTimeout(300).build();
   const { raw, report } = await simulateRaw(rpc, unsigned.toXDR());
-  if (!report.ok) throw new SubmissionError(`Simulation failed: ${report.error ?? "unknown error"}`, null);
+  if (!report.ok)
+    throw new SubmissionError(`Simulation failed: ${report.error ?? "unknown error"}`, null);
   return { tx: assembleTransaction2(unsigned, raw), returnValue: report.returnValue };
 }
 async function deployWasm(options) {
   const { rpc, signer, networkPassphrase } = options;
   const wasm = Buffer.from(options.wasm);
   const wasmHash = (0, import_crypto.createHash)("sha256").update(wasm).digest();
-  const upload = await prepare(rpc, (b) => b.addOperation(Operation2.uploadContractWasm({ wasm })), signer, networkPassphrase);
+  const upload = await prepare(
+    rpc,
+    (b) => b.addOperation(Operation2.uploadContractWasm({ wasm })),
+    signer,
+    networkPassphrase
+  );
   await signAndSend(rpc, upload.tx, signer);
   const create = await prepare(
     rpc,
@@ -75760,7 +75854,12 @@ async function deployWasm(options) {
   return { contractId: rv.value.address, wasmHash: wasmHash.toString("hex") };
 }
 async function sendInvocation(options) {
-  const { tx } = await prepare(options.rpc, options.build, options.signer, options.networkPassphrase);
+  const { tx } = await prepare(
+    options.rpc,
+    options.build,
+    options.signer,
+    options.networkPassphrase
+  );
   return signAndSend(options.rpc, tx, options.signer);
 }
 
@@ -75798,7 +75897,12 @@ var DEFAULTS = {
   writeBytes: { pct: 5, level: "fail" },
   resourceFee: { pct: 10, level: "warn" }
 };
-var GATED = ["instructions", "diskReadBytes", "writeBytes", "resourceFee"];
+var GATED = [
+  "instructions",
+  "diskReadBytes",
+  "writeBytes",
+  "resourceFee"
+];
 function pctChange(base, current) {
   if (base === 0n) return null;
   return Number((current - base) * 10000n / base) / 100;
@@ -75825,7 +75929,13 @@ function compareMetric(name, metric, base, current, config2, environmentChanged)
     };
   }
   if (delta < 0n && -delta > allowed) {
-    return { invocation: name, metric, level: "info", message: `${metric} improved by ${-delta}`, ...shown };
+    return {
+      invocation: name,
+      metric,
+      level: "info",
+      message: `${metric} improved by ${-delta}`,
+      ...shown
+    };
   }
   return null;
 }
@@ -75848,13 +75958,25 @@ function compareFootprint(name, base, current, config2) {
   }
   for (const key of current.readOnly) {
     if (!baseRo.has(key) && !baseRw.has(key)) {
-      out.push({ invocation: name, metric: "footprint", level: "warn", message: `now reads a new ledger entry: ${key}`, current: key });
+      out.push({
+        invocation: name,
+        metric: "footprint",
+        level: "warn",
+        message: `now reads a new ledger entry: ${key}`,
+        current: key
+      });
     }
   }
   const now = /* @__PURE__ */ new Set([...current.readOnly, ...current.readWrite]);
   for (const key of [...base.readOnly, ...base.readWrite]) {
     if (!now.has(key)) {
-      out.push({ invocation: name, metric: "footprint", level: "info", message: `no longer touches ${key}`, baseline: key });
+      out.push({
+        invocation: name,
+        metric: "footprint",
+        level: "info",
+        message: `no longer touches ${key}`,
+        baseline: key
+      });
     }
   }
   return out;
@@ -75874,11 +75996,15 @@ function checkBudgets(name, m, config2) {
       });
     }
   };
-  if (b.instructions !== void 0) over("instructions", BigInt(m.instructions), BigInt(b.instructions));
-  if (b.diskReadBytes !== void 0) over("diskReadBytes", BigInt(m.diskReadBytes), BigInt(b.diskReadBytes));
+  if (b.instructions !== void 0)
+    over("instructions", BigInt(m.instructions), BigInt(b.instructions));
+  if (b.diskReadBytes !== void 0)
+    over("diskReadBytes", BigInt(m.diskReadBytes), BigInt(b.diskReadBytes));
   if (b.writeBytes !== void 0) over("writeBytes", BigInt(m.writeBytes), BigInt(b.writeBytes));
-  if (b.resourceFee !== void 0) over("resourceFee", BigInt(m.resourceFee), BigInt(b.resourceFee));
-  if (b.readWriteKeys !== void 0) over("readWriteKeys", BigInt(m.readWriteKeys), BigInt(b.readWriteKeys));
+  if (b.resourceFee !== void 0)
+    over("resourceFee", BigInt(m.resourceFee), BigInt(b.resourceFee));
+  if (b.readWriteKeys !== void 0)
+    over("readWriteKeys", BigInt(m.readWriteKeys), BigInt(b.readWriteKeys));
   return out;
 }
 function compareAll(input3) {
@@ -75913,7 +76039,14 @@ function compareAll(input3) {
       findings.push(...checkBudgets(inv.name, m.metrics, config2));
       if (base !== null && base.ok && base.metrics !== null && base.footprint !== null) {
         for (const metric of GATED) {
-          const f = compareMetric(inv.name, metric, BigInt(base.metrics[metric]), BigInt(m.metrics[metric]), config2, environmentChanged);
+          const f = compareMetric(
+            inv.name,
+            metric,
+            BigInt(base.metrics[metric]),
+            BigInt(m.metrics[metric]),
+            config2,
+            environmentChanged
+          );
           if (f !== null) findings.push(f);
         }
         findings.push(...compareFootprint(inv.name, base.footprint, m.footprint, config2));
@@ -75954,7 +76087,10 @@ function compareAll(input3) {
 
 // src/metrics.ts
 function aliasText(text, aliases) {
-  return Object.entries(aliases).reduce((acc, [address, alias]) => acc.split(address).join(alias), text);
+  return Object.entries(aliases).reduce(
+    (acc, [address, alias]) => acc.split(address).join(alias),
+    text
+  );
 }
 function measure(report, aliases = {}) {
   const data = report.transactionData;
@@ -76021,7 +76157,9 @@ async function runChecks(options) {
   const { config: config2 } = loaded;
   const log = options.log ?? (() => void 0);
   const passphrase = NETWORK_PASSPHRASES[config2.network.name];
-  const router = options.rpc === void 0 ? await SoroscopeRouter.create({ providers: config2.network.rpc ?? publicProviderUrls(config2.network.name) }) : null;
+  const router = options.rpc === void 0 ? await SoroscopeRouter.create({
+    providers: config2.network.rpc ?? publicProviderUrls(config2.network.name)
+  }) : null;
   const rpc = options.rpc ?? router;
   const deployed = {};
   const specs = /* @__PURE__ */ new Map();
@@ -76060,7 +76198,12 @@ async function runChecks(options) {
           rpc,
           signer,
           networkPassphrase: passphrase,
-          build: (b) => b.addOperation(new Contract(result.contractId).call(call.function, ...toScVals(call.function, args2, spec)))
+          build: (b) => b.addOperation(
+            new Contract(result.contractId).call(
+              call.function,
+              ...toScVals(call.function, args2, spec)
+            )
+          )
         });
       }
     }
@@ -76070,7 +76213,9 @@ async function runChecks(options) {
   for (const inv of config2.invocations) {
     const contractId = resolveContractId(inv, vars);
     if (!specs.has(contractId)) specs.set(contractId, (await loadSpec(rpc, contractId)).spec);
-    const source = String(substitute(inv.source ?? config2.defaults.source ?? placeholderSource(), vars));
+    const source = String(
+      substitute(inv.source ?? config2.defaults.source ?? placeholderSource(), vars)
+    );
     const args2 = substitute(inv.args, vars);
     log(`Simulating ${inv.name}`);
     let xdr;
@@ -76084,7 +76229,9 @@ async function runChecks(options) {
         spec: specs.get(contractId) ?? null
       });
     } catch (err) {
-      throw new Error(`Invocation "${inv.name}": ${err instanceof Error ? err.message : String(err)}`);
+      throw new Error(
+        `Invocation "${inv.name}": ${err instanceof Error ? err.message : String(err)}`
+      );
     }
     const report2 = await sim.simulateAndExplain(xdr);
     measurements[inv.name] = {
@@ -76104,7 +76251,11 @@ async function runChecks(options) {
   if (options.updateBaseline === true) {
     const entries = {};
     for (const [name, m] of Object.entries(measurements)) {
-      entries[name] = { ...m.measurement, function: m.function, ...m.wasmSha256 === void 0 ? {} : { wasmSha256: m.wasmSha256 } };
+      entries[name] = {
+        ...m.measurement,
+        function: m.function,
+        ...m.wasmSha256 === void 0 ? {} : { wasmSha256: m.wasmSha256 }
+      };
     }
     const next = {
       version: 1,
@@ -76122,7 +76273,10 @@ async function runChecks(options) {
 function resolveContractId(inv, vars) {
   if (inv.contractId !== void 0) return inv.contractId;
   const id = vars[inv.contract];
-  if (id === void 0) throw new Error(`Invocation "${inv.name}" refers to contract "${inv.contract}" which was not deployed`);
+  if (id === void 0)
+    throw new Error(
+      `Invocation "${inv.name}" refers to contract "${inv.contract}" which was not deployed`
+    );
   return id;
 }
 
@@ -76154,7 +76308,9 @@ function annotations(report) {
   for (const inv of report.invocations) {
     for (const f of inv.findings) {
       if (f.level === "info") continue;
-      out.push(`::${f.level === "fail" ? "error" : "warning"} title=Soroscope ${escapeCommand(inv.name)}::${escapeCommand(f.message)}`);
+      out.push(
+        `::${f.level === "fail" ? "error" : "warning"} title=Soroscope ${escapeCommand(inv.name)}::${escapeCommand(f.message)}`
+      );
     }
   }
   return out;
@@ -76188,7 +76344,15 @@ async function upsertComment(ctx, token, body, fetchImpl = fetch) {
   if (!list.ok) return false;
   const comments = await list.json();
   const existing = comments.find((c) => c.body?.includes(COMMENT_MARKER) === true);
-  const res = existing ? await fetchImpl(`${base}/comments/${existing.id}`, { method: "PATCH", headers, body: JSON.stringify({ body }) }) : await fetchImpl(`${base}/${ctx.pullRequest}/comments`, { method: "POST", headers, body: JSON.stringify({ body }) });
+  const res = existing ? await fetchImpl(`${base}/comments/${existing.id}`, {
+    method: "PATCH",
+    headers,
+    body: JSON.stringify({ body })
+  }) : await fetchImpl(`${base}/${ctx.pullRequest}/comments`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ body })
+  });
   return res.ok;
 }
 async function main(env = process.env) {
@@ -76196,8 +76360,10 @@ async function main(env = process.env) {
   try {
     inputs = readInputs(env);
   } catch (err) {
-    process.stdout.write(`::error::${escapeCommand(err instanceof Error ? err.message : String(err))}
-`);
+    process.stdout.write(
+      `::error::${escapeCommand(err instanceof Error ? err.message : String(err))}
+`
+    );
     return 1;
   }
   if (inputs.deployerSecret !== "") process.stdout.write(`::add-mask::${inputs.deployerSecret}
@@ -76213,9 +76379,13 @@ async function main(env = process.env) {
     });
     const { report } = result;
     const markdown = renderMarkdown(report);
-    const reportPath = (0, import_node_path3.join)(env["RUNNER_TEMP"] ?? (0, import_node_path3.resolve)(inputs.workingDirectory), "soroscope-report.md");
+    const reportPath = (0, import_node_path3.join)(
+      env["RUNNER_TEMP"] ?? (0, import_node_path3.resolve)(inputs.workingDirectory),
+      "soroscope-report.md"
+    );
     (0, import_node_fs4.writeFileSync)(reportPath, markdown);
-    if (env["GITHUB_STEP_SUMMARY"] !== void 0) (0, import_node_fs4.appendFileSync)(env["GITHUB_STEP_SUMMARY"], markdown);
+    if (env["GITHUB_STEP_SUMMARY"] !== void 0)
+      (0, import_node_fs4.appendFileSync)(env["GITHUB_STEP_SUMMARY"], markdown);
     if (env["GITHUB_OUTPUT"] !== void 0) {
       (0, import_node_fs4.appendFileSync)(
         env["GITHUB_OUTPUT"],
@@ -76231,10 +76401,13 @@ report-path=${reportPath}
     if (inputs.comment && inputs.githubToken !== "" && ctx !== null) {
       const posted = await upsertComment(ctx, inputs.githubToken, markdown);
       if (!posted && ctx.pullRequest !== null) {
-        process.stdout.write("::notice::Could not write the PR comment (read-only token, for example on a fork). The report is in the job summary.\n");
+        process.stdout.write(
+          "::notice::Could not write the PR comment (read-only token, for example on a fork). The report is in the job summary.\n"
+        );
       }
     }
-    if (result.baselineWritten) process.stdout.write(`Baseline written to ${result.baselinePath}
+    if (result.baselineWritten)
+      process.stdout.write(`Baseline written to ${result.baselinePath}
 `);
     if (inputs.updateBaseline || inputs.failOn === "never") return 0;
     if (report.result === "fail") return 1;

@@ -37,7 +37,8 @@ export function findFailure(events: readonly DiagnosticEvent[]): ContractFailure
     return {
       contractId: event.contractId,
       error: value.error,
-      message: first?.type === 'string' ? first.value : first === undefined ? null : formatScVal(first),
+      message:
+        first?.type === 'string' ? first.value : first === undefined ? null : formatScVal(first),
       details: first?.type === 'string' ? items.slice(1) : items,
       errorName: null,
       errorDoc: null,
@@ -49,7 +50,10 @@ export function findFailure(events: readonly DiagnosticEvent[]): ContractFailure
 }
 
 /** Fill a failure's error name from the contract's spec, when it declares that code. */
-export function resolveContractError(failure: ContractFailure, spec: ContractSpec | undefined): ContractFailure {
+export function resolveContractError(
+  failure: ContractFailure,
+  spec: ContractSpec | undefined,
+): ContractFailure {
   if (spec === undefined || !failure.error.isContractError || failure.error.contractCode === null) {
     return failure;
   }
@@ -71,5 +75,7 @@ export function resolveContractError(failure: ContractFailure, spec: ContractSpe
  */
 export function parseErrorText(text: string): { type: string; code: string } | null {
   const match = /Error\((\w+),\s*#?(\w+)\)/.exec(text);
-  return match?.[1] !== undefined && match[2] !== undefined ? { type: match[1], code: match[2] } : null;
+  return match?.[1] !== undefined && match[2] !== undefined
+    ? { type: match[1], code: match[2] }
+    : null;
 }

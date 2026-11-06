@@ -41,8 +41,16 @@ describe('decodeTransactionResult on real transaction results', () => {
   it('flags results it could not fully decode instead of guessing', () => {
     // Classic operation results (payments etc.) are outside the Soroban-focused decoder.
     const classic = results.find((r) => {
-      const ops = Object.values((r.oracle as OracleResult).result)[0] as { op_inner?: Record<string, unknown> }[];
-      return ops.some((o) => o.op_inner !== undefined && !['invoke_host_function', 'extend_footprint_ttl', 'restore_footprint'].includes(Object.keys(o.op_inner)[0]!));
+      const ops = Object.values((r.oracle as OracleResult).result)[0] as {
+        op_inner?: Record<string, unknown>;
+      }[];
+      return ops.some(
+        (o) =>
+          o.op_inner !== undefined &&
+          !['invoke_host_function', 'extend_footprint_ttl', 'restore_footprint'].includes(
+            Object.keys(o.op_inner)[0]!,
+          ),
+      );
     });
     if (classic === undefined) return;
     expect(decodeTransactionResult(classic.b64).partial).toBe(true);
@@ -56,7 +64,9 @@ describe('decodeTransactionResult on real transaction results', () => {
 
   it('rejects a real result cut short, reporting the offset', () => {
     const bytes = base64ToBytes(results[0]!.b64);
-    expect(() => decodeTransactionResult(bytesToBase64(bytes.subarray(0, 6)))).toThrow(XdrDecodeError);
+    expect(() => decodeTransactionResult(bytesToBase64(bytes.subarray(0, 6)))).toThrow(
+      XdrDecodeError,
+    );
   });
 });
 
@@ -70,7 +80,8 @@ const isError = (o: unknown): boolean => typeof o === 'object' && o !== null && 
 function realContractErrorBytes(): { bytes: Uint8Array; code: number }[] {
   const out: { bytes: Uint8Array; code: number }[] = [];
   for (const item of itemsOf('DiagnosticEvent')) {
-    const topics = (item.oracle as { event: { body: { v0: { topics: unknown[] } } } }).event.body.v0.topics;
+    const topics = (item.oracle as { event: { body: { v0: { topics: unknown[] } } } }).event.body.v0
+      .topics;
     const err = topics.find((t) => isError(t)) as { error: { contract?: number } } | undefined;
     if (err?.error.contract === undefined) continue;
     const code = err.error.contract;
@@ -92,12 +103,15 @@ describe('decodeScError on real error values', () => {
     expect(errors.length).toBeGreaterThan(0);
   });
 
-  it.each(errors.slice(0, 5).map((e, i) => [`#${i} (code ${e.code})`, e] as const))('%s', (_n, e) => {
-    const decoded = decodeScError(e.bytes);
-    expect(decoded.isContractError).toBe(true);
-    expect(decoded.contractCode).toBe(e.code);
-    expect(decoded.message).toContain(`#${e.code}`);
-  });
+  it.each(errors.slice(0, 5).map((e, i) => [`#${i} (code ${e.code})`, e] as const))(
+    '%s',
+    (_n, e) => {
+      const decoded = decodeScError(e.bytes);
+      expect(decoded.isContractError).toBe(true);
+      expect(decoded.contractCode).toBe(e.code);
+      expect(decoded.message).toContain(`#${e.code}`);
+    },
+  );
 
   it('refuses a value that is not an error', () => {
     const notAnError = itemsOf('ScVal').find((i) => !isError(i.oracle))!;
@@ -117,7 +131,11 @@ describe('base64 helpers agree with Node on real XDR', () => {
   it('tolerates whitespace and missing padding like the old reader did', () => {
     const item = soroban.items.find((i) => i.b64.endsWith('='))!;
     const unpadded = item.b64.replace(/=+$/, '');
-    expect(Buffer.from(base64ToBytes(`${unpadded.slice(0, 8)}\n${unpadded.slice(8)}`)).equals(Buffer.from(item.b64, 'base64'))).toBe(true);
+    expect(
+      Buffer.from(base64ToBytes(`${unpadded.slice(0, 8)}\n${unpadded.slice(8)}`)).equals(
+        Buffer.from(item.b64, 'base64'),
+      ),
+    ).toBe(true);
   });
 
   it('rejects characters outside the alphabet', () => {
@@ -129,7 +147,11 @@ describe('diagnostic events from real failed transactions', () => {
   it('include error events with a contract id', () => {
     const errorEvents = itemsOf('DiagnosticEvent')
       .map((i) => decodeDiagnosticEvent(i.b64))
-      .filter((e) => e.event.topics[0]?.type === 'symbol' && (e.event.topics[0] as { value: string }).value === 'error');
+      .filter(
+        (e) =>
+          e.event.topics[0]?.type === 'symbol' &&
+          (e.event.topics[0] as { value: string }).value === 'error',
+      );
     expect(errorEvents.length).toBeGreaterThan(0);
     expect(errorEvents[0]!.event.contractId).toMatch(/^C[A-Z2-7]{55}$/);
   });
