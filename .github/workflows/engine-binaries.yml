@@ -28,7 +28,7 @@ jobs:
       matrix: ${{ steps.matrix.outputs.matrix }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@v7.0.1
       - name: Matrix from engine/platforms.json
         id: matrix
         run: echo "matrix=$(node packages/dev/scripts/package-engine.mjs matrix)" >> "$GITHUB_OUTPUT"
@@ -43,7 +43,7 @@ jobs:
       matrix: ${{ fromJson(needs.plan.outputs.matrix) }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@v7.0.1
 
       - name: Install pnpm
         uses: pnpm/action-setup@v6.0.9
