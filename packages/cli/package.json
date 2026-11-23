@@ -47,7 +47,7 @@
     "commander": "^14.0.0",
     "@soroscope/ci": "workspace:*",
     "@soroscope/invoke": "workspace:*",
-    "@stellar/stellar-sdk": "^17.2.1",
+    "@stellar/stellar-sdk": "^17.4.0",
     "@soroscope/dev": "workspace:*",
     "@soroscope/differential": "workspace:*"
   },

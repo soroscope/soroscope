@@ -48,7 +48,7 @@
   "devDependencies": {
     "@types/node": "^25.9.0",
     "tsup": "^8.5.1",
-    "@stellar/stellar-sdk": "^17.2.1"
+    "@stellar/stellar-sdk": "^17.4.0"
   },
   "bin": {
     "soroscope-mcp": "./dist/bin.js"

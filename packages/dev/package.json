@@ -42,7 +42,7 @@
   "dependencies": {
     "@orbital-stellar/abi-registry": "0.2.0",
     "@soroscope/core": "workspace:*",
-    "@stellar/stellar-sdk": "^17.2.1"
+    "@stellar/stellar-sdk": "^17.4.0"
   },
   "devDependencies": {
     "@types/node": "^25.9.0",
