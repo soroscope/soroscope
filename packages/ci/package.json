@@ -46,7 +46,7 @@
     "@soroscope/core": "workspace:*",
     "@soroscope/invoke": "workspace:*",
     "zod": "^4.6.5",
-    "@stellar/stellar-sdk": "^17.2.1"
+    "@stellar/stellar-sdk": "^17.4.0"
   },
   "devDependencies": {
     "@types/node": "^25.9.0",
