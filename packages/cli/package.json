@@ -52,7 +52,7 @@
     "@soroscope/differential": "workspace:*"
   },
   "devDependencies": {
-    "tsup": "^8.5.1",
+    "tsup": "^9.0.0",
     "@types/node": "^25.9.0"
   }
 }
